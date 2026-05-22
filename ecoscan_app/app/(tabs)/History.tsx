@@ -6,7 +6,7 @@ export default function History() {
     const insets = useSafeAreaInsets();
 
     return (
-        <Surface style={{...styles.pageStyle, paddingTop: insets.top + 16}}>
+        <Surface style={{...styles.pageStyle, paddingTop: insets.top}}>
             <Text>
                 Dummy for History-Page
             </Text>
