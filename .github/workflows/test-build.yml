@@ -1,0 +1,44 @@
+name: Test, Build and Release
+run-name: Test, Build and Release ${{ inputs.release-version }}
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, labeled, synchronize]
+  workflow_dispatch:
+    inputs:
+      build-type:
+        description: 'Type of build to perform'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - build
+          - size-analysis
+          - release
+      release-version:
+        description: 'The version to release (e.g., 1.2.3). The "v" prefix is added automatically.'
+        required: false
+        type: string
+
+jobs:
+  app:
+    uses: RubberDuckCrew/expo-workflow/.github/workflows/workflow-build.yml@main
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    with:
+      app-name: 'EcoScan'
+      working-directory: 'ecoscan_app'
+      build-type: ${{ github.event.inputs.build-type || 'test' }}
+      release-version: ${{ github.event.inputs.release-version || ''}}
+      java-version: '21'
+      gradle-version: '9.0.0'
+      node-version: '24'
+      bot-app-id: ${{ vars.RUBBERDUCKCREW_BOT_APP_ID }}
+
+    secrets:
+      BOT_APP_PRIVATE_KEY: ${{ secrets.RUBBERDUCKCREW_BOT_APP_PRIVATE_KEY }}
