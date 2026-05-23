@@ -1,5 +1,4 @@
-name: Test, Build and Release
-run-name: Test, Build and Release ${{ inputs.release-version }}
+name: Test, Build
 
 on:
   push:
