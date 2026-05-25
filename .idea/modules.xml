@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/EcoScan.iml" filepath="$PROJECT_DIR$/.idea/EcoScan.iml" />
       <module fileurl="file://$PROJECT_DIR$/ecoscan_ai/ecoscan_ai.iml" filepath="$PROJECT_DIR$/ecoscan_ai/ecoscan_ai.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecoscan_app/ecoscan_app.iml" filepath="$PROJECT_DIR$/ecoscan_app/ecoscan_app.iml" />
     </modules>
   </component>
 </project>
