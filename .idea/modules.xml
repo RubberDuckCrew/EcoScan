@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/EcoScan.iml" filepath="$PROJECT_DIR$/.idea/EcoScan.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ecoscan_ai/ecoscan_ai.iml" filepath="$PROJECT_DIR$/ecoscan_ai/ecoscan_ai.iml" />
     </modules>
   </component>
 </project>
