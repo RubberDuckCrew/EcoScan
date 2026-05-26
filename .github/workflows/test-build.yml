@@ -46,6 +46,7 @@ jobs:
           path: "ecoscan_backend/target"
 
   image:
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs: [backend]
     permissions:
