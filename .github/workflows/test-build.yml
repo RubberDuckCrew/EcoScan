@@ -22,7 +22,6 @@ jobs:
       node-version: '24'
 
   backend:
-    name: Backend
     runs-on: ubuntu-latest
 
     steps:
@@ -54,6 +53,7 @@ jobs:
       packages: write
       attestations: write
       id-token: write
+      artifact-metadata: write
 
     env:
       REGISTRY: ghcr.io
