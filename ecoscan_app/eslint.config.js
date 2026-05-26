@@ -9,6 +9,11 @@ module.exports = defineConfig([
     ignores: ["dist/*"],
   },
   {
+    settings: {
+      react: {
+        version: "19.1",
+      },
+    },
     rules: {
       "no-restricted-imports": [
         "error",
