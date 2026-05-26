@@ -8,7 +8,7 @@ on:
 
 jobs:
   app:
-    uses: RubberDuckCrew/expo-workflow/.github/workflows/workflow-build.yml@4c81c7960ebc83714afa8c11c343ef896a93cc14 # v1.0.0
+    uses: RubberDuckCrew/expo-workflow/.github/workflows/workflow-build.yml@670e9d7ad7f7a094cba494663a9bf615928668c3 # v1.0.1
 
     permissions:
       contents: write
