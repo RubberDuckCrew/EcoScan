@@ -20,8 +20,8 @@
     "expo-splash-screen": "31.0.13",
     "expo-status-bar": "3.0.9",
     "expo-web-browser": "15.0.11",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
     "react-native": "0.81.5",
     "react-native-paper": "5.15.2",
     "react-native-reanimated": "4.1.1",
@@ -32,7 +32,7 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
-    "@types/react": "19.1.10",
+    "@types/react": "19.2.15",
     "@typescript-eslint/parser": "8.57.2",
     "eslint": "10.4.0",
     "eslint-config-prettier": "10.1.8",
@@ -40,7 +40,7 @@
     "eslint-import-resolver-typescript": "4.4.4",
     "expo-doctor": "1.19.7",
     "prettier": "3.8.3",
-    "react-test-renderer": "19.1.0",
+    "react-test-renderer": "19.2.6",
     "typescript": "5.9.3"
   },
   "private": true
