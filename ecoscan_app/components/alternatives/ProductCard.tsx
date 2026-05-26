@@ -1,5 +1,5 @@
 import {View, StyleSheet} from "react-native";
-import {Card, Text, Icon} from "react-native-paper";
+import {Card, Text, Icon, useTheme} from "react-native-paper";
 
 type ProductCardProps = {
     title: string;
@@ -9,6 +9,7 @@ type ProductCardProps = {
 }
 
 export default function ProductCard({title, description, image, score}: ProductCardProps) {
+    const theme = useTheme();
     return (
         <Card style={styles.card}>
             <View style={styles.cardHeader}>
@@ -21,7 +22,7 @@ export default function ProductCard({title, description, image, score}: ProductC
                         size={22}
                         color="#009A0A"
                     />
-                    <Text style={styles.scoreText}>{score}</Text>
+                    <Text style={{...styles.scoreText, color: theme.colors.primary}}>{score}</Text>
                 </View>
             </View>
             <View style={styles.content}>
@@ -79,6 +80,5 @@ const styles = StyleSheet.create({
     scoreText: {
         fontSize: 20,
         fontWeight: '700',
-        color: '#009A0A',
     },
 });
