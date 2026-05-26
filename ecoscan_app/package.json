@@ -41,7 +41,7 @@
     "expo-doctor": "1.19.7",
     "prettier": "3.8.3",
     "react-test-renderer": "19.2.6",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "private": true
 }
