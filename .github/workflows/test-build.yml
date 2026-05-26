@@ -35,13 +35,13 @@ jobs:
           java-version: 25
           distribution: "temurin"
           cache: "maven"
-          cache-dependency-path: "./backend/pom.xml"
+          cache-dependency-path: "./ecoscan_backend/pom.xml"
 
       - name: Build with Maven
-        run: mvn --update-snapshots -f ./backend/pom.xml install
+        run: mvn --update-snapshots -f ./ecoscan_backend/pom.xml install
 
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: backend-target
-          path: "backend/target"
+          path: "ecoscan_backend/target"
