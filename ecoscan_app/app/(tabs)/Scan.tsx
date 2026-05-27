@@ -1,21 +1,10 @@
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native";
-import { Surface, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
+import PageContainer from "@/components/PageContainer";
 
 export default function Scan() {
-  const insets = useSafeAreaInsets();
-
   return (
-    <Surface style={{ ...styles.pageStyle, paddingTop: insets.top }}>
+    <PageContainer>
       <Text>Dummy for Scanning-Page</Text>
-    </Surface>
+    </PageContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  pageStyle: {
-    flex: 1,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-  },
-});
