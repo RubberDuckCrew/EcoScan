@@ -1,0 +1,28 @@
+server:
+  port: 39146
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    password: admin
+    username: admin
+  flyway:
+    locations:
+      - classpath:db/migration/schema
+      - classpath:db/migration/testdata
+    ignoreMigrationPatterns: repeatable:missing
+
+logging:
+  include-application-group: false
+  structured:
+    format:
+      console:
+  level:
+    root: INFO
+    com.rubberduckcrew.ecoscan_backend: DEBUG
+    org.springframework.cache: TRACE
+    org.springframework.web: DEBUG
