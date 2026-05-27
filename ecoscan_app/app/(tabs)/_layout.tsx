@@ -1,5 +1,22 @@
-import { Tabs } from "expo-router";
+import { Route, Tabs } from "expo-router";
 import { Icon } from "react-native-paper";
+import { theme } from "@/theme";
+import React from "react";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
+type TabRouteName = Exclude<
+  Route extends `/${infer Segment}` ? Segment : never,
+  `${string}/${string}` | `_${string}` | ""
+>;
+type TabConfig = {
+  title: string;
+  icon: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+};
+
+const tabs = {
+  Scan: { title: "Scannen", icon: "barcode-scan" },
+  History: { title: "Historie", icon: "format-list-bulleted" },
+} satisfies Record<TabRouteName, TabConfig>;
 
 export default function TabLayout() {
   return (
@@ -8,7 +25,7 @@ export default function TabLayout() {
         headerShown: true,
         headerTitle: "EcoScan",
         headerStyle: {
-          backgroundColor: "#7CBC82",
+          backgroundColor: theme.colors.secondary,
         },
         headerTitleStyle: {
           color: "black",
@@ -18,30 +35,24 @@ export default function TabLayout() {
         headerTitleAlign: "center",
 
         tabBarStyle: {
-          backgroundColor: "#ECECEC",
+          backgroundColor: theme.colors.surface,
         },
-        tabBarActiveTintColor: "#009A0A",
-        tabBarInactiveTintColor: "gray",
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.muted,
       }}
     >
-      <Tabs.Screen
-        name="Scan"
-        options={{
-          title: "Scannen",
-          tabBarIcon: ({ color, size }) => (
-            <Icon source="barcode-scan" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="History"
-        options={{
-          title: "Historie",
-          tabBarIcon: ({ color, size }) => (
-            <Icon source="format-list-bulleted" color={color} size={size} />
-          ),
-        }}
-      />
+      {Object.entries(tabs).map(([name, tab]) => (
+        <Tabs.Screen
+          key={name}
+          name={name}
+          options={{
+            title: tab.title,
+            tabBarIcon: ({ color, size }) => (
+              <Icon source={tab.icon} color={color} size={size} />
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }
