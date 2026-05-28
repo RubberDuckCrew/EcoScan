@@ -1,147 +1,56 @@
+import { useAuth } from "@/context/AuthContext";
 import {
   ActivityIndicator,
-  Alert,
-  Button,
-  ScrollView,
-  Text,
+  ImageBackground,
+  StyleSheet,
   View,
 } from "react-native";
-import * as AuthSession from "expo-auth-session";
-import * as WebBrowser from "expo-web-browser";
-import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { Button, Text } from "react-native-paper";
 
-WebBrowser.maybeCompleteAuthSession();
-const redirectUri = AuthSession.makeRedirectUri();
-
-const keycloakUri = "http://localhost:8100";
-const keycloakRealm = "local_realm";
-const clientId = "mobile";
-
-export function generateShortUUID() {
-  return Math.random().toString(36).substring(2, 15);
-}
-
-export default function App() {
-  const {
-    accessToken,
-    idToken,
-    refreshToken,
-    isLoading: authLoading,
-    login: saveLogin,
-    logout: clearLogout,
-    updateTokens,
-  } = useAuth();
-
-  const [discoveryResult, setDiscoveryResult] =
-    useState<AuthSession.DiscoveryDocument>();
-
-  useEffect(() => {
-    const getDiscoveryDocument = async () => {
-      try {
-        const issuer = `${keycloakUri}/auth/realms/${keycloakRealm}`;
-        console.log("Fetching discovery from", issuer);
-        const discoveryDocument = await AuthSession.fetchDiscoveryAsync(issuer);
-        setDiscoveryResult(discoveryDocument);
-      } catch (e) {
-        console.error("Failed to fetch discovery:", e);
-        Alert.alert(
-          "Netzwerkfehler",
-          `Fehler beim Laden der Discovery-Dokument: ${e}`,
-        );
-      }
-    };
-    getDiscoveryDocument();
-  }, []);
-
-  const login = async () => {
-    const state = generateShortUUID();
-    const authRequestOptions: AuthSession.AuthRequestConfig = {
-      responseType: AuthSession.ResponseType.Code,
-      clientId,
-      redirectUri: redirectUri,
-      prompt: AuthSession.Prompt.Login,
-      scopes: ["openid", "profile", "email", "offline_access"],
-      state: state,
-      usePKCE: true,
-    };
-    const authRequest = new AuthSession.AuthRequest(authRequestOptions);
-    const authorizeResult = await authRequest.promptAsync(discoveryResult!);
-
-    if (authorizeResult.type === "success") {
-      const tokenResult = await AuthSession.exchangeCodeAsync(
-        {
-          code: authorizeResult.params.code,
-          clientId: clientId,
-          redirectUri: redirectUri,
-          extraParams: {
-            code_verifier: authRequest.codeVerifier || "",
-          },
-        },
-        discoveryResult!,
-      );
-
-      await saveLogin(tokenResult);
-    }
-  };
-
-  const refresh = async () => {
-    if (!refreshToken) return;
-    const refreshTokenObject: AuthSession.RefreshTokenRequestConfig = {
-      clientId: clientId,
-      refreshToken: refreshToken,
-    };
-    const tokenResult = await AuthSession.refreshAsync(
-      refreshTokenObject,
-      discoveryResult!,
-    );
-
-    await updateTokens(tokenResult);
-  };
-
-  const logout = async () => {
-    if (!accessToken) return;
-    const redirectUrl = AuthSession.makeRedirectUri();
-    const revoked = await AuthSession.revokeAsync(
-      { token: accessToken },
-      discoveryResult!,
-    );
-    if (!revoked) {
-      console.log("Revoke failed, but continuing logout");
-    }
-
-    const logoutUrl = `${discoveryResult!
-      .endSessionEndpoint!}?client_id=${clientId}&post_logout_redirect_uri=${redirectUrl}&id_token_hint=${idToken}`;
-
-    const res = await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUrl);
-    if (res.type === "success" || res.type === "dismiss") {
-      await clearLogout();
-    }
-  };
-
-  if (!discoveryResult || authLoading) return <ActivityIndicator />;
+export default function LoginScreen() {
+  const auth = useAuth();
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      {refreshToken ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <View>
-            <ScrollView style={{ flex: 1 }}>
-              <Text>AccessToken: {accessToken}</Text>
-              <Text>idToken: {idToken}</Text>
-              <Text>refreshToken: {refreshToken}</Text>
-            </ScrollView>
-          </View>
-          <View>
-            <Button title="Logout" onPress={logout} />
-            <Button title="Refresh" onPress={refresh} />
-          </View>
+    <ImageBackground
+      source={require("@/assets/images/background.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <Text style={styles.title}>EcoScan</Text>
+          {auth.isLoading ? (
+            <ActivityIndicator size="large" />
+          ) : (
+            <Button onPress={auth.login} mode="contained">
+              Anmelden
+            </Button>
+          )}
         </View>
-      ) : (
-        <Button title="Login" onPress={login} />
-      )}
-    </View>
+      </View>
+    </ImageBackground>
   );
 }
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  container: {
+    alignItems: "center",
+    width: "100%",
+    gap: 64,
+  },
+  title: {
+    color: "white",
+    fontSize: 48,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+});

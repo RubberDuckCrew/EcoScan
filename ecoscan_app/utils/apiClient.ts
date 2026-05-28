@@ -1,30 +1,35 @@
 import { useAuth } from "@/context/AuthContext";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 const BASE_URL = "http://localhost:39146/api";
+
+type ApiClient = {
+  get: (endpoint: string, options?: RequestInit) => Promise<any>;
+  post: (endpoint: string, body?: any, options?: RequestInit) => Promise<any>;
+  put: (endpoint: string, body?: any, options?: RequestInit) => Promise<any>;
+  delete: (endpoint: string, options?: RequestInit) => Promise<any>;
+};
 
 export const useApiClient = () => {
   const { accessToken, logout } = useAuth();
 
-  const request = async (endpoint: string, options: RequestInit = {}) => {
-    const url = `${BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const request = useCallback(
+    async (endpoint: string, options: RequestInit = {}) => {
+      const url = `${BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
-    const headers = new Headers(options.headers);
-    if (accessToken) {
-      headers.set("Authorization", `Bearer ${accessToken}`);
-    }
-    headers.set("Content-Type", "application/json");
+      const headers = new Headers(options.headers);
+      if (accessToken) {
+        headers.set("Authorization", `Bearer ${accessToken}`);
+      }
+      headers.set("Content-Type", "application/json");
 
-    try {
       const response = await fetch(url, {
         ...options,
         headers,
       });
 
       if (response.status === 401) {
-        // Potential token expiration handling could go here
-        // For now, we just logout if we get an unauthorized response
-        // await logout();
+        await logout();
         throw new Error("Unauthorized");
       }
 
@@ -36,20 +41,17 @@ export const useApiClient = () => {
         );
       }
 
-      // Check if response has content before parsing JSON
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         return await response.json();
       }
       return await response.text();
-    } catch (error) {
-      console.error(`API Request Error (${url}):`, error);
-      throw error;
-    }
-  };
+    },
+    [accessToken, logout],
+  );
 
   return useMemo(
-    () => ({
+    (): ApiClient => ({
       get: (endpoint: string, options?: RequestInit) =>
         request(endpoint, { ...options, method: "GET" }),
       post: (endpoint: string, body?: any, options?: RequestInit) =>
@@ -67,6 +69,6 @@ export const useApiClient = () => {
       delete: (endpoint: string, options?: RequestInit) =>
         request(endpoint, { ...options, method: "DELETE" }),
     }),
-    [accessToken],
+    [request],
   );
 };

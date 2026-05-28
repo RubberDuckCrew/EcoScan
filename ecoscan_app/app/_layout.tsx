@@ -1,36 +1,36 @@
-import { Stack, useRouter, useSegments } from "expo-router";
+import {
+  Stack,
+  useRootNavigationState,
+  useRouter,
+  useSegments,
+} from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
 
 function RootLayoutNav() {
-  const { accessToken, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const navigationState = useRootNavigationState();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!navigationState?.key || isLoading) return;
 
-    const inAuthGroup = segments[0] === "(auth)";
+    const inAuthGroup = segments.some((s) => s === "(auth)");
+    const inTabsGroup = segments.some((s) => s === "(tabs)");
 
-    if (!accessToken && !inAuthGroup) {
-      // Redirect to the login page if they are not authenticated.
-      router.replace("/(auth)/login");
-    } else if (accessToken && inAuthGroup) {
-      // Redirect away from the login page if they are authenticated.
-      router.replace("/(tabs)/Scan");
+    if (isAuthenticated) {
+      if (!inTabsGroup) {
+        router.replace("/(tabs)/Scan");
+      }
+    } else {
+      if (!inAuthGroup) {
+        router.replace("/(auth)/login");
+      }
     }
-  }, [accessToken, isLoading, segments, router]);
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  }, [isAuthenticated, isLoading, segments, navigationState?.key, router]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { Button, Card, Divider, Icon, Text } from "react-native-paper";
 import PageContainer from "@/components/PageContainer";
 import { useAuth } from "@/context/AuthContext";
 import * as AuthSession from "expo-auth-session";
-import * as WebBrowser from "expo-web-browser";
-
-const keycloakUri = "http://localhost:8100";
-const keycloakRealm = "local_realm";
-const clientId = "mobile";
+import { AUTH_CONFIG } from "@/utils/authConfig";
 
 export default function Profile() {
-  const { accessToken, idToken, logout: clearLogout } = useAuth();
+  const { accessToken, logout } = useAuth();
   const [userInfo, setUserInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -20,8 +16,9 @@ export default function Profile() {
       if (!accessToken) return;
       setLoading(true);
       try {
-        const issuer = `${keycloakUri}/auth/realms/${keycloakRealm}`;
-        const discovery = await AuthSession.fetchDiscoveryAsync(issuer);
+        const discovery = await AuthSession.fetchDiscoveryAsync(
+          AUTH_CONFIG.issuer,
+        );
         const userInfoEndpoint = discovery.userInfoEndpoint;
         if (!userInfoEndpoint) {
           console.error(
@@ -46,25 +43,6 @@ export default function Profile() {
 
     fetchUserInfo();
   }, [accessToken]);
-
-  const handleLogout = async () => {
-    if (!accessToken) return;
-    try {
-      const issuer = `${keycloakUri}/auth/realms/${keycloakRealm}`;
-      const discovery = await AuthSession.fetchDiscoveryAsync(issuer);
-      const redirectUrl = AuthSession.makeRedirectUri();
-
-      const logoutUrl = `${discovery.endSessionEndpoint}?client_id=${clientId}&post_logout_redirect_uri=${redirectUrl}&id_token_hint=${idToken}`;
-
-      const res = await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUrl);
-      if (res.type === "success" || res.type === "dismiss") {
-        await clearLogout();
-      }
-    } catch (e) {
-      console.error("Logout error:", e);
-      Alert.alert("Fehler", "Abmeldung fehlgeschlagen.");
-    }
-  };
 
   return (
     <PageContainer>
@@ -94,11 +72,7 @@ export default function Profile() {
             )}
           </Card.Content>
           <Card.Actions>
-            <Button
-              mode="contained"
-              onPress={handleLogout}
-              style={{ marginTop: 10 }}
-            >
+            <Button mode="contained" onPress={logout} style={{ marginTop: 10 }}>
               Abmelden
             </Button>
           </Card.Actions>
