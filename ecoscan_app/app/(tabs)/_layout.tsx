@@ -1,13 +1,9 @@
-import { Route, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { Icon } from "react-native-paper";
 import { theme } from "@/theme";
 import React from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
-type TabRouteName = Exclude<
-  Route extends `/${infer Segment}` ? Segment : never,
-  `${string}/${string}` | `_${string}` | ""
->;
 type TabConfig = {
   title: string;
   icon: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
@@ -16,8 +12,8 @@ type TabConfig = {
 const tabs = {
   Scan: { title: "Scannen", icon: "barcode-scan" },
   History: { title: "Historie", icon: "format-list-bulleted" },
-  login: { title: "Login", icon: "format-list-bulleted" },
-} satisfies Record<TabRouteName, TabConfig>;
+  Profile: { title: "Profil", icon: "account" },
+} satisfies Record<string, TabConfig>;
 
 export default function TabLayout() {
   return (

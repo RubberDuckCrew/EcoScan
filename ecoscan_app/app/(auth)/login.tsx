@@ -9,6 +9,7 @@ import {
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 WebBrowser.maybeCompleteAuthSession();
 const redirectUri = AuthSession.makeRedirectUri();
@@ -22,9 +23,16 @@ export function generateShortUUID() {
 }
 
 export default function App() {
-  const [accessToken, setAccessToken] = useState<string>();
-  const [idToken, setIdToken] = useState<string>();
-  const [refreshToken, setRefreshToken] = useState<string>();
+  const {
+    accessToken,
+    idToken,
+    refreshToken,
+    isLoading: authLoading,
+    login: saveLogin,
+    logout: clearLogout,
+    updateTokens,
+  } = useAuth();
+
   const [discoveryResult, setDiscoveryResult] =
     useState<AuthSession.DiscoveryDocument>();
 
@@ -75,13 +83,12 @@ export default function App() {
         discoveryResult!,
       );
 
-      setAccessToken(tokenResult.accessToken);
-      setIdToken(tokenResult.idToken);
-      setRefreshToken(tokenResult.refreshToken);
+      await saveLogin(tokenResult);
     }
   };
 
   const refresh = async () => {
+    if (!refreshToken) return;
     const refreshTokenObject: AuthSession.RefreshTokenRequestConfig = {
       clientId: clientId,
       refreshToken: refreshToken,
@@ -91,9 +98,7 @@ export default function App() {
       discoveryResult!,
     );
 
-    setAccessToken(tokenResult.accessToken);
-    setIdToken(tokenResult.idToken);
-    setRefreshToken(tokenResult.refreshToken);
+    await updateTokens(tokenResult);
   };
 
   const logout = async () => {
@@ -105,21 +110,21 @@ export default function App() {
       { token: accessToken },
       discoveryResult!,
     );
-    if (!revoked) return;
+    if (!revoked) {
+      console.log("Revoke failed, but continuing logout");
+    }
 
     // The default revokeAsync method doesn't work for Keycloak, we need to explicitely invoke the OIDC endSessionEndpoint with the correct parameters
     const logoutUrl = `${discoveryResult!
       .endSessionEndpoint!}?client_id=${clientId}&post_logout_redirect_uri=${redirectUrl}&id_token_hint=${idToken}`;
 
     const res = await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUrl);
-    if (res.type === "success") {
-      setAccessToken(undefined);
-      setIdToken(undefined);
-      setRefreshToken(undefined);
+    if (res.type === "success" || res.type === "dismiss") {
+      await clearLogout();
     }
   };
 
-  if (!discoveryResult) return <ActivityIndicator />;
+  if (!discoveryResult || authLoading) return <ActivityIndicator />;
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
