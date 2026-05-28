@@ -16,6 +16,7 @@ type TabConfig = {
 const tabs = {
   Scan: { title: "Scannen", icon: "barcode-scan" },
   History: { title: "Historie", icon: "format-list-bulleted" },
+  login: { title: "Login", icon: "format-list-bulleted" },
 } satisfies Record<TabRouteName, TabConfig>;
 
 export default function TabLayout() {
