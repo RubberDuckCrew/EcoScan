@@ -3,6 +3,7 @@ package com.rubberduckcrew.ecoscan_backend.user;
 import com.rubberduckcrew.ecoscan_backend.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,5 +20,10 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO registerUser() {
         return userMapper.toUserDTO(userService.registerUser());
+    }
+
+    @GetMapping
+    public String test() {
+        return "Hello World";
     }
 }

@@ -36,7 +36,6 @@ export default function App() {
   const [discoveryResult, setDiscoveryResult] =
     useState<AuthSession.DiscoveryDocument>();
 
-  // Fetch OIDC discovery document once
   useEffect(() => {
     const getDiscoveryDocument = async () => {
       try {
@@ -57,7 +56,6 @@ export default function App() {
 
   const login = async () => {
     const state = generateShortUUID();
-    // Get Authorization code
     const authRequestOptions: AuthSession.AuthRequestConfig = {
       responseType: AuthSession.ResponseType.Code,
       clientId,
@@ -103,9 +101,7 @@ export default function App() {
 
   const logout = async () => {
     if (!accessToken) return;
-    const redirectUrl = AuthSession.makeRedirectUri({
-      // useProxy
-    });
+    const redirectUrl = AuthSession.makeRedirectUri();
     const revoked = await AuthSession.revokeAsync(
       { token: accessToken },
       discoveryResult!,
@@ -114,7 +110,6 @@ export default function App() {
       console.log("Revoke failed, but continuing logout");
     }
 
-    // The default revokeAsync method doesn't work for Keycloak, we need to explicitely invoke the OIDC endSessionEndpoint with the correct parameters
     const logoutUrl = `${discoveryResult!
       .endSessionEndpoint!}?client_id=${clientId}&post_logout_redirect_uri=${redirectUrl}&id_token_hint=${idToken}`;
 

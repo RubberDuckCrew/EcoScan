@@ -24,7 +24,9 @@ export default function Profile() {
         const discovery = await AuthSession.fetchDiscoveryAsync(issuer);
         const userInfoEndpoint = discovery.userInfoEndpoint;
         if (!userInfoEndpoint) {
-          console.error("UserInfo endpoint is not available in discovery document.");
+          console.error(
+            "UserInfo endpoint is not available in discovery document.",
+          );
           return;
         }
 
