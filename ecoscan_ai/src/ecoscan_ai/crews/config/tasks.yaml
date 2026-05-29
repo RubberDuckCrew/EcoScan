@@ -15,3 +15,13 @@ reporting_task:
     A fully fledged report with the main topics, each with a full section of information.
     Formatted as markdown without '```'
   agent: reporting_analyst
+
+analyze_task:
+  description: >
+    Analyze the following text and provide insights about it: '{text}'.
+    Review the text for any relevant information and provide a detailed analysis of its content.
+    Rate the environmental friendliness on a scale from 0 (very harmful to the environment)
+    to 100 (completely sustainable/climate-neutral).
+  expected_output: >
+    Score as number between 0 and 100.
+  agent: sustainability_expert
