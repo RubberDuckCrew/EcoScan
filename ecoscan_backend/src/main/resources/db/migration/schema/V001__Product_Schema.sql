@@ -23,5 +23,7 @@ CREATE TABLE scan_history
     CONSTRAINT pk_scanhistory PRIMARY KEY (id)
 );
 
+CREATE INDEX idx_scan_history_user_id ON scan_history (user_id);
+
 ALTER TABLE scan_history
     ADD CONSTRAINT FK_SCANHISTORY_ON_PRODUCT FOREIGN KEY (product_id) REFERENCES product (id);
