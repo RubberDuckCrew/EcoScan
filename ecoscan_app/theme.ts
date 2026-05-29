@@ -11,5 +11,6 @@ export const theme = {
     muted: "#606060",
     text: "#000000",
     onSurface: "#000000",
+    warning: "#f1c40f",
   },
 };

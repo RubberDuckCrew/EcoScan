@@ -4,7 +4,7 @@ import * as AuthSession from "expo-auth-session";
 import { AUTH_CONFIG } from "@/utils/authConfig";
 
 export const useUserInfo = () => {
-  const { accessToken, logout } = useAuth();
+  const { accessToken, refresh } = useAuth();
   const [userInfo, setUserInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export const useUserInfo = () => {
         });
 
         if (response.status === 401) {
-          await logout();
+          await refresh();
           setUserInfo(null);
           setError(null);
           return;

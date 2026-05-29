@@ -1,62 +1,80 @@
-import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
-import { Card, Icon, Text } from "react-native-paper";
+import React from "react";
+import { FlatList, StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
-import { useApiClient } from "@/utils/apiClient";
+import HistoryListItem from "@/components/HistoryListItem";
+import { useHistory } from "@/hooks/useHistory";
+import type { HistoryItem } from "@/types/history";
+import { LoadingIndicator } from "@/components/LoadingIndicator";
 
 export default function History() {
-  const api = useApiClient();
-  const [data, setData] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { history, loading, loadNext, refresh, refreshing } = useHistory();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const result = await api.get("/history");
-        setData(result);
-        setError(null);
-      } catch (err: any) {
-        setError(err.message || "Fehler beim Laden der Daten");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const renderItem = ({ item }: { item: HistoryItem }) => (
+    <HistoryListItem item={item} />
+  );
 
-    fetchData();
-  }, [api]);
+  const ListFooter = () =>
+    loading && (
+      <View style={styles.footer}>
+        <LoadingIndicator />
+      </View>
+    );
+
+  const ListEmpty = () => (
+    <View style={styles.emptyContainer}>
+      {loading ? <LoadingIndicator /> : <Text>Keine Historie vorhanden</Text>}
+    </View>
+  );
 
   return (
-    <PageContainer>
-      <View style={{ padding: 16 }}>
-        <Text variant="headlineSmall" style={{ marginBottom: 16 }}>
-          Backend Test
+    <PageContainer style={{ padding: 0 }}>
+      <View style={styles.wrapper}>
+        <Text variant="headlineLarge" style={styles.heading}>
+          Historie
         </Text>
-
-        {loading ? (
-          <ActivityIndicator size="large" />
-        ) : error ? (
-          <Card style={{ backgroundColor: "#fee" }}>
-            <Card.Content>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Icon source="alert-circle" color="red" size={24} />
-                <Text style={{ marginLeft: 8, color: "red" }}>{error}</Text>
-              </View>
-            </Card.Content>
-          </Card>
-        ) : (
-          <Card>
-            <Card.Title
-              title="Antwort vom Server"
-              left={(props) => <Icon {...props} source="server" />}
-            />
-            <Card.Content>
-              <Text variant="bodyLarge">{data}</Text>
-            </Card.Content>
-          </Card>
-        )}
+        <Text variant="headlineSmall" style={styles.heading}>
+          Scanverlauf
+        </Text>
+        <FlatList
+          data={history}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          onEndReached={loadNext}
+          onEndReachedThreshold={0.5}
+          refreshing={refreshing}
+          onRefresh={refresh}
+          ListFooterComponent={ListFooter}
+          ListEmptyComponent={ListEmpty}
+          contentContainerStyle={
+            history.length === 0
+              ? styles.emptyContainer
+              : styles.filledContainer
+          }
+        />
       </View>
     </PageContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    marginTop: 16,
+    gap: 8,
+  },
+  heading: { paddingInline: 16, fontWeight: "bold" },
+  footer: {
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  emptyContainer: {
+    flex: 1,
+    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filledContainer: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+});

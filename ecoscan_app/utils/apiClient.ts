@@ -10,7 +10,7 @@ type ApiClient = {
 };
 
 export const useApiClient = () => {
-  const { accessToken, logout } = useAuth();
+  const { accessToken, refresh } = useAuth();
 
   const request = useCallback(
     async (endpoint: string, options: RequestInit = {}) => {
@@ -28,7 +28,7 @@ export const useApiClient = () => {
       });
 
       if (response.status === 401) {
-        await logout();
+        await refresh();
         throw new Error("Unauthorized");
       }
 
@@ -46,7 +46,7 @@ export const useApiClient = () => {
       }
       return await response.text();
     },
-    [accessToken, logout],
+    [accessToken, refresh],
   );
 
   return useMemo(
