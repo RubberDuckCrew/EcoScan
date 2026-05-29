@@ -3,6 +3,7 @@ package com.rubberduckcrew.ecoscan_backend.history;
 import com.rubberduckcrew.ecoscan_backend.common.SliceDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.ScanHistoryDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
+import com.rubberduckcrew.ecoscan_backend.utils.AuthUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,17 +25,12 @@ public class HistoryController {
 
     @GetMapping
     public SliceDTO<ScanHistoryDTO> getHistory(@RequestParam(defaultValue = "0") final int page) {
-        final UUID userId = getCurrentUserId();
-
+        final UUID userId = AuthUtils.getSub();
         final Pageable pageable = PageRequest.of(page, 10, Sort.by("savedDate").descending());
         final Slice<ScanHistory> history = historyService.getUserHistory(userId, pageable);
         final List<ScanHistoryDTO> historyDtos = history.getContent().stream()
                 .map(historyMapper::toDTO)
                 .toList();
         return new SliceDTO<>(historyDtos, history.hasNext(), history.getNumber());
-    }
-
-    private UUID getCurrentUserId() {
-        return UUID.fromString("00000001-0000-0000-0000-000000000001");
     }
 }
