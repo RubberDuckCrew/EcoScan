@@ -78,11 +78,12 @@ export const useAuthStorage = () => {
         SecureStore.deleteItemAsync(SECURE_STORE_KEYS.ID_TOKEN),
         SecureStore.deleteItemAsync(SECURE_STORE_KEYS.REFRESH_TOKEN),
       ]);
+    } catch (e) {
+      console.error("Failed to clear tokens from SecureStore:", e);
+    } finally {
       setAccessToken(null);
       setIdToken(null);
       setRefreshToken(null);
-    } catch (e) {
-      console.error("Failed to clear tokens:", e);
     }
   }, []);
 
