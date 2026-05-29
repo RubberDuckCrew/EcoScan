@@ -10,6 +10,7 @@ app = FastAPI(title="Ecoscan AI API", version="0.1.0")
 app.include_router(test_router)
 app.include_router(jobs_router)
 
+
 def start():
     reload = os.getenv("RELOAD", "false").lower() == "true"
     uvicorn.run("ecoscan_ai.api.main:app", host="0.0.0.0", port=8000, reload=reload)
@@ -18,4 +19,3 @@ def start():
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "ecoscan_ai"}
-
