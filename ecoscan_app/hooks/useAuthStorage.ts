@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import * as AuthSession from "expo-auth-session";
 
@@ -43,7 +43,6 @@ export const useAuthStorage = () => {
               tokenResult.accessToken,
             ),
           );
-          setAccessToken(tokenResult.accessToken);
         }
         if (tokenResult.idToken) {
           ops.push(
@@ -52,7 +51,6 @@ export const useAuthStorage = () => {
               tokenResult.idToken,
             ),
           );
-          setIdToken(tokenResult.idToken);
         }
         if (tokenResult.refreshToken) {
           ops.push(
@@ -61,11 +59,13 @@ export const useAuthStorage = () => {
               tokenResult.refreshToken,
             ),
           );
-          setRefreshToken(tokenResult.refreshToken);
         }
         await Promise.all(ops);
+        if (tokenResult.accessToken) setAccessToken(tokenResult.accessToken);
+        if (tokenResult.idToken) setIdToken(tokenResult.idToken);
+        if (tokenResult.refreshToken) setRefreshToken(tokenResult.refreshToken);
       } catch (e) {
-        console.error("Failed to save tokens:", e);
+        console.error("Failed to save tokens to SecureStore:", e);
       }
     },
     [],
