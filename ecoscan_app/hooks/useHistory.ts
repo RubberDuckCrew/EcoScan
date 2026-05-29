@@ -26,12 +26,17 @@ export function useHistory(): UseHistoryResult {
       setLoading(true);
       try {
         const data = await api.get(`history?page=${pageToLoad}`);
+        const content: HistoryItem[] = Array.isArray(data?.content)
+          ? data.content
+          : [];
 
         setHistory((prev) =>
-          pageToLoad === 0 ? data.content : [...prev, ...data.content],
+          pageToLoad === 0 ? content : [...prev, ...data.content],
         );
-        setPage(data.currentPage);
-        setHasMore(Boolean(data.hasNext));
+        setPage(
+          typeof data?.currentPage === "number" ? data.currentPage : pageToLoad,
+        );
+        setHasMore(Boolean(data?.hasNext));
       } catch (err) {
         console.error("useHistory fetch error", err);
       } finally {
