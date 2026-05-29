@@ -11,7 +11,7 @@ import org.springframework.boot.mongodb.autoconfigure.MongoAutoConfiguration;
 )
 public class EcoscanBackendApplication {
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(EcoscanBackendApplication.class, args);
     }
 
