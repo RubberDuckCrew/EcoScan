@@ -1,0 +1,32 @@
+id: add and configure local client
+author: Default
+realm: local_realm
+changes:
+  - addSimpleClient:
+      clientId: local
+      publicClient: true
+      redirectUris:
+        - "ecoscanapp://*"
+        - "exp://*"
+      attributes:
+        pkce.code.challenge.method: "S256"
+        post.logout.redirect.uris: "ecoscanapp://*##exp://*"
+        logout.confirmation.enabled: "false"
+
+  - addClientMapper:
+      realm: "local_realm"
+      clientId: "local"
+      name: "Map-Custom-Sub-to-Sub"
+      protocol: "openid-connect"
+      protocolMapper: "oidc-usermodel-attribute-mapper"
+      config:
+        "user.attribute": "custom_sub"
+        "claim.name": "sub"
+        "id.token.claim": true
+        "access.token.claim": true
+        "userinfo.token.claim": true
+        "jsonType.label": "String"
+
+  - assignDefaultClientScope:
+      clientId: local
+      clientScopeName: openid

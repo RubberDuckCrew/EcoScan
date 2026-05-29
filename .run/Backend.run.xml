@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Backend" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="local" />
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-    <module name="ecoscan_backend" />
+    <module name="ecoscan_backend.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.rubberduckcrew.ecoscan_backend.EcoscanBackendApplication" />
     <method v="2">
       <option name="Make" enabled="true" />
