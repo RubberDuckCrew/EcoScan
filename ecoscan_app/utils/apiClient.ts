@@ -1,7 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
+import { ENV } from "@/utils/env";
 import { useCallback, useMemo } from "react";
-
-const BASE_URL = "http://localhost:39146/api";
 
 type ApiClient = {
   get: (endpoint: string, options?: RequestInit) => Promise<any>;
@@ -15,7 +14,7 @@ export const useApiClient = () => {
 
   const request = useCallback(
     async (endpoint: string, options: RequestInit = {}) => {
-      const url = `${BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+      const url = `${ENV.backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
       const headers = new Headers(options.headers);
       if (accessToken) {
