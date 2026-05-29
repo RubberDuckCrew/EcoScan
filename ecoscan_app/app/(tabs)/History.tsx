@@ -15,7 +15,8 @@ export default function History() {
   );
 
   const ListFooter = () =>
-    loading && (
+    loading &&
+    history.length > 0 && (
       <View style={styles.footer}>
         <LoadingIndicator />
       </View>
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
   },
   filledContainer: {
     paddingHorizontal: 16,
+    paddingBottom: 8,
     gap: 8,
   },
 });
