@@ -1,6 +1,6 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
-import { Text } from "react-native";
+import { Text } from "react-native-paper";
 
 type Props = {
   onScanned: (barcode: string) => void;
@@ -33,7 +33,6 @@ export default function BarcodeScanner({ onScanned }: Props) {
           barcodeTypes: ["ean13", "ean8", "upc_a"],
         }}
         onBarcodeScanned={({ data }: any) => {
-          if (scanned) return;
           setScanned(true);
           onScanned(data);
         }}
@@ -41,12 +40,5 @@ export default function BarcodeScanner({ onScanned }: Props) {
     );
   }
 
-  return (
-    <Text
-      onPress={() => setScanned(false)}
-      style={{ textAlign: "center", marginTop: 20 }}
-    >
-      Tap to scan again
-    </Text>
-  );
+  return <Text onPress={() => setScanned(false)}>Tap to scan again</Text>;
 }
