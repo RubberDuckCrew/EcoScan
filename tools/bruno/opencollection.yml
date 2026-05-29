@@ -17,7 +17,7 @@ config:
 request:
   variables:
     - name: backend
-      value: http://localhost:39146
+      value: http://localhost:8080
 bundled: false
 extensions:
   bruno:
