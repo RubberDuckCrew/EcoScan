@@ -24,6 +24,10 @@ jobs:
   backend:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ecoscan_backend
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -34,16 +38,16 @@ jobs:
           java-version: 25
           distribution: "temurin"
           cache: "maven"
-          cache-dependency-path: "./ecoscan_backend/pom.xml"
+          cache-dependency-path: "./pom.xml"
 
       - name: Build with Maven
-        run: mvn --update-snapshots -f ./ecoscan_backend/pom.xml install
+        run: mvn --update-snapshots install
 
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: backend-target
-          path: "ecoscan_backend/target"
+          path: "target"
 
   ai:
     runs-on: ubuntu-latest
@@ -103,6 +107,9 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ matrix.artifact }}
+
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Log in to the Container registry
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
