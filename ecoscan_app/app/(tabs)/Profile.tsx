@@ -1,48 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { Button, Card, Divider, Icon, Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
 import { useAuth } from "@/context/AuthContext";
-import * as AuthSession from "expo-auth-session";
-import { AUTH_CONFIG } from "@/utils/authConfig";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 export default function Profile() {
-  const { accessToken, logout } = useAuth();
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (!accessToken) return;
-      setLoading(true);
-      try {
-        const discovery = await AuthSession.fetchDiscoveryAsync(
-          AUTH_CONFIG.issuer,
-        );
-        const userInfoEndpoint = discovery.userInfoEndpoint;
-        if (!userInfoEndpoint) {
-          console.error(
-            "UserInfo endpoint is not available in discovery document.",
-          );
-          return;
-        }
-
-        const response = await fetch(userInfoEndpoint, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        const data = await response.json();
-        setUserInfo(data);
-      } catch (e) {
-        console.error("Failed to fetch user info:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserInfo();
-  }, [accessToken]);
+  const { logout } = useAuth();
+  const { userInfo, loading, error } = useUserInfo();
 
   return (
     <PageContainer>
@@ -55,6 +20,8 @@ export default function Profile() {
           <Card.Content>
             {loading ? (
               <ActivityIndicator />
+            ) : error ? (
+              <Text style={{ color: "red" }}>Fehler: {error}</Text>
             ) : userInfo ? (
               <View>
                 <Text variant="titleMedium">
