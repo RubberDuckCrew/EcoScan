@@ -2,6 +2,7 @@ import asyncio
 import uuid
 from datetime import datetime
 from ecoscan_ai.api.schemas.jobs import JobStatus
+import traceback
 
 jobs: dict[str, dict] = {}
 
@@ -22,9 +23,8 @@ async def run_crew_background(job_id: str, crew, inputs: dict):
         result = await asyncio.to_thread(crew.kickoff, inputs=inputs)
         jobs[job_id]["status"] = JobStatus.success
         jobs[job_id]["result"] = str(result)
-    except Exception as e:
-        import traceback
+    except Exception:
         jobs[job_id]["status"] = JobStatus.failed
-        jobs[job_id]["error"] = str(e)
+        jobs[job_id]["error"] = traceback.format_exc()
     finally:
         jobs[job_id]["finished_at"] = datetime.now().isoformat()
