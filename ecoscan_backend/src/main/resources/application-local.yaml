@@ -15,12 +15,10 @@ spring:
       - classpath:db/migration/schema
       - classpath:db/migration/testdata
     ignoreMigrationPatterns: repeatable:missing
+  security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:8100/auth/realms/local_realm
 
 logging:
   include-application-group: false
-  structured:
-    format:
-      console:
   level:
     root: INFO
     com.rubberduckcrew.ecoscan_backend: DEBUG
