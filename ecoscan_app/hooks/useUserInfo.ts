@@ -4,7 +4,7 @@ import * as AuthSession from "expo-auth-session";
 import { AUTH_CONFIG } from "@/utils/authConfig";
 
 export const useUserInfo = () => {
-  const { accessToken } = useAuth();
+  const { accessToken, logout } = useAuth();
   const [userInfo, setUserInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +36,13 @@ export const useUserInfo = () => {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+
+        if (response.status === 401) {
+          await logout();
+          setUserInfo(null);
+          setError(null);
+          return;
+        }
 
         if (!response.ok) {
           setError(`Failed to fetch user info: ${response.statusText}`);
