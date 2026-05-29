@@ -2,11 +2,10 @@ package com.rubberduckcrew.ecoscan_backend.products.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
-import java.util.List;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +23,6 @@ public class ScannedProduct extends Product {
     @NotNull @Size(max = 2048) @Column(length = 2048)
     private String justification;
 
-    @OneToMany
-    private List<Product> alternatives;
+    @NotNull
+    private LocalDateTime scannedDate;
 }
