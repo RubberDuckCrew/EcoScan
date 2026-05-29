@@ -65,10 +65,10 @@ jobs:
         run: uv python install
 
       - name: Install dependencies
-        run: uv sync --frozen --no-dev
+        run: uv sync --frozen
 
       - name: Run lint
-        run: uv run ruff check .
+        run: uv run poe lint
 
   images:
     #if: ${{ github.ref == 'refs/heads/main' }}
