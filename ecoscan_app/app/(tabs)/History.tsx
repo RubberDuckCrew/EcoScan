@@ -14,7 +14,7 @@ export default function History() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await api.get("/users");
+        const result = await api.get("/history");
         setData(result);
         setError(null);
       } catch (err: any) {
