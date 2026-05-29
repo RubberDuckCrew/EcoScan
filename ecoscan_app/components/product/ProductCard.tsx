@@ -24,7 +24,7 @@ export default function ProductCard(props:ProductCardProps) {
           <Image
             source={{ uri: props.imageUrl }}
             style={styles.image}
-            resizeMode="contain"
+            resizeMode="cover"
             onError={handleImageError}
           />
         ) : (
