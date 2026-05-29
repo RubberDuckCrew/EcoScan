@@ -4,7 +4,7 @@ import warnings
 
 from datetime import datetime
 
-from ecoscan_ai.crew import EcoscanAi
+from ecoscan_ai.crews.crew import EcoscanAi
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
