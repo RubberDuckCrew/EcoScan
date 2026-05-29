@@ -23,11 +23,9 @@ public class Product implements Serializable {
     @Id
     private String id;
 
-    @NotBlank @Column(nullable = false)
-    private String name;
+    @NotNull @NotBlank private String name;
 
-    @NotNull
-    private String imageUrl;
+    @NotNull private String imageUrl;
 
     @NotNull @Size(max = 2048) @Column(length = 2048, nullable = false)
     private String description;

@@ -9,9 +9,10 @@ import org.springframework.boot.mongodb.autoconfigure.MongoAutoConfiguration;
                 MongoAutoConfiguration.class, // TODO: Remove on mongo db integration
         }
 )
+@SuppressWarnings("PMD.UseUtilityClass")
 public class EcoscanBackendApplication {
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SpringApplication.run(EcoscanBackendApplication.class, args);
     }
 

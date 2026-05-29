@@ -5,6 +5,7 @@ import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -16,12 +17,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ScanHistory extends BaseEntity {
-    @NotNull
-    private UUID userId;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    @ManyToOne @NotNull
-    private Product product;
+    @NotNull private UUID userId;
 
-    @NotNull
-    private LocalDateTime savedDate;
+    @ManyToOne @NotNull private Product product;
+
+    @NotNull private LocalDateTime savedDate;
 }
