@@ -29,7 +29,7 @@ export const useApiClient = () => {
 
       if (response.status === 401) {
         await refresh();
-        throw new Error("Unauthorized");
+        return request(endpoint, options);
       }
 
       if (!response.ok) {
