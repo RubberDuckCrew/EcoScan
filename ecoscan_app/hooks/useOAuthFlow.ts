@@ -6,10 +6,6 @@ import { AUTH_CONFIG } from "@/utils/authConfig";
 
 const redirectUri = AuthSession.makeRedirectUri();
 
-function generateShortUUID() {
-  return Math.random().toString(36).substring(2, 15);
-}
-
 interface UseOAuthFlowProps {
   idToken: string | null;
   refreshToken: string | null;
@@ -47,7 +43,6 @@ export const useOAuthFlow = ({
         redirectUri,
         prompt: AuthSession.Prompt.Login,
         scopes: AUTH_CONFIG.scopes,
-        state: generateShortUUID(),
         usePKCE: true,
       });
 
