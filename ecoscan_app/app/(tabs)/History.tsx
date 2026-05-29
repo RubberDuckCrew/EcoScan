@@ -59,12 +59,14 @@ export default function History() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginTop: 16,
+    height: "100%",
+    paddingTop: 16,
     gap: 8,
   },
   heading: { paddingInline: 16, fontWeight: "bold" },
   footer: {
     paddingVertical: 16,
+    paddingBottom: 16,
     alignItems: "center",
   },
   emptyContainer: {
