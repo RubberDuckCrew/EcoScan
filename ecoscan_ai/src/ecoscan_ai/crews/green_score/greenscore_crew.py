@@ -1,0 +1,39 @@
+from crewai import Task, Agent, Crew, Process
+from crewai.project import agent, task, crew, CrewBase
+
+from ecoscan_ai.api.schemas.green_score_result import GreenScoreResult
+
+
+@CrewBase
+class GreenScoreCrew:
+
+    @agent
+    def evaluator(self) -> Agent:
+        return Agent(config=self.agents_config['evaluator'], verbose=True)
+
+    @agent
+    def score_agent(self) -> Agent:
+        return Agent(config=self.agents_config['score_agent'], verbose=True)
+
+    @task
+    def evaluate_task(self) -> Task:
+        return Task(config=self.tasks_config['evaluate_task'])
+
+    @task
+    def score_task(self) -> Task:
+        return Task(config=self.tasks_config['score_task'], output_pydantic=GreenScoreResult)
+
+
+    @crew
+    def crew(self) -> Crew:
+        """Creates the GreenScore crew"""
+        # To learn how to add knowledge sources to your crew, check out the documentation:
+        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
+
+        return Crew(
+            agents=self.agents, # Automatically created by the @agent decorator
+            tasks=self.tasks, # Automatically created by the @task decorator
+            process=Process.sequential,
+            verbose=True,
+            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+        )
