@@ -24,7 +24,7 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
-    "plugins": ["expo-router", "expo-web-browser"],
+    "plugins": ["expo-router", "expo-web-browser", "expo-secure-store"],
     "experiments": {
       "typedRoutes": true
     }

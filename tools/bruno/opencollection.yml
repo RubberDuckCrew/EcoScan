@@ -1,0 +1,45 @@
+opencollection: 1.0.0
+
+info:
+  name: EcoScan
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: oauth2
+    flow: resource_owner_password_credentials
+    accessTokenUrl: http://localhost:8100/auth/realms/local_realm/protocol/openid-connect/token
+    credentials:
+      clientId: local
+      placement: basic_auth_header
+    resourceOwner:
+      username: user
+      password: user
+    scope: openid
+    tokenConfig:
+      id: credentials
+      placement:
+        header: Bearer
+      source: access_token
+    settings:
+      autoFetchToken: true
+      autoRefreshToken: true
+  variables:
+    - name: backend
+      value: http://localhost:8080/api
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

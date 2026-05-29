@@ -1,3 +1,16 @@
 spring:
+  main:
+    banner-mode: console
   application:
-    name: ecoscan_backend
+    name: "@project.artifactId@"
+    group: "@project.groupId@"
+    version: "@project.version@"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations:
+      - classpath:db/migration/schema
+
+
+server.servlet.contextPath: /api
