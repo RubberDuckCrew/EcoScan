@@ -13,7 +13,7 @@ export const useApiClient = () => {
   const { accessToken, refresh } = useAuth();
 
   const request = useCallback(
-    async (endpoint: string, options: RequestInit = {}) => {
+    async (endpoint: string, options: RequestInit = {}, isRetry = false) => {
       const url = `${ENV.backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
       const headers = new Headers(options.headers);
@@ -27,9 +27,9 @@ export const useApiClient = () => {
         headers,
       });
 
-      if (response.status === 401) {
+      if (response.status === 401 && !isRetry) {
         await refresh();
-        return request(endpoint, options);
+        return request(endpoint, options, true);
       }
 
       if (!response.ok) {
