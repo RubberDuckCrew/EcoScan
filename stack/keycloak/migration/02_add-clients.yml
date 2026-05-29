@@ -8,7 +8,6 @@ changes:
       redirectUris:
         - "ecoscanapp://*"
         - "exp://*"
-      serviceAccountsEnabled: true
       attributes:
         pkce.code.challenge.method: "S256"
         post.logout.redirect.uris: "ecoscanapp://*##exp://*"
