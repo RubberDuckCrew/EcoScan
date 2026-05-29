@@ -1,16 +1,16 @@
 CREATE TABLE product
 (
-    id                VARCHAR(255)                NOT NULL,
-    dtype             VARCHAR(31)                 NOT NULL,
-    name              VARCHAR(255)                NOT NULL,
-    image_url         VARCHAR(255)                NOT NULL,
-    description       VARCHAR(2048)               NOT NULL,
-    score             INTEGER                     NOT NULL,
-    environment_score INTEGER                     NOT NULL,
-    social_score      INTEGER                     NOT NULL,
-    health_score      INTEGER                     NOT NULL,
-    justification     VARCHAR(2048)               NOT NULL,
-    scanned_date      TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    id                VARCHAR(255)  NOT NULL,
+    dtype             VARCHAR(31)   NOT NULL,
+    name              VARCHAR(255)  NOT NULL,
+    image_url         VARCHAR(255)  NOT NULL,
+    description       VARCHAR(2048) NOT NULL,
+    score             INTEGER,
+    environment_score INTEGER,
+    social_score      INTEGER,
+    health_score      INTEGER,
+    justification     VARCHAR(2048),
+    scanned_date      TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_product PRIMARY KEY (id)
 );
 
