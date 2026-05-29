@@ -81,9 +81,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      attestations: write
-      id-token: write
-      artifact-metadata: write
 
     strategy:
       matrix:
