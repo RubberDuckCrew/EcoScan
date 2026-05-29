@@ -6,7 +6,7 @@ router = APIRouter(prefix="/jobs", tags=["Jobs"])
 @router.get("/{job_id}")
 def get_job(job_id: str):
     if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job nicht gefunden")
+        raise HTTPException(status_code=404, detail="Job not found")
     return {"job_id": job_id, **jobs[job_id]}
 
 @router.get("")
