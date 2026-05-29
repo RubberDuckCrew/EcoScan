@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { Button, Card, Divider, Icon, Text } from "react-native-paper";
-import PageContainer from "@/components/PageContainer";
+import { PageContainer } from "@/components/PageContainer";
 import { useAuth } from "@/context/AuthContext";
 import * as AuthSession from "expo-auth-session";
 import { AUTH_CONFIG } from "@/utils/authConfig";

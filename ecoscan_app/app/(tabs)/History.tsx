@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
-import { Text, Card, Icon } from "react-native-paper";
-import PageContainer from "@/components/PageContainer";
+import { ActivityIndicator, View } from "react-native";
+import { Card, Icon, Text } from "react-native-paper";
+import { PageContainer } from "@/components/PageContainer";
 import { useApiClient } from "@/utils/apiClient";
 
 export default function History() {

@@ -12,12 +12,13 @@ interface AuthContextType {
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export function AuthProvider({ children }: AuthProviderProps) {
   const {
     accessToken,
     idToken,
@@ -61,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

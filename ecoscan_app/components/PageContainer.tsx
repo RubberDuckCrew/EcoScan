@@ -6,7 +6,7 @@ type PageContainerProps = SurfaceProps & {
   children: ReactNode;
 };
 
-export default function PageContainer({
+export function PageContainer({
   children,
   style,
   ...props
@@ -17,6 +17,7 @@ export default function PageContainer({
     </Surface>
   );
 }
+
 const styles = StyleSheet.create({
   surface: {
     flex: 1,
