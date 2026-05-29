@@ -9,6 +9,9 @@ changes:
       enabled: true
       emailVerified: true
       email: user@ecoscan.invalid
+      attributes:
+        custom_sub:
+          - "00000001-0000-0000-0000-000000000001"
 
   - updateUserPassword:
       name: user
