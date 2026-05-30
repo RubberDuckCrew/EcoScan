@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { View, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { View, StyleSheet, TextInput } from "react-native";
+import { Button, Text } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
+import { theme } from "@/theme";
 
 export default function Scan() {
-  const theme = useTheme();
   const [barcode, setBarcode] = useState("");
 
   const onScanned = (code: string) => {
@@ -35,18 +35,22 @@ export default function Scan() {
           value={barcode}
           onChangeText={setBarcode}
           placeholder="z.B. 4001686312520"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={theme.colors.muted}
           keyboardType="numeric"
-          style={[styles.input, { color: theme.colors.onSurface }]}
+          style={[
+            styles.input,
+            { color: theme.colors.onSurface, borderColor: theme.colors.muted },
+          ]}
         />
 
-        <TouchableOpacity
+        <Button
+          onPress={() => onScanned(barcode)}
           style={[styles.button, { backgroundColor: theme.colors.primary }]}
         >
           <Text style={[styles.buttonText, { color: theme.colors.surface }]}>
             Los
           </Text>
-        </TouchableOpacity>
+        </Button>
       </View>
     </PageContainer>
   );
@@ -91,7 +95,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
     borderRadius: 12,
     paddingHorizontal: 14,
     fontSize: 15,

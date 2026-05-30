@@ -1,15 +1,14 @@
+import { theme } from "@/theme";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { Icon, Text, useTheme } from "react-native-paper";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { Icon, Text } from "react-native-paper";
 
 type Props = {
   onScanned: (barcode: string) => void;
 };
 
 export default function BarcodeScanner({ onScanned }: Props) {
-  const theme = useTheme();
-
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 
@@ -17,6 +16,8 @@ export default function BarcodeScanner({ onScanned }: Props) {
     if (!permission?.granted) {
       requestPermission();
     }
+    // Intentionally run only once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!permission?.granted) {
@@ -25,9 +26,9 @@ export default function BarcodeScanner({ onScanned }: Props) {
         onPress={requestPermission}
         style={styles.permissionContainer}
       >
-        <Icon source="camera-off" size={70} color="#A0A7B5" />
+        <Icon source="camera-off" size={70} color={theme.colors.muted} />
         <Text style={{ marginTop: 12 }}>
-          Hier clicken, um Kamera-Berechtigung zu erteilen
+          Hier tippen, um Kamera-Berechtigung zu erteilen
         </Text>
       </TouchableOpacity>
     );
@@ -57,9 +58,9 @@ export default function BarcodeScanner({ onScanned }: Props) {
           onPress={() => setScanned(false)}
           style={styles.resetContainer}
         >
-          <Icon source="barcode-scan" size={70} color="#A0A7B5" />
+          <Icon source="barcode-scan" size={70} color={theme.colors.muted} />
           <Text style={{ marginTop: 12 }}>
-            Hier clicken, um erneut zu scannen
+            Hier tippen, um erneut zu scannen
           </Text>
         </TouchableOpacity>
       )}
