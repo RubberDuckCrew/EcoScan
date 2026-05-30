@@ -10,7 +10,7 @@
   find_coordinates_task:
     description: >
       Take the alternative products discovered in the previous task (research_alternatives_task). 
-      For each alternative product, use the search tools to look up physical stores and supermarkets 
+      For each alternative product, use the search tools to look up for one physical store or supermarket, that sells the product,
       within a 5 km radius of the user's location ({user_coordinates}). 
       Find the exact geographic latitude and longitude coordinates for each alternative product.
     expected_output: >
