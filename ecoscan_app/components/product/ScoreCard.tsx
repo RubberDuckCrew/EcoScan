@@ -1,14 +1,13 @@
 import { Text, ProgressBar } from "react-native-paper";
 import {StyleSheet, ViewStyle, TextStyle, View} from "react-native";
+import {theme} from "@/theme";
+import {getScoreVariant, ScoreVariant} from "@/utils/scoreColor";
 
 export interface ScoreCardProps{
     score: number
 }
 
-type ScoreVariant = "good" | "warning" | "bad";
-
 export default function ScoreCard({score}:ScoreCardProps){
-
     const variant = variantStyles[getScoreVariant(score)];
 
     return(
@@ -23,32 +22,34 @@ export default function ScoreCard({score}:ScoreCardProps){
     );
 }
 
-function getScoreVariant(score: number): ScoreVariant {
-    if (score >= 70) return "good";
-    if (score >= 40) return "warning";
-    return "bad";
-}
-
 const variantStyles: Record<ScoreVariant, { card: ViewStyle; text: TextStyle, progressBar: string, message: string}> = {
     good: {
-        card: { borderColor: "#7CBC82", backgroundColor: "rgba(124, 188, 130, 0.34)" },
-        text: { color: "#009A0A" },
-        progressBar: "#009A0A",
+        card: { borderColor: theme.colors.primary, backgroundColor: withOpacity(theme.colors.primary, 0.34) },
+        text: { color: theme.colors.primary },
+        progressBar: theme.colors.primary,
         message: "Sehr gute Wahl"
     },
     warning: {
-        card: { borderColor: "#E0B84B", backgroundColor: "rgba(224, 184, 75, 0.34)" },
-        text: { color: "#A07800" },
-        progressBar: "#A07800",
+        card: { borderColor: theme.colors.warning, backgroundColor: withOpacity(theme.colors.warning, 0.34) },
+        text: { color: theme.colors.warning },
+        progressBar: theme.colors.warning,
         message: "Noch Luft nach oben.",
     },
     bad: {
-        card: { borderColor: "#E07B7B", backgroundColor: "rgba(224, 123, 123, 0.34)" },
-        text: { color: "#C00000" },
-        progressBar: "#C00000",
+        card: { borderColor: theme.colors.error, backgroundColor: withOpacity(theme.colors.error, 0.34) },
+        text: { color: theme.colors.error },
+        progressBar: theme.colors.error,
         message: "Bitte überdenke deine Wahl.",
     },
 };
+
+function withOpacity(hex: string, opacity: number): string {
+    const clean = hex.replace("#", "");
+    const r = parseInt(clean.slice(0, 2), 16);
+    const g = parseInt(clean.slice(2, 4), 16);
+    const b = parseInt(clean.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
 
 const styles = StyleSheet.create({
     title:{
