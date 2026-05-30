@@ -98,6 +98,15 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -249,6 +258,37 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.16.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/ecoscan-openapi.json</inputSpec>
+
+                            <generatorName>java</generatorName>
+                            <library>restclient</library>
+
+                            <apiPackage>com.rubberduckcrew.ecoscanai.api</apiPackage>
+                            <modelPackage>com.rubberduckcrew.ecoscanai.model</modelPackage>
+                            <invokerPackage>com.rubberduckcrew.ecoscanai.client</invokerPackage>
+
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+
+                                <dateLibrary>java8</dateLibrary>
+                                <openApiNullable>false</openApiNullable>
+                                <serializationLibrary>jackson</serializationLibrary>
+                                <documentationProvider>none</documentationProvider>
+                            </configOptions>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
