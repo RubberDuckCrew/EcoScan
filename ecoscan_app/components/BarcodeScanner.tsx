@@ -1,7 +1,7 @@
 import { theme } from "@/theme";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Icon, Text } from "react-native-paper";
 
 type Props = {
@@ -49,9 +49,7 @@ export default function BarcodeScanner({ onScanned }: Props) {
               onScanned(data);
             }}
           />
-          <View
-            style={[styles.scanFrame, { borderColor: theme.colors.primary }]}
-          />
+          <View style={styles.scanFrame} />
         </>
       ) : (
         <TouchableOpacity
@@ -79,6 +77,7 @@ const styles = StyleSheet.create({
   },
 
   scanFrame: {
+    borderColor: theme.colors.primary,
     width: "100%",
     height: "100%",
     borderWidth: 3,

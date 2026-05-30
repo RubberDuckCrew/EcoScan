@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, StyleSheet, TextInput } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
@@ -16,9 +16,7 @@ export default function Scan() {
 
   return (
     <PageContainer>
-      <Text style={[styles.title, { color: theme.colors.onSurface }]}>
-        Produkt scannen
-      </Text>
+      <Text style={styles.title}>Produkt scannen</Text>
 
       <View style={styles.scannerContainer}>
         <View style={styles.scannerBox}>
@@ -26,9 +24,7 @@ export default function Scan() {
         </View>
       </View>
 
-      <Text style={[styles.label, { color: theme.colors.onSurface }]}>
-        Oder Barcode eingeben
-      </Text>
+      <Text style={styles.label}>Oder Barcode eingeben</Text>
 
       <View style={styles.inputRow}>
         <TextInput
@@ -37,19 +33,11 @@ export default function Scan() {
           placeholder="z.B. 4001686312520"
           placeholderTextColor={theme.colors.muted}
           keyboardType="numeric"
-          style={[
-            styles.input,
-            { color: theme.colors.onSurface, borderColor: theme.colors.muted },
-          ]}
+          style={styles.input}
         />
 
-        <Button
-          onPress={() => onScanned(barcode)}
-          style={[styles.button, { backgroundColor: theme.colors.primary }]}
-        >
-          <Text style={[styles.buttonText, { color: theme.colors.surface }]}>
-            Los
-          </Text>
+        <Button onPress={() => onScanned(barcode)} style={styles.button}>
+          <Text style={styles.buttonText}>Los</Text>
         </Button>
       </View>
     </PageContainer>
@@ -58,6 +46,7 @@ export default function Scan() {
 
 const styles = StyleSheet.create({
   title: {
+    color: theme.colors.onSurface,
     fontSize: 22,
     fontWeight: "700",
   },
@@ -81,6 +70,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
+    color: theme.colors.onSurface,
     fontSize: 14,
     marginBottom: 10,
   },
@@ -92,6 +82,8 @@ const styles = StyleSheet.create({
   },
 
   input: {
+    color: theme.colors.onSurface,
+    borderColor: theme.colors.muted,
     flex: 1,
     height: 48,
     borderWidth: 1,
@@ -101,6 +93,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
+    backgroundColor: theme.colors.primary,
     height: 48,
     paddingHorizontal: 18,
     borderRadius: 10,
@@ -109,6 +102,7 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
+    color: theme.colors.surface,
     fontSize: 16,
     fontWeight: "700",
   },
