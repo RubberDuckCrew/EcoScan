@@ -1,10 +1,28 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
+from pydantic import BaseModel
+
+from ecoscan_ai.llm import llm
+
+
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
 
+
+class StoreLocation(BaseModel):
+    store_name: str
+    latitude: float
+    longitude: float
+
+class AlternativeProduct(BaseModel):
+    alternative_name: str
+    alternative_ean: str
+    location: StoreLocation
+
+class Alternatives(BaseModel):
+    alternativ_products: list[AlternativeProduct]
 
 @CrewBase
 class EcoscanAi:
@@ -31,6 +49,22 @@ class EcoscanAi:
         return Agent(
             config=self.agents_config["reporting_analyst"],  # type: ignore[index]
             verbose=True,
+        )
+
+    @agent
+    def alternatives_researcher(self) -> Agent:
+        return Agent(
+            config=self.agents_config['alternatives_researcher'], # type: ignore[index]
+            llm = llm,
+            verbose=True
+        )
+
+    @agent
+    def coordinates_researcher(self) -> Agent:
+        return Agent(
+            config=self.agents_config['coordinates_researcher'], # type: ignore[index]
+            llm = llm,
+            verbose=True
         )
 
     # To learn more about structured task outputs,
