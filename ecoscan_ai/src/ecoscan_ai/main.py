@@ -18,7 +18,11 @@ def run():
     """
     Run the crew.
     """
-    inputs = {"topic": "AI LLMs", "current_year": str(datetime.now().year)}
+    inputs = {
+        'product': 'Kinder Chocolate',
+        'ean': '4008400200217',
+        'user_coordinates': '48.137, 11.576',
+    }
 
     try:
         EcoscanAi().crew().kickoff(inputs=inputs)
