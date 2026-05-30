@@ -76,7 +76,7 @@ export const useOAuthFlow = ({
       await saveTokens(tokenResult);
     } catch (e) {
       console.error("Refresh failed", e);
-      await clearTokens();
+      await logout();
     }
   }, [refreshToken, discovery, saveTokens, clearTokens]);
 

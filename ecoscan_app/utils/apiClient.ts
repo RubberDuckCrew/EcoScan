@@ -10,10 +10,10 @@ type ApiClient = {
 };
 
 export const useApiClient = () => {
-  const { accessToken, logout } = useAuth();
+  const { accessToken, refresh } = useAuth();
 
   const request = useCallback(
-    async (endpoint: string, options: RequestInit = {}) => {
+    async (endpoint: string, options: RequestInit = {}, isRetry = false) => {
       const url = `${ENV.backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
       const headers = new Headers(options.headers);
@@ -27,9 +27,9 @@ export const useApiClient = () => {
         headers,
       });
 
-      if (response.status === 401) {
-        await logout();
-        throw new Error("Unauthorized");
+      if (response.status === 401 && !isRetry) {
+        await refresh();
+        return request(endpoint, options, true);
       }
 
       if (!response.ok) {
@@ -46,7 +46,7 @@ export const useApiClient = () => {
       }
       return await response.text();
     },
-    [accessToken, logout],
+    [accessToken, refresh],
   );
 
   return useMemo(

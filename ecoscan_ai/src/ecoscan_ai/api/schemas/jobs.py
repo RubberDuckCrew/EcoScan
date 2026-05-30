@@ -10,3 +10,7 @@ class JobStatus(str, Enum):
 class JobResponse(BaseModel):
     job_id: str
     status: JobStatus
+    created_at: str
+    result: str | None = None
+    error: str | None = None
+    finished_at: str | None = None
