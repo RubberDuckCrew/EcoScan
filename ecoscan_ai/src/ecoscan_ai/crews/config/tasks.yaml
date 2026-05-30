@@ -1,7 +1,10 @@
 research_alternatives_task:
   description: >
-    Analyze the provided product ({product}) and its EAN ({ean}). Use the available tools to research and find a list of alternative or substitute products within the same product category. 
-    A structured list containing the product names and EAN numbers of all found alternative products.
+    Analyze the provided product ({product}) and its EAN ({ean}).
+    Use the DuckDuckGo Search tool, but search ONLY for grocery products, 
+    food alternatives, or competitive brands. 
+    Your search query MUST look exactly like this: '[Product Name] alternatives' or '[Product Name] competitors'.
+    Do not search for random text.
   expected_output: >
     A structured list containing the product names and EAN numbers of all found alternative products.
   agent: alternatives_researcher
