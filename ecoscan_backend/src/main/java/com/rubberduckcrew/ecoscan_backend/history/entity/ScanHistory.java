@@ -1,7 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.history.entity;
 
 import com.rubberduckcrew.ecoscan_backend.common.BaseEntity;
-import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
+import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
@@ -25,7 +25,7 @@ public class ScanHistory extends BaseEntity {
 
     @NotNull private UUID userId;
 
-    @ManyToOne @NotNull private Product product;
+    @ManyToOne @NotNull private ScannedProduct product;
 
     @NotNull private LocalDateTime savedDate;
 }
