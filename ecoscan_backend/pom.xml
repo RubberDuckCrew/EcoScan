@@ -41,6 +41,7 @@
         <findsecbugs-plugin.version>1.14.0</findsecbugs-plugin.version>
         <findbugs-maven-plugin.version>3.0.1</findbugs-maven-plugin.version>
         <openapi-generator-maven-plugin.version>7.16.0</openapi-generator-maven-plugin.version>
+        <spotbugs-annotations.version>4.8.6</spotbugs-annotations.version>
     </properties>
     <dependencies>
         <dependency>
@@ -103,7 +104,7 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
-            <version>4.8.6</version>
+            <version>${spotbugs-annotations.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
