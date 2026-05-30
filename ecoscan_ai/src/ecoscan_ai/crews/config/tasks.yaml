@@ -15,3 +15,21 @@ reporting_task:
     A fully fledged report with the main topics, each with a full section of information.
     Formatted as markdown without '```'
   agent: reporting_analyst
+
+  research_alternatives_task:
+    description: >
+      Analyze the provided product ({product}) and its EAN ({ean}). Use the available tools to research and find a list of alternative or substitute products within the same product category. 
+      A structured list containing the product names and EAN numbers of all found alternative products.
+    expected_output: >
+      A structured list containing the product names and EAN numbers of all found alternative products.
+    agent: alternatives_researcher
+
+  find_coordinates_task:
+    description: >
+      Take the alternative products discovered in the previous task (research_alternatives_task). 
+      For each alternative product, use the search tools to look up physical stores and supermarkets 
+      within a 5 km radius of the user's location ({user_coordinates}). 
+      Find the exact geographic latitude and longitude coordinates for each alternative product.
+    expected_output: >
+      A list of each ean number with their latitude and longitude of the place.
+    agent: coordinates_researcher
