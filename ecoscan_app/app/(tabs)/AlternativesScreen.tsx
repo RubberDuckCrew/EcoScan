@@ -7,7 +7,7 @@ export default function AlternativesScreen() {
     const alternatives = [
         {
             title: "Alternativprodukt",
-            image: "../assets/images/icon.png",
+            image: require("../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 95,
             targetLatitude: 48.15520,
@@ -15,7 +15,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt2",
-            image: "../assets/images/icon.png",
+            image: require("../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 90,
             targetLatitude: 48,
@@ -23,7 +23,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt3",
-            image: "../assets/images/icon.png",
+            image: require("../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 88,
             targetLatitude: 48.03655106953577,
@@ -31,7 +31,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt",
-            image: "../assets/images/icon.png",
+            image: require("../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 95,
             targetLatitude: 48.15520,
@@ -39,7 +39,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt2",
-            image: "../assets/images/icon.png",
+            image: require("../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 90,
             targetLatitude: 48,
@@ -47,7 +47,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt3",
-            image: "../assets/images/icon.png",
+            image: require("../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 88,
             targetLatitude: 48.03655106953577,
@@ -70,8 +70,9 @@ export default function AlternativesScreen() {
             </Text>
             <ProductCard {...defaultProduct} />
             <FlatList
+                style={{marginTop: 16}}
                 data={alternatives.sort((a, b) => b.alternativeScore - a.alternativeScore)}
-                renderItem={({ item }) =>
+                renderItem={({item}) =>
                     <AlternativeCard
                         title={item.title}
                         image={item.image}
@@ -79,7 +80,8 @@ export default function AlternativesScreen() {
                         alternativeScore={item.alternativeScore}
                         targetLatitude={item.targetLatitude}
                         targetLongitude={item.targetLongitude}
-                    />}
+                    />
+                }
             />
         </Surface>
     );
@@ -91,7 +93,7 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     headline: {
-      fontWeight: "bold",
+        fontWeight: "bold",
     },
     subHeadline: {
         color: 'gray',
