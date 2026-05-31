@@ -3,14 +3,20 @@ import { Text } from "react-native-paper";
 import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect} from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
 
 export default function Product() {
-  const { loading, product, fetchGreenScore, fetchProduct } = useGreenScore();
+  const { loading, product, fetchGreenScore, fetchProduct, onError } =
+    useGreenScore();
   const { id } = useLocalSearchParams();
+  const router = useRouter();
+
+  onError((err) => {
+    router.back();
+  });
 
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
@@ -58,13 +64,13 @@ const styles = StyleSheet.create({
   loadingIndicator: {
     flex: 1,
     flexDirection: "column",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   loadingIndicatorText: {
     textAlign: "center",
-    marginTop: 10
+    marginTop: 10,
   },
   scoreCard: {
-    paddingTop: 16
-  }
+    paddingTop: 16,
+  },
 });
