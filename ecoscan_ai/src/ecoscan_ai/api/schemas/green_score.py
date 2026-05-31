@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 
-class CalculationPayload(BaseModel):
+class ScoreProductRequest(BaseModel):
     productContext: str
