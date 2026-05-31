@@ -4,8 +4,9 @@ import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { useEffect} from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
+import { StyleSheet, View } from "react-native";
 
 export default function Product() {
   const { loading, product, fetchGreenScore, fetchProduct } = useGreenScore();
@@ -14,33 +15,56 @@ export default function Product() {
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
 
-    if (normalizedId) {
-      fetchProduct(normalizedId).then((product) => {
-        fetchGreenScore(normalizedId);
-      });
-    }
+    if (!normalizedId) return;
+
+    (async () => {
+      await fetchProduct(normalizedId);
+      await fetchGreenScore(normalizedId);
+    })();
   }, [id, fetchGreenScore, fetchProduct]);
+
   return (
     <PageContainer>
       {product && (
         <>
           <ProductCard
             name={product.name || "Unbekanntes Produkt"}
-            barcode={product.barcode || "Kein Barcode"}
+            barcode={product.id || "Kein Barcode"}
             description={product.description || "Keine Beschreibung verfügbar."}
-            imageUrl={product.imageUrl || "https://via.placeholder.com/150"}
+            imageUrl={product.imageUrl || ""}
           />
-          {product.score !== undefined && <ScoreCard score={product.score} />}
+          {product.score !== undefined && (
+            <View style={styles.scoreCard}>
+              <ScoreCard score={product.score} />
+            </View>
+          )}
         </>
       )}
       {loading && (
         <>
-          <LoadingIndicator />
-          <Text style={{ textAlign: "center", marginTop: 10 }}>
-            KI analysiert Produkt...
-          </Text>
+          <View style={styles.loadingIndicator}>
+            <LoadingIndicator />
+            <Text style={styles.loadingIndicatorText}>
+              Wir analysieren das Produkt...
+            </Text>
+          </View>
         </>
       )}
     </PageContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingIndicator: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center"
+  },
+  loadingIndicatorText: {
+    textAlign: "center",
+    marginTop: 10
+  },
+  scoreCard: {
+    paddingTop: 16
+  }
+});

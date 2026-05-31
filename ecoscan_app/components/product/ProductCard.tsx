@@ -2,6 +2,7 @@ import { Surface, Text } from "react-native-paper";
 import { Image, StyleSheet, View } from "react-native";
 import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import {theme} from "@/theme";
 
 export interface ProductCardProps {
   name: string;
@@ -49,7 +50,6 @@ export default function ProductCard(props: ProductCardProps) {
 const styles = StyleSheet.create({
   rootCard: {
     flexDirection: "row",
-    padding: 16,
     alignItems: "center",
   },
   imageContainer: {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     height: 128,
     borderRadius: 20,
     overflow: "hidden",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: theme.colors.background,
   },
   textCard: {
     flexDirection: "column",
@@ -70,11 +70,11 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 20,
-    color: "#757575",
+    color: theme.colors.muted,
   },
   barcodeText: {
     fontSize: 15,
-    color: "#757575",
+    color: theme.colors.muted,
   },
   image: {
     width: 128,
@@ -87,6 +87,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: theme.colors.background,
   },
 });
