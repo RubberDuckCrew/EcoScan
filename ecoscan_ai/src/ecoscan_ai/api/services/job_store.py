@@ -51,9 +51,18 @@ async def run_crew_background(job_id: str, crew, inputs: dict, endpoint: str):
         jobs[job_id].status = JobStatus.success
         jobs[job_id].result = result.pydantic or result.raw
     except Exception as e:
-        logger.exception("An error occurred during job {job_id} execution")
+        logger.exception("An error occurred during job %s execution", job_id)
         jobs[job_id].status = JobStatus.failed
         jobs[job_id].error = f"An error occurred during execution: {str(e)}"
     finally:
         jobs[job_id].finished_at = datetime.now().isoformat()
-        await publish_job_result(jobs[job_id])
+        try:
+            published = await publish_job_result(jobs[job_id])
+        except Exception:
+            logger.exception("Unexpected error publishing job %s result", job_id)
+        else:
+            if not published:
+                logger.warning(
+                    "Job %s finished, but the completion notification could not be published",
+                    job_id,
+                )
