@@ -1,5 +1,5 @@
 import { useApiClient } from "@/utils/apiClient";
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import { Product } from "@/types/product";
 import { useSseClient } from "@/utils/sseClient";
 
@@ -17,6 +17,12 @@ export function useGreenScore(): UseGreenScoreResult {
   const [loading, setLoading] = useState<boolean>(false);
   const [product, setProduct] = useState<Product>();
   const [jobId, setJobId] = useState<string>();
+  const loadingRef = useRef(false);
+
+
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
 
   useEffect(() => {
     if (!jobId) return;
@@ -28,47 +34,68 @@ export function useGreenScore(): UseGreenScoreResult {
     };
   }, [jobId]);
 
-  const fetchGreenScore = async (productId: string) => {
-    if (loading) return;
-    setLoading(true);
-    try {
-      const data = await api.post(`score/${productId}`);
-      if (data) {
-        setJobId(data);
-      }
-    } catch (err) {
-      console.error("useGreenScore fetch error", err);
-    }
-  };
+  const fetchGreenScore = useCallback(
+      async (productId: string) => {
+        if (loadingRef.current) return;
 
-  const fetchProduct = async (productId: string) => {
-    if (loading) return;
-    setLoading(true);
-    try {
-      const data = await api.get(`product/${productId}`);
-      if (data) {
-        setProduct(data);
-        return data;
-      }
-    } catch (err) {
-      console.error("fetchProduct fetch error", err);
-    } finally {
-      setLoading(false);
-    }
-    console.log(product);
-  };
+        setLoading(true);
+        loadingRef.current = true;
 
-  const startSseListener = (jobId: string) => {
-    startStream(
-      `jobs/stream/${jobId}`,
-      (score) => {
-        setProduct((prev) => (prev ? { ...prev, score } : undefined));
-        setLoading(false);
+        try {
+          const data = await api.post(`score/${productId}`);
+          if (data) {
+            setJobId(data);
+          }
+        } catch (err) {
+          console.error("useGreenScore fetch error", err);
+          setLoading(false);
+          loadingRef.current = false;
+        }
       },
-      () => {
-        console.error(`Error in SSE stream`);
+      [api],
+  );
+
+
+  const fetchProduct = useCallback(
+      async (productId: string) => {
+        if (loadingRef.current) return;
+
+        setLoading(true);
+        loadingRef.current = true;
+
+        try {
+          const data = await api.get(`product/${productId}`);
+          if (data) {
+            setProduct(data);
+            return data;
+          }
+        } catch (err) {
+          console.error("fetchProduct fetch error", err);
+        } finally {
+          setLoading(false);
+          loadingRef.current = false;
+        }
       },
-    );
-  };
+      [api],
+  );
+
+  const startSseListener = useCallback(
+      (jobId: string) => {
+        startStream(
+            `jobs/stream/${jobId}`,
+            (score) => {
+              setProduct((prev) => (prev ? { ...prev, score } : undefined));
+              setLoading(false);
+              loadingRef.current = false;
+            },
+            () => {
+              setLoading(false);
+              loadingRef.current = false;
+              console.error("Error in SSE stream");
+            },
+        );
+      },
+      [startStream],
+  );
   return { fetchGreenScore, fetchProduct, product, loading, jobId };
 }
