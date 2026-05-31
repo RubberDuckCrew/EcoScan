@@ -24,10 +24,6 @@ public class SseService {
         return emitter;
     }
 
-    public void sendJobResult(final UUID jobId, final String result) {
-        sendSse(jobId, result, "job-result");
-    }
-
     public void sendProductScore(final UUID jobId, final int score) {
         sendSse(jobId, score, "product-score");
     }
