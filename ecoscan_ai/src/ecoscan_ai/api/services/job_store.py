@@ -15,7 +15,7 @@ def create_job() -> tuple[str, str]:
     job = JobResponse(
         job_id=job_id,
         status=JobStatus.pending,
-        created_at=datetime.now().isoformat(),
+        created_at=created_at,
     )
     jobs[job_id] = job
     return job_id, created_at
