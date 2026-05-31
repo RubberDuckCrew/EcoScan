@@ -29,3 +29,5 @@ logging:
     com.rubberduckcrew.ecoscan_backend: DEBUG
     org.springframework.cache: TRACE
     org.springframework.web: DEBUG
+
+ai.api.base-url: http://localhost:8000
