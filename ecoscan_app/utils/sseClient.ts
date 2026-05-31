@@ -54,7 +54,6 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
       eventSource.addEventListener("error", (err: any) => {
         console.log("Error in SSE connection", err);
         onError(err);
-        closeStream();
       });
     },
     [accessToken, eventName, closeStream],
