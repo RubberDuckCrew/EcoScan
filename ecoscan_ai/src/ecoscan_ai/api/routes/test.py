@@ -8,6 +8,7 @@ from ecoscan_ai.crews.crew import EcoscanAi
 
 router = APIRouter(prefix="/test", tags=["Test"])
 
+
 @router.post("", status_code=202, response_model=JobResponse)
 async def test(body: TestPayload):
     job_id = create_job()

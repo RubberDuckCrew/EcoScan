@@ -6,6 +6,7 @@ import traceback
 
 jobs: dict[str, dict] = {}
 
+
 def create_job() -> str:
     job_id = str(uuid.uuid4())
     jobs[job_id] = {
@@ -16,6 +17,7 @@ def create_job() -> str:
         "finished_at": None,
     }
     return job_id
+
 
 async def run_crew_background(job_id: str, crew, inputs: dict):
     jobs[job_id]["status"] = JobStatus.running
