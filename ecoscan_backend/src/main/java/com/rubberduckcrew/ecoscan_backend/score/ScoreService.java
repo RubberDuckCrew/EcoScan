@@ -5,7 +5,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscanai.api.GreenScoreApi;
-import com.rubberduckcrew.ecoscanai.model.JobResponse;
+import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
 import com.rubberduckcrew.ecoscanai.model.ScoreProductRequest;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +27,7 @@ public class ScoreService {
         final Product product = productRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Product not found"));
         final ScoreProductRequest scoreProductRequest = new ScoreProductRequest();
         scoreProductRequest.setProductContext(product.getDescription());
-        final Optional<JobResponse> jobResponse;
+        final Optional<JobResponseGreenScoreResult> jobResponse;
 
         try {
             jobResponse = Optional.of(greenScoreApi.scoreProduct(scoreProductRequest));
@@ -35,7 +35,7 @@ public class ScoreService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to score product", e);
         }
 
-        return jobResponse.map(JobResponse::getJobId).orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+        return jobResponse.map(JobResponseGreenScoreResult::getJobId).orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Failed to score product"));
 
     }
