@@ -1,11 +1,11 @@
-import {StyleSheet, View} from "react-native";
-import {Card, Text, useTheme} from "react-native-paper";
+import {Image, StyleSheet, View} from "react-native";
+import {Card, Text} from "react-native-paper";
 import {useEffect, useMemo, useState} from "react";
 import * as Location from 'expo-location';
 
 type AlternativeCardProps = {
     title: string;
-    image: string;
+    image: any;
     scanScore: number;
     alternativeScore: number;
     targetLatitude: number;
@@ -20,7 +20,6 @@ export default function AlternativeCard({
                                             targetLatitude,
                                             targetLongitude
                                         }: AlternativeCardProps) {
-    const theme = useTheme();
 
     const scoreDiffenrence = alternativeScore - scanScore;
     const [userLatitude, setUserLatitude] = useState<number>(-1);
@@ -73,13 +72,10 @@ export default function AlternativeCard({
     console.log(distance);
 
     return (
-        <Card style={{...styles.card, borderColor: theme.colors.primary}}>
+        <Card style={styles.card}>
             <View style={styles.content}>
-                <Card.Cover
-                    source={{uri: image}}
-                    style={styles.image}
-                />
-                <View style={styles.textContainer}>
+                <Image source={image} style={styles.image}/>
+                <View>
                     <Text variant="titleMedium" style={{fontWeight: '600'}}>
                         {title}
                     </Text>
@@ -99,22 +95,20 @@ export default function AlternativeCard({
 
 const styles = StyleSheet.create({
     card: {
-        borderWidth: 3,
-        borderRadius: 16,
-        padding: 12,
-        marginTop: 16,
+        borderWidth: 0,
+        borderBottomWidth: 0,
+        padding: 8,
+        marginTop: 12,
     },
     content: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 16,
+        paddingRight: 16,
     },
     image: {
-        width: 56,
-        height: 56,
-        borderRadius: 10,
+        width: 100,
+        height: 100,
+        borderRadius: 8,
     },
-    textContainer: {
-        flex: 1,
-        marginLeft: 12,
-    }
 });
