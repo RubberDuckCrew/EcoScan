@@ -21,6 +21,7 @@ request:
     accessTokenUrl: http://localhost:8100/auth/realms/local_realm/protocol/openid-connect/token
     credentials:
       clientId: local
+      clientSecret: client-secret
       placement: basic_auth_header
     resourceOwner:
       username: user
