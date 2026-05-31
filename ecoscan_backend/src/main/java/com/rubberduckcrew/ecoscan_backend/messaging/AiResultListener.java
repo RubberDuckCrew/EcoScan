@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
@@ -18,21 +19,51 @@ public class AiResultListener {
 
     private final ObjectMapper objectMapper;
     private final MessagingService messagingService;
+    private final RabbitTemplate rabbitTemplate;
 
     @RabbitListener(queues = "ai_results")
     public void handleResult(@Payload final Message message) {
-        final JsonNode node = objectMapper.readTree(message.getBody());
-        final String endpoint = node.path("endpoint").asString();
-        switch (endpoint) {
-        case "/test" -> {
-            final JobResponseStr job = objectMapper.treeToValue(node, JobResponseStr.class);
-            messagingService.receivedTest(job);
+        try {
+            final JsonNode node = objectMapper.readTree(message.getBody());
+            final String endpoint = node.path("endpoint").asString();
+
+            switch (endpoint) {
+            case "/test" -> {
+                try {
+                    final JobResponseStr job = objectMapper.treeToValue(node, JobResponseStr.class);
+                    messagingService.receivedTest(job);
+                } catch (Exception e) {
+                    log.error("Failed to deserialize JobResponseStr from message", e);
+                    routeToDlq(message, "deserialization_error", e);
+                }
+            }
+            case "/score" -> {
+                try {
+                    final JobResponseGreenScoreResult job = objectMapper.treeToValue(node, JobResponseGreenScoreResult.class);
+                    messagingService.receivedScore(job);
+                } catch (Exception e) {
+                    log.error("Failed to deserialize JobResponseGreenScoreResult from message", e);
+                    routeToDlq(message, "deserialization_error", e);
+                }
+            }
+            default -> {
+                log.warn("Received message for unknown endpoint: {}", endpoint);
+            }
+            }
+        } catch (Exception e) {
+            log.error("Failed to parse message body as JSON", e);
+            routeToDlq(message, "parse_error", e);
         }
-        case "/score" -> {
-            final JobResponseGreenScoreResult job = objectMapper.treeToValue(node, JobResponseGreenScoreResult.class);
-            messagingService.receivedScore(job);
-        }
-        default -> log.warn("Received message for unknown endpoint: {}", endpoint);
+    }
+
+    private void routeToDlq(final Message message, final String errorType, final Exception exception) {
+        try {
+            message.getMessageProperties().getHeaders().put("x-error-type", errorType);
+            message.getMessageProperties().getHeaders().put("x-error-message", exception.getMessage());
+            rabbitTemplate.convertAndSend("ai_results_dlx", "ai_results", message);
+            log.info("Message routed to DLQ due to {}: {}", errorType, exception.getMessage());
+        } catch (Exception dlqException) {
+            log.error("Failed to route message to DLQ", dlqException);
         }
     }
 }
