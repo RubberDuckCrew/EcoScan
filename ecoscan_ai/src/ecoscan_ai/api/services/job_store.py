@@ -1,12 +1,34 @@
 import asyncio
+import logging
 import uuid
 from datetime import datetime
-from ecoscan_ai.api.schemas.jobs import JobStatus, JobResponse
-import traceback
+
+from ecoscan_ai.api.schemas.jobs import JobResponse, JobStatus
 
 from ecoscan_ai.messaging.publisher import publish_job_result
 
 jobs: dict[str, JobResponse] = {}
+
+logger = logging.getLogger(__name__)
+
+
+def track_background_task(
+    task: asyncio.Task[None],
+    task_set: set[asyncio.Task[None]],
+) -> asyncio.Task[None]:
+    task_set.add(task)
+    task.add_done_callback(task_set.discard)
+    return task
+
+
+async def cancel_background_tasks(task_set: set[asyncio.Task[None]]) -> None:
+    if not task_set:
+        return
+
+    for task in list(task_set):
+        task.cancel()
+
+    await asyncio.gather(*task_set, return_exceptions=True)
 
 
 def create_job() -> tuple[str, str]:
@@ -28,9 +50,10 @@ async def run_crew_background(job_id: str, crew, inputs: dict, endpoint: str):
         result = await asyncio.to_thread(crew.kickoff, inputs=inputs)
         jobs[job_id].status = JobStatus.success
         jobs[job_id].result = result.pydantic or result.raw
-    except Exception:
+    except Exception as e:
+        logger.exception("An error occurred during job {job_id} execution")
         jobs[job_id].status = JobStatus.failed
-        jobs[job_id].error = traceback.format_exc()
+        jobs[job_id].error = f"An error occurred during execution: {str(e)}"
     finally:
         jobs[job_id].finished_at = datetime.now().isoformat()
         await publish_job_result(jobs[job_id])

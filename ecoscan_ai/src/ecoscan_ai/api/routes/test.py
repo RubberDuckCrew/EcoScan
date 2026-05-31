@@ -3,7 +3,11 @@ from datetime import datetime
 from fastapi import APIRouter, Request
 from ecoscan_ai.api.schemas.test import TestPayload
 from ecoscan_ai.api.schemas.jobs import JobStatus, JobResponse
-from ecoscan_ai.api.services.job_store import create_job, run_crew_background
+from ecoscan_ai.api.services.job_store import (
+    create_job,
+    run_crew_background,
+    track_background_task,
+)
 from ecoscan_ai.crews.crew import EcoscanAi
 
 router = APIRouter(prefix="/test", tags=["Test"])
@@ -16,9 +20,10 @@ async def test(body: TestPayload, request: Request) -> JobResponse:
 
     crew_instance = EcoscanAi().crew()
 
-    asyncio.create_task(
+    background_task = asyncio.create_task(
         run_crew_background(job_id, crew_instance, inputs, request.url.path)
     )
+    track_background_task(background_task, request.app.state.background_tasks)
     return JobResponse(
         job_id=job_id,
         status=JobStatus.pending,
