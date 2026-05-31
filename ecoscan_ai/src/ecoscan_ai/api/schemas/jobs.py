@@ -15,6 +15,7 @@ class JobStatus(str, Enum):
 
 class JobResponse(BaseModel, Generic[T]):
     job_id: str
+    endpoint: str | None = None
     status: JobStatus
     created_at: str
     result: T | None = None
