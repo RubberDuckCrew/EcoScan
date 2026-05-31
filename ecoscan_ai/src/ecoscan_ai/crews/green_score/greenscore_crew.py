@@ -8,20 +8,21 @@ from ecoscan_ai.api.schemas.green_score_result import GreenScoreResult
 class GreenScoreCrew:
     @agent
     def evaluator(self) -> Agent:
-        return Agent(config=self.agents_config["evaluator"], verbose=True)
+        return Agent(config=self.agents_config["evaluator"], verbose=True)  # type: ignore[index]
 
     @agent
     def score_agent(self) -> Agent:
-        return Agent(config=self.agents_config["score_agent"], verbose=True)
+        return Agent(config=self.agents_config["score_agent"], verbose=True)  # type: ignore[index]
 
     @task
     def evaluate_task(self) -> Task:
-        return Task(config=self.tasks_config["evaluate_task"])
+        return Task(config=self.tasks_config["evaluate_task"])  # type: ignore[index]
 
     @task
     def score_task(self) -> Task:
         return Task(
-            config=self.tasks_config["score_task"], output_pydantic=GreenScoreResult
+            config=self.tasks_config["score_task"],
+            output_pydantic=GreenScoreResult,  # type: ignore[index]
         )
 
     @crew
@@ -35,5 +36,4 @@ class GreenScoreCrew:
             tasks=self.tasks,  # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )
