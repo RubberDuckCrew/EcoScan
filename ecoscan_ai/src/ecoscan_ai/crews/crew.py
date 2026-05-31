@@ -6,27 +6,12 @@ from pydantic import BaseModel
 
 from ecoscan_ai.llm import llm
 from ecoscan_ai.tools import duckduckgo_search
+from ecoscan_ai.api.schemas.alternatives import AlternativesOutput
 
 
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
-
-class StoreLocation(BaseModel):
-    store_name: str
-    latitude: float
-    longitude: float
-
-
-class AlternativeProduct(BaseModel):
-    alternative_name: str
-    alternative_ean: str
-    location: StoreLocation
-
-
-class AlternativesOutput(BaseModel):
-    alternativ_products: list[AlternativeProduct]
-
 
 @CrewBase
 class EcoscanAi:
@@ -41,19 +26,6 @@ class EcoscanAi:
 
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
-    @agent
-    def researcher(self) -> Agent:
-        return Agent(
-            config=self.agents_config["researcher"],  # type: ignore[index]
-            verbose=True,
-        )
-
-    @agent
-    def reporting_analyst(self) -> Agent:
-        return Agent(
-            config=self.agents_config["reporting_analyst"],  # type: ignore[index]
-            verbose=True,
-        )
 
     @agent
     def alternatives_researcher(self) -> Agent:
@@ -76,15 +48,12 @@ class EcoscanAi:
     @task
     def research_alternatives_task(self) -> Task:
         return Task(
-            config=self.tasks_config["research_task"],  # type: ignore[index]
             config=self.tasks_config['research_alternatives_task'],  # type: ignore[index]
         )
 
     @task
     def find_coordinates_task(self) -> Task:
         return Task(
-            config=self.tasks_config["reporting_task"],  # type: ignore[index]
-            output_file="report.md",
             config=self.tasks_config['find_coordinates_task'],  # type: ignore[index]
             output_json=AlternativesOutput
         )
