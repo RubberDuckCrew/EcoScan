@@ -12,11 +12,13 @@ export default function Scan() {
   const router = useRouter();
 
   const onScanned = (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) return;
     console.log("Scanned barcode:", code);
-    setBarcode(code);
+    setBarcode(trimmed);
     router.push({
       pathname: "/product/[id]",
-      params: { id: code },
+      params: { id: trimmed },
     });
   };
 
