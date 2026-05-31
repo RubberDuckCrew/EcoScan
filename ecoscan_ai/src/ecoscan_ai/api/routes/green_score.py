@@ -11,7 +11,7 @@ router = APIRouter(prefix="/score", tags=["GreenScore"])
 
 @router.post("", status_code=202, operation_id="scoreProduct", response_model=JobResponse)
 async def score(body: ScoreProductRequest) -> JobResponse:
-    job_id = create_job()
+    job_id, created_at = create_job()
     inputs = {"productContext": body.productContext}
     asyncio.create_task(run_crew_background(job_id, GreenScoreCrew().crew, inputs))
-    return JobResponse(job_id=job_id, status=JobStatus.pending)
+    return JobResponse(job_id=job_id, status=JobStatus.pending, created_at=created_at)

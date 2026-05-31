@@ -21,6 +21,7 @@ def track_background_task(
     return task
 
 
+def create_job() -> tuple[str, str]:
 async def cancel_background_tasks(task_set: set[asyncio.Task[None]]) -> None:
     if not task_set:
         return
