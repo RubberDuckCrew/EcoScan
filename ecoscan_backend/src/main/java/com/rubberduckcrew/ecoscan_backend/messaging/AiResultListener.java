@@ -17,6 +17,10 @@ public class AiResultListener {
     @RabbitListener(queues = "ai_results")
     public void handleResult(@Payload final JobResponseStr msg) {
         log.info("Job {} finished with status {}", msg.getJobId(), msg.getStatus());
+        if (msg.getEndpoint() == null) {
+            log.error("Received job result without endpoint for job {}", msg.getJobId());
+            return;
+        }
         switch (msg.getEndpoint()) {
         case "/test":
             messagingService.receivedTest(msg);
