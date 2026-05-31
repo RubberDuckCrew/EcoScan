@@ -4,7 +4,7 @@ import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
 
@@ -14,9 +14,24 @@ export default function Product() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  onError((err) => {
-    router.back();
-  });
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+
+    onError((err) => {
+      try {
+        if (mountedRef.current && router && typeof router.back === "function") {
+          router.back();
+        }
+      } catch (e) {
+        console.error("Error navigating back: ", e);
+      }
+    });
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [onError, router]);
 
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
@@ -51,7 +66,7 @@ export default function Product() {
           <View style={styles.loadingIndicator}>
             <LoadingIndicator />
             <Text style={styles.loadingIndicatorText}>
-              Wir analysieren das Produkt...
+              Produkt wird analysiert...
             </Text>
           </View>
         </>
