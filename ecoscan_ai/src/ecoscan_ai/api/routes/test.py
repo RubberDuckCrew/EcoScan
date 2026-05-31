@@ -16,7 +16,9 @@ async def test(body: TestPayload, request: Request) -> JobResponse:
 
     crew_instance = EcoscanAi().crew()
 
-    asyncio.create_task(run_crew_background(job_id, crew_instance, inputs, request.url.path))
+    asyncio.create_task(
+        run_crew_background(job_id, crew_instance, inputs, request.url.path)
+    )
     return JobResponse(
         job_id=job_id,
         status=JobStatus.pending,
