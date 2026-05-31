@@ -1,7 +1,5 @@
 package com.rubberduckcrew.ecoscan_backend.configuration;
 
-
-
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 
