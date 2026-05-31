@@ -20,9 +20,10 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments.some((s) => s === "(auth)");
     const inTabsGroup = segments.some((s) => s === "(tabs)");
+    const inProductGroup = segments.some((s) => s === "product");
 
     if (isAuthenticated) {
-      if (!inTabsGroup) {
+      if (!inTabsGroup && !inProductGroup) {
         router.replace("/(tabs)/Scan");
       }
     } else {
