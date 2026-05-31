@@ -12,9 +12,15 @@ export default function ScoreCard({ score }: ScoreCardProps) {
 
   return (
     <View style={[styles.rootCard, variant.card]}>
-      <Text style={[styles.title, variant.text]}>Green Score</Text>
-      <Text style={[styles.score, variant.text]}>{score}</Text>
-      <Text style={[styles.message, variant.text]}>{variant.message}</Text>
+      <Text style={variant.text} variant={"headlineSmall"}>
+        Green Score
+      </Text>
+      <Text style={[styles.score, variant.text]} variant={"displayLarge"}>
+        {score}
+      </Text>
+      <Text style={[styles.message, variant.text]} variant={"bodyLarge"}>
+        {variant.message}
+      </Text>
       <View style={styles.progressBarContainer}>
         <ProgressBar
           style={styles.progressBar}
@@ -68,11 +74,7 @@ function withOpacity(hex: string, opacity: number): string {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 20,
-  },
   score: {
-    fontSize: 48,
     fontWeight: "bold",
   },
   message: {
@@ -82,7 +84,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 25,
     borderStyle: "solid",
-    borderWidth: 1,
+    borderWidth: 3,
     padding: 16,
     marginVertical: 8,
     alignItems: "center",

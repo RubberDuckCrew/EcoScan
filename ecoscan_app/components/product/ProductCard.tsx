@@ -1,8 +1,8 @@
 import { Surface, Text } from "react-native-paper";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View, ScrollView } from "react-native";
 import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import {theme} from "@/theme";
+import { theme } from "@/theme";
 
 export interface ProductCardProps {
   name: string;
@@ -39,9 +39,21 @@ export default function ProductCard(props: ProductCardProps) {
         )}
       </View>
       <Surface style={styles.textCard} elevation={0}>
-        <Text style={styles.titleText}>{props.name}</Text>
-        <Text style={styles.descriptionText}>{props.description}</Text>
-        <Text style={styles.barcodeText}>Barcode: {props.barcode}</Text>
+        <Text style={styles.titleText} variant={"headlineMedium"}>
+          {props.name}
+        </Text>
+        <ScrollView
+          style={styles.descriptionContainer}
+          contentContainerStyle={{ paddingRight: 4 }}
+          showsVerticalScrollIndicator={true}
+        >
+          <Text style={styles.descriptionText} variant={"bodyLarge"}>
+            {props.description}
+          </Text>
+        </ScrollView>
+        <Text style={styles.barcodeText} variant={"bodyMedium"}>
+          Barcode: {props.barcode}
+        </Text>
       </Surface>
     </Surface>
   );
@@ -65,15 +77,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleText: {
-    fontSize: 24,
     fontWeight: "bold",
   },
+  descriptionContainer: {
+    maxHeight: 70,
+  },
   descriptionText: {
-    fontSize: 20,
     color: theme.colors.muted,
+    lineHeight: 20,
   },
   barcodeText: {
-    fontSize: 15,
     color: theme.colors.muted,
   },
   image: {
