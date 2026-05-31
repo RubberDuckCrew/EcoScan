@@ -6,7 +6,6 @@ import aio_pika
 from ecoscan_ai.api.schemas.jobs import JobResponse
 
 RESULTS_QUEUE = "ai_results"
-RESULTS_DEAD_LETTER_QUEUE = "ai_results.dead"
 PUBLISH_ATTEMPTS = 3
 PUBLISH_RETRY_DELAY_SECONDS = 1.0
 
@@ -16,13 +15,8 @@ logger = logging.getLogger(__name__)
 async def _declare_job_result_queues(channel) -> None:
     await channel.declare_queue(
         RESULTS_QUEUE,
-        durable=True,
-        arguments={
-            "x-dead-letter-exchange": "",
-            "x-dead-letter-routing-key": RESULTS_DEAD_LETTER_QUEUE,
-        },
+        durable=True
     )
-    await channel.declare_queue(RESULTS_DEAD_LETTER_QUEUE, durable=True)
 
 
 async def publish_job_result(job: JobResponse) -> bool:
