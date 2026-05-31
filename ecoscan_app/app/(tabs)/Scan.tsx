@@ -5,13 +5,19 @@ import { Button, Text } from "react-native-paper";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
 import { theme } from "@/theme";
+import { useRouter } from "expo-router";
 
 export default function Scan() {
   const [barcode, setBarcode] = useState("");
+  const router = useRouter();
 
   const onScanned = (code: string) => {
     console.log("Scanned barcode:", code);
     setBarcode(code);
+    router.push({
+      pathname: "/product/[id]",
+      params: { id: code },
+    });
   };
 
   return (
