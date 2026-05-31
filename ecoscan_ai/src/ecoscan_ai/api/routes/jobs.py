@@ -4,6 +4,7 @@ from fastapi import HTTPException, APIRouter
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
+
 @router.get("/{job_id}", response_model=JobResponse[str])
 def get_job(job_id: str):
     if job_id not in jobs:
@@ -11,9 +12,9 @@ def get_job(job_id: str):
     job_info_dict = jobs[job_id].model_dump()
     return {"job_id": job_id, **job_info_dict}
 
+
 @router.get("", response_model=list[JobResponse[str]])
 def list_jobs():
     return [
-        {"job_id": job_id, **job_info.model_dump()}
-        for job_id, job_info in jobs.items()
+        {"job_id": job_id, **job_info.model_dump()} for job_id, job_info in jobs.items()
     ]

@@ -19,6 +19,4 @@ async def publish_job_result(job: JobResponse):
             delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
             content_type="application/json",
         )
-        await channel.default_exchange.publish(
-            message, routing_key="ai_results"
-        )
+        await channel.default_exchange.publish(message, routing_key="ai_results")

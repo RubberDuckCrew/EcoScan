@@ -12,16 +12,11 @@ router = APIRouter(prefix="/test", tags=["Test"])
 @router.post("", status_code=202, response_model=JobResponse[str])
 async def test(body: TestPayload) -> JobResponse:
     job_id, created_at = create_job()
-    inputs = {
-        "topic": body.topic,
-        "current_year": str(datetime.now().year)
-    }
+    inputs = {"topic": body.topic, "current_year": str(datetime.now().year)}
 
     crew_instance = EcoscanAi().crew()
 
-    asyncio.create_task(
-        run_crew_background(job_id, crew_instance, inputs)
-    )
+    asyncio.create_task(run_crew_background(job_id, crew_instance, inputs))
     return JobResponse(
         job_id=job_id,
         status=JobStatus.pending,
