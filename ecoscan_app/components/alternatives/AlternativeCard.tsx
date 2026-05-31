@@ -21,7 +21,7 @@ export default function AlternativeCard({
                                             targetLongitude
                                         }: AlternativeCardProps) {
 
-    const scoreDiffenrence = alternativeScore - scanScore;
+    const scoreDifference = alternativeScore - scanScore;
     const [userLatitude, setUserLatitude] = useState<number>(-1);
     const [userLongitude, setUserLongitude] = useState<number>(-1);
 
@@ -80,7 +80,7 @@ export default function AlternativeCard({
                         {title}
                     </Text>
                     <Text variant="bodyMedium" style={{color: '#666'}} numberOfLines={3}>
-                        {alternativeScore} (+ {scoreDiffenrence} Punkte besser)
+                        {alternativeScore} (+ {scoreDifference} Punkte besser)
                     </Text>
                     {distance &&
                         <Text variant="bodyMedium" style={{color: '#666'}} numberOfLines={3}>
