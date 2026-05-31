@@ -11,20 +11,27 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class SseService {
 
     private final Map<UUID, SseEmitter> emitters = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> bufferedScores = new ConcurrentHashMap<>();
 
     public SseEmitter createEmitter(final UUID jobId) {
         final SseEmitter emitter = new SseEmitter(600_000L);
 
         emitters.put(jobId, emitter);
 
-        emitter.onCompletion(() -> emitters.remove(jobId));
-        emitter.onTimeout(() -> emitters.remove(jobId));
-        emitter.onError((e) -> emitters.remove(jobId));
+        emitter.onCompletion(() -> cleanupEmitter(jobId));
+        emitter.onTimeout(() -> cleanupEmitter(jobId));
+        emitter.onError((e) -> cleanupEmitter(jobId));
+
+        final Integer bufferedScore = bufferedScores.get(jobId);
+        if (bufferedScore != null) {
+            sendSse(jobId, bufferedScore, "product-score");
+        }
 
         return emitter;
     }
 
     public void sendProductScore(final UUID jobId, final int score) {
+        bufferedScores.put(jobId, score);
         sendSse(jobId, score, "product-score");
     }
 
@@ -43,5 +50,10 @@ public class SseService {
             emitter.completeWithError(e);
             emitters.remove(jobId);
         }
+    }
+
+    private void cleanupEmitter(final UUID jobId) {
+        emitters.remove(jobId);
+        bufferedScores.remove(jobId);
     }
 }
