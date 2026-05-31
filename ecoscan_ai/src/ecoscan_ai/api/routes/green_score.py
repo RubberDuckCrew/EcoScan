@@ -10,10 +10,18 @@ from ecoscan_ai.crews.green_score.greenscore_crew import GreenScoreCrew
 
 router = APIRouter(prefix="/score", tags=["GreenScore"])
 
-@router.post("", status_code=202, operation_id="scoreProduct", response_model=JobResponse[GreenScoreResult])
+
+@router.post(
+    "",
+    status_code=202,
+    operation_id="scoreProduct",
+    response_model=JobResponse[GreenScoreResult],
+)
 async def score(request: Request, body: ScoreProductRequest) -> JobResponse:
     job_id, created_at = create_job()
     inputs = {"productContext": body.productContext}
     crew_instance = GreenScoreCrew().crew()
-    asyncio.create_task(run_crew_background(job_id, crew_instance, inputs, endpoint=request.url.path))
+    asyncio.create_task(
+        run_crew_background(job_id, crew_instance, inputs, endpoint=request.url.path)
+    )
     return JobResponse(job_id=job_id, status=JobStatus.pending, created_at=created_at)

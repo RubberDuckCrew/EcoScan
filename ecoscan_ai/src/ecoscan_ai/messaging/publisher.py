@@ -13,10 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 async def _declare_job_result_queues(channel) -> None:
-    await channel.declare_queue(
-        RESULTS_QUEUE,
-        durable=True
-    )
+    await channel.declare_queue(RESULTS_QUEUE, durable=True)
 
 
 async def publish_job_result(job: JobResponse) -> bool:

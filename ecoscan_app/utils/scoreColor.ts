@@ -2,7 +2,7 @@ import { theme } from "@/theme";
 
 export type ScoreVariant = "good" | "warning" | "bad";
 
-export function getScoreVariant(score: number) : ScoreVariant {
+export function getScoreVariant(score: number): ScoreVariant {
   const s = Math.max(0, Math.min(100, Math.round(Number(score) || 0)));
   if (s <= 33) return "bad";
   if (s <= 66) return "warning";

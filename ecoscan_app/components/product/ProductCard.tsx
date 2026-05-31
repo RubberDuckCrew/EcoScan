@@ -10,7 +10,7 @@ export interface ProductCardProps {
   barcode: string;
 }
 
-export default function ProductCard(props:ProductCardProps) {
+export default function ProductCard(props: ProductCardProps) {
   const [imageLoadError, setImageLoadError] = useState(false);
 
   const handleImageError = () => {
@@ -29,7 +29,11 @@ export default function ProductCard(props:ProductCardProps) {
           />
         ) : (
           <View style={styles.fallbackIcon}>
-            <MaterialIcons name="image-not-supported" size={64} color="#757575" />
+            <MaterialIcons
+              name="image-not-supported"
+              size={64}
+              color="#757575"
+            />
           </View>
         )}
       </View>
