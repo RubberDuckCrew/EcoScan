@@ -1,8 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.score;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
-import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
+import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscanai.api.GreenScoreApi;
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
@@ -18,13 +16,13 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ScoreService {
 
-    private final ProductRepository productRepository;
+    private final ProductService productService;
 
     private final GreenScoreApi greenScoreApi;
 
     public UUID scoreProduct(final String id) {
 
-        final Product product = productRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Product not found"));
+        final Product product = productService.getProduct(id);
         final ScoreProductRequest scoreProductRequest = new ScoreProductRequest();
         scoreProductRequest.setProductContext(product.getDescription());
         final Optional<JobResponseGreenScoreResult> jobResponse;
