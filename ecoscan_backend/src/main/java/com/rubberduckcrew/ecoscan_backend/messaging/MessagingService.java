@@ -1,6 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.messaging;
 
-import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobService;
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
 import java.util.UUID;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MessagingService {
 
-    private final SseService sseService;
+    private final JobService jobService;
 
     public void receivedTest(@Payload final JobResponseStr msg) {
         log.info("Received test");
@@ -28,6 +28,6 @@ public class MessagingService {
         }
         final int score = msg.getResult().getOverallScore();
         log.info("Job ID: {}, Score: {}", jobId, score);
-        sseService.sendProductScore(jobId, score);
+        jobService.sendProductScore(jobId, score);
     }
 }
