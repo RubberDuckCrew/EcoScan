@@ -8,15 +8,18 @@ export interface ScoreCardProps {
 }
 
 export default function ScoreCard({ score }: ScoreCardProps) {
-  const variant = variantStyles[getScoreVariant(score)];
-
+  const normalizedScore = Math.max(
+    0,
+    Math.min(100, Math.round(Number(score) || 0)),
+  );
+  const variant = variantStyles[getScoreVariant(normalizedScore)];
   return (
     <View style={[styles.rootCard, variant.card]}>
       <Text style={variant.text} variant={"headlineSmall"}>
         Green Score
       </Text>
       <Text style={[styles.score, variant.text]} variant={"displayLarge"}>
-        {score}
+        {normalizedScore}
       </Text>
       <Text style={[styles.message, variant.text]} variant={"bodyLarge"}>
         {variant.message}
@@ -24,7 +27,7 @@ export default function ScoreCard({ score }: ScoreCardProps) {
       <View style={styles.progressBarContainer}>
         <ProgressBar
           style={styles.progressBar}
-          progress={score / 100}
+          progress={normalizedScore / 100}
           color={variant.progressBar}
         />
       </View>
