@@ -47,7 +47,7 @@ async def run_crew_background(job_id: str, crew, inputs: dict, endpoint: str):
     jobs[job_id].status = JobStatus.running
     jobs[job_id].endpoint = endpoint
     try:
-        result = await asyncio.to_thread(crew.kickoff, inputs=inputs)
+        result = await crew.akickoff(inputs=inputs)
         jobs[job_id].status = JobStatus.success
         jobs[job_id].result = result.pydantic or result.raw
     except Exception as e:
