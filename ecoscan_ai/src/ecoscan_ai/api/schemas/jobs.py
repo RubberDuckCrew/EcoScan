@@ -1,5 +1,9 @@
+from typing import Generic, TypeVar
+
 from pydantic import BaseModel
 from enum import Enum
+
+T = TypeVar("T")
 
 
 class JobStatus(str, Enum):
@@ -9,10 +13,10 @@ class JobStatus(str, Enum):
     failed = "failed"
 
 
-class JobResponse(BaseModel):
+class JobResponse(BaseModel, Generic[T]):
     job_id: str
     status: JobStatus
     created_at: str
-    result: str | None = None
+    result: T | None = None
     error: str | None = None
     finished_at: str | None = None

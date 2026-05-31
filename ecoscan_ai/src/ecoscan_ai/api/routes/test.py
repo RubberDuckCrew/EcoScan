@@ -9,12 +9,21 @@ from ecoscan_ai.crews.crew import EcoscanAi
 router = APIRouter(prefix="/test", tags=["Test"])
 
 
-@router.post("", status_code=202, response_model=JobResponse)
-async def test(body: TestPayload):
-    job_id = create_job()
+@router.post("", status_code=202, response_model=JobResponse[str])
+async def test(body: TestPayload) -> JobResponse:
+    job_id, created_at = create_job()
     inputs = {
         "topic": body.topic,
-        "current_year": str(datetime.now().year),
+        "current_year": str(datetime.now().year)
     }
-    asyncio.create_task(run_crew_background(job_id, EcoscanAi().crew(), inputs))
-    return {"job_id": job_id, "status": JobStatus.pending}
+
+    crew_instance = EcoscanAi().crew()
+
+    asyncio.create_task(
+        run_crew_background(job_id, crew_instance, inputs)
+    )
+    return JobResponse(
+        job_id=job_id,
+        status=JobStatus.pending,
+        created_at=created_at,
+    )
