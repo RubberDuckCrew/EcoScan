@@ -12,5 +12,6 @@ export const theme = {
     text: "#000000",
     onSurface: "#000000",
     warning: "#f1c40f",
+    error: "#b3261e",
   },
 };

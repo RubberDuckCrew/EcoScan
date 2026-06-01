@@ -2,6 +2,7 @@ from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 from enum import Enum
+from uuid import UUID
 
 T = TypeVar("T")
 
@@ -14,7 +15,7 @@ class JobStatus(str, Enum):
 
 
 class JobResponse(BaseModel, Generic[T]):
-    job_id: str
+    job_id: UUID
     endpoint: str | None = None
     status: JobStatus
     created_at: str

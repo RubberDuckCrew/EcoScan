@@ -1,0 +1,15 @@
+evaluate_task:
+  description: >
+    Evaluate the sustainability of the following product: {productContext}.
+    Analyze all relevant sustainability factors.
+  expected_output: >
+    A structured evaluation covering energy use, materials, transport, 
+    and social impact.
+  agent: evaluator
+
+score_task:
+  description: >
+    Based on the evaluation, calculate an overall sustainability score from 0-100.
+  expected_output: >
+    A single integer score between 0 and 100 with a one-sentence justification.
+  agent: score_agent
