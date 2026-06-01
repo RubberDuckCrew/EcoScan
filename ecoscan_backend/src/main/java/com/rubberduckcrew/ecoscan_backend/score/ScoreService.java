@@ -32,7 +32,7 @@ public class ScoreService {
         final Optional<JobResponseGreenScoreResult> jobResponse;
 
         try {
-            jobResponse = Optional.of(greenScoreApi.scoreProduct(scoreProductRequest));
+            jobResponse = Optional.ofNullable(greenScoreApi.scoreProduct(scoreProductRequest));
         } catch (ValidationException e) {
             log.error("OpenAPI client error while scoring product", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to score product", e);
