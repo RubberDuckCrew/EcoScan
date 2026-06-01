@@ -14,23 +14,21 @@ export default function Product() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  const mountedRef = useRef(true);
+  const routerRef = useRef(router);
   useEffect(() => {
-    mountedRef.current = true;
+    routerRef.current = router;
+  }, [router]);
 
+  useEffect(() => {
     onError((err) => {
+      if (!isFatalError(err)) return;
+
       try {
-        if (mountedRef.current && router && typeof router.back === "function") {
-          router.back();
-        }
+        routerRef.current.back();
       } catch (e) {
         console.error("Error navigating back: ", e);
       }
     });
-
-    return () => {
-      mountedRef.current = false;
-    };
   }, [onError, router]);
 
   useEffect(() => {
@@ -43,6 +41,14 @@ export default function Product() {
       await fetchGreenScore(normalizedId);
     })();
   }, [id, fetchGreenScore, fetchProduct]);
+
+  function isFatalError(err: unknown): boolean {
+    if (err && typeof err === "object" && "status" in err) {
+      const status = (err as { status: number }).status;
+      return status >= 400;
+    }
+    return false;
+  }
 
   return (
     <PageContainer>
