@@ -6,6 +6,8 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -36,10 +38,17 @@ public class RabbitMQConfiguration {
     }
 
     @Bean
+    public RabbitAdmin rabbitAdmin(final ConnectionFactory connectionFactory) {
+        final RabbitAdmin admin = new RabbitAdmin(connectionFactory);
+        admin.setIgnoreDeclarationExceptions(true);
+        return admin;
+    }
+
+    @Bean
     public Binding dlqBinding() {
         return BindingBuilder.bind(aiResultsDlq())
                 .to(aiResultsDlx())
-                .with("ai_results");
+                .with(AI_RESULTS_QUEUE);
     }
 
     @Bean
