@@ -26,7 +26,11 @@ public class MessagingService {
             log.error("Job result from {} is null", jobId);
             return;
         }
-        final int score = msg.getResult().getOverallScore();
+        final Integer score = msg.getResult().getOverallScore();
+        if (score == null) {
+            log.error("Job result from {} has null overallScore", jobId);
+            return;
+        }
         log.info("Job ID: {}, Score: {}", jobId, score);
         jobService.sendProductScore(jobId, score);
     }
