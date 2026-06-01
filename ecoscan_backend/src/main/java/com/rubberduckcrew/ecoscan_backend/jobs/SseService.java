@@ -1,13 +1,12 @@
 package com.rubberduckcrew.ecoscan_backend.jobs;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -15,14 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class SseService {
 
     private static final long DEFAULT_TIMEOUT_MS = 600_000L;
-    private static final int STRIPE_COUNT = 16;
 
-    private final Map<UUID, SseEmitter> emitters = new ConcurrentHashMap<>();
-    private final Map<UUID, List<BufferedItem>> bufferedEvents = new ConcurrentHashMap<>();
-
-    private final ReentrantLock[] stripes = IntStream.range(0, STRIPE_COUNT)
-            .mapToObj(i -> new ReentrantLock())
-            .toArray(ReentrantLock[]::new);
+    private final Map<UUID, JobState> jobs = new ConcurrentHashMap<>();
 
     private sealed interface BufferedItem permits BufferedItem.Event, BufferedItem.Complete {
         record Event(SseEmitter.SseEventBuilder builder) implements BufferedItem {
@@ -32,36 +25,37 @@ public class SseService {
         }
     }
 
-    private ReentrantLock lockFor(final UUID jobId) {
-        return stripes[Math.floorMod(jobId.hashCode(), STRIPE_COUNT)];
+    private static final class JobState {
+        private SseEmitter emitter;
+        private final List<BufferedItem> buffer = new ArrayList<>();
+        private boolean completed = false;
+        private final ReentrantLock lock = new ReentrantLock();
     }
 
     public SseEmitter createEmitter(final UUID jobId) {
         final SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT_MS);
-        emitter.onCompletion(() -> cleanupEmitter(jobId));
-        emitter.onTimeout(() -> cleanupEmitter(jobId));
-        emitter.onError((e) -> cleanupEmitter(jobId));
+        final JobState state = jobs.computeIfAbsent(jobId, k -> new JobState());
 
         final List<BufferedItem> pending;
-        final ReentrantLock lock = lockFor(jobId);
-        lock.lock();
+        state.lock.lock();
         try {
-            emitters.put(jobId, emitter);
-            pending = bufferedEvents.remove(jobId);
+            state.emitter = emitter;
+            pending = new ArrayList<>(state.buffer);
+            state.buffer.clear();
         } finally {
-            lock.unlock();
+            state.lock.unlock();
         }
 
-        if (pending != null) {
-            for (final BufferedItem item : pending) {
-                switch (item) {
-                case BufferedItem.Event(var builder) -> doSend(emitter, jobId, builder);
-                case BufferedItem.Complete() -> {
-                    emitter.complete();
-                    return emitter;
-                }
-                }
+        emitter.onCompletion(() -> cleanup(jobId, state));
+        emitter.onTimeout(() -> cleanup(jobId, state));
+        emitter.onError(e -> cleanup(jobId, state));
+
+        for (final BufferedItem item : pending) {
+            if (item instanceof BufferedItem.Complete) {
+                emitter.complete();
+                return emitter;
             }
+            doSend(emitter, ((BufferedItem.Event) item).builder());
         }
 
         return emitter;
@@ -69,64 +63,64 @@ public class SseService {
 
     public void send(final UUID jobId, final String eventName, final Object data) {
         final SseEmitter.SseEventBuilder builder = SseEmitter.event().name(eventName).data(data);
+        final JobState state = jobs.computeIfAbsent(jobId, k -> new JobState());
 
         final SseEmitter emitter;
-        final ReentrantLock lock = lockFor(jobId);
-        lock.lock();
+        state.lock.lock();
         try {
-            emitter = emitters.get(jobId);
-            if (emitter == null) {
-                buffer(jobId, new BufferedItem.Event(builder));
+            emitter = state.emitter;
+            if (emitter == null && !state.completed) {
+                state.buffer.add(new BufferedItem.Event(builder));
+                return;
             }
         } finally {
-            lock.unlock();
+            state.lock.unlock();
         }
 
         if (emitter != null) {
-            doSend(emitter, jobId, builder);
+            doSend(emitter, builder);
         }
     }
 
     public void complete(final UUID jobId) {
-        final SseEmitter emitter;
-        final ReentrantLock lock = lockFor(jobId);
-        lock.lock();
-        try {
-            emitter = emitters.get(jobId);
-            if (emitter == null) {
-                buffer(jobId, new BufferedItem.Complete());
-                return;
-            }
-            emitters.remove(jobId);
-            bufferedEvents.remove(jobId);
-        } finally {
-            lock.unlock();
+        final JobState state = jobs.get(jobId);
+        if (state == null) {
+            return;
         }
 
+        final SseEmitter emitter;
+        state.lock.lock();
+        try {
+            state.completed = true;
+            emitter = state.emitter;
+            if (emitter == null) {
+                state.buffer.add(new BufferedItem.Complete());
+                return;
+            }
+        } finally {
+            state.lock.unlock();
+        }
+
+        jobs.remove(jobId);
         emitter.complete();
     }
 
-    private void buffer(final UUID jobId, final BufferedItem item) {
-        bufferedEvents.computeIfAbsent(jobId, k -> new CopyOnWriteArrayList<>()).add(item);
+    private void cleanup(final UUID jobId, final JobState state) {
+        state.lock.lock();
+        try {
+            state.completed = true;
+        } finally {
+            state.lock.unlock();
+        }
+        jobs.remove(jobId);
     }
 
-    private void doSend(final SseEmitter emitter, final UUID jobId, final SseEmitter.SseEventBuilder event) {
+    private void doSend(final SseEmitter emitter,
+            final SseEmitter.SseEventBuilder event) {
         try {
             emitter.send(event);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             emitter.completeWithError(e);
-            cleanupEmitter(jobId);
-        }
-    }
-
-    private void cleanupEmitter(final UUID jobId) {
-        final ReentrantLock lock = lockFor(jobId);
-        lock.lock();
-        try {
-            emitters.remove(jobId);
-            bufferedEvents.remove(jobId);
-        } finally {
-            lock.unlock();
         }
     }
 }
