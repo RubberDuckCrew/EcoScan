@@ -1,2 +1,9 @@
+CREATE TABLE product
+    ADD COLUMN data TEXT;
+
+UPDATE product
+    SET data = '{}'
+    WHERE data IS NULL;
+
 ALTER TABLE product
-    ADD COLUMN data VARCHAR(2048) NOT NULL;
+    ALTER COLUMN data SET NOT NULL;
