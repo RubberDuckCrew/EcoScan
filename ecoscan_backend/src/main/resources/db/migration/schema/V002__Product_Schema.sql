@@ -1,0 +1,2 @@
+ALTER TABLE product
+    ADD COLUMN data VARCHAR(2048) NOT NULL;
