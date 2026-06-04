@@ -1,4 +1,4 @@
-CREATE TABLE product
+ALTER TABLE product
     ADD COLUMN data TEXT;
 
 UPDATE product
