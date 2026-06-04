@@ -1,6 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.messaging;
 
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
+import com.rubberduckcrew.ecoscanai.model.JobResponseProductAnalysisResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,15 @@ public class AiResultListener {
                     messagingService.receivedScore(job);
                 } catch (Exception e) {
                     log.error("Failed to deserialize JobResponseGreenScoreResult from message", e);
+                    routeToDlq(message, "deserialization_error", e);
+                }
+            }
+            case "/product-analysis" -> {
+                try {
+                    final JobResponseProductAnalysisResult job = objectMapper.treeToValue(node, JobResponseProductAnalysisResult.class);
+                    messagingService.receivedProductAnalysis(job);
+                } catch (Exception e) {
+                    log.error("Failed to deserialize JobResponseProductAnalysisResult from message", e);
                     routeToDlq(message, "deserialization_error", e);
                 }
             }

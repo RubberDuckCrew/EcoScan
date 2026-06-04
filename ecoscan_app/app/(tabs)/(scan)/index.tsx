@@ -6,16 +6,25 @@ import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
 import { theme } from "@/theme";
 import { useRouter } from "expo-router";
+import {useApiClient} from "@/utils/apiClient";
 
 export default function Scan() {
   const [barcode, setBarcode] = useState("");
   const router = useRouter();
+    const api = useApiClient();
 
-  const onScanned = (code: string) => {
+  const onScanned = async (code: string) => {
     const trimmed = code.trim();
     if (!trimmed) return;
     console.log("Scanned barcode:", code);
     setBarcode(trimmed);
+    try {
+        const result = await api.get(`product/${trimmed}`);
+        console.log(result);
+    } catch (err) {
+        console.error("Product not found", err);
+        return;
+    }
     router.push({
       pathname: "/product/[id]",
       params: { id: trimmed },

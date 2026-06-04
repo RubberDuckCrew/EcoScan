@@ -6,6 +6,8 @@ import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import com.rubberduckcrew.ecoscanai.model.GreenScoreResult;
 import java.time.LocalDateTime;
 import java.util.Map;
+import com.rubberduckcrew.ecoscanai.api.ProductAnalysisApi;
+import com.rubberduckcrew.ecoscanai.model.ProductAnalysisRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,30 @@ public class ProductService {
     private final ScannedProductRepository scannedProductRepository;
     private final ProductMapper productMapper;
     private final FoodDataRepository foodDataRepository;
+    private final ProductAnalysisApi productAnalysisApi;
 
     public Product getProduct(final String id) {
-        return productRepository.getProductById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Product with id " + id + " not found"));
+        final Product product = productRepository.getProductById(id).orElseGet(() -> {
+            //TODO get from openfoodfacts database; for now use dummy
+            final Product p = new Product();
+            p.setId(id);
+            p.setName("Product " + id);
+            p.setDescription("Description for product " + id);
+            return p;
+        });
+        if (product.getData() == null) {
+            try {
+                final ProductAnalysisRequest req = new ProductAnalysisRequest()
+                    .productId(product.getId())
+                    .productName(product.getName())
+                    .productDescription(product.getDescription());
+                productAnalysisApi.analyzeProduct(req);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to start AI-Analyzer for product with id " + id, e);
+            }
+        }
+        return product;
     }
 
     public Product getProductFromOpenFoodFacts(final String id) {
@@ -60,4 +82,9 @@ public class ProductService {
         scannedProductRepository.save(scannedProduct);
     }
 
+    public void updateProductData(final String id, final String data) {
+        final Product p = getProduct(id);
+        p.setData(data);
+        productRepository.save(p);
+    }
 }
