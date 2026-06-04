@@ -6,7 +6,12 @@
   "packageRules": [
     {
       "matchPackageNames": ["expo", "react-native", "/^expo-/", "/^@expo\\//"],
-      "groupName": "expo ecosystem"
+      "groupName": "expo ecosystem",
+      "recreateWhen": "never"
+    },
+    {
+      "matchSourceUrls": ["https://github.com/facebook/react"],
+      "recreateWhen": "never"
     }
   ]
 }
