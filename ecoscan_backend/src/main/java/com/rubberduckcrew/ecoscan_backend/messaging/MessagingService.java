@@ -1,8 +1,11 @@
 package com.rubberduckcrew.ecoscan_backend.messaging;
 
 import com.rubberduckcrew.ecoscan_backend.jobs.JobService;
+import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
+import com.rubberduckcrew.ecoscanai.model.JobResponseProductAnalysisResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
+import com.rubberduckcrew.ecoscanai.model.ProductAnalysisResult;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,23 @@ import org.springframework.stereotype.Service;
 public class MessagingService {
 
     private final JobService jobService;
+    private final ProductService productService;
+
+    public void receivedProductAnalysis(final JobResponseProductAnalysisResult msg) {
+        final ProductAnalysisResult result = msg.getResult();
+        if (result == null) {
+            log.error("Job result from {} is null", msg.getJobId());
+            return;
+        }
+        final String productId = result.getProductId();
+        try {
+            productService.updateProductData(productId, result.getData());
+            // optionally notify clients via SSE
+            // jobService.sendProcessingStatus(jobId, "product-analysis-complete");
+        } catch (Exception e) {
+            log.error("Error while processing product analysis", e);
+        }
+    }
 
     public void receivedTest(@Payload final JobResponseStr msg) {
         log.info("Received test");

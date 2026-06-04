@@ -2,12 +2,13 @@ import asyncio
 import logging
 import uuid
 from datetime import datetime
+from typing import Any
 
 from ecoscan_ai.api.schemas.jobs import JobResponse, JobStatus
 
 from ecoscan_ai.messaging.publisher import publish_job_result
 
-jobs: dict[str, JobResponse] = {}
+jobs: dict[str, JobResponse[Any]] = {}
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ async def cancel_background_tasks(task_set: set[asyncio.Task[None]]) -> None:
 def create_job() -> tuple[str, str]:
     job_id = str(uuid.uuid4())
     created_at = datetime.now().isoformat()
-    job = JobResponse(
+    job = JobResponse[Any](
         job_id=job_id,
         status=JobStatus.pending,
         created_at=created_at,
