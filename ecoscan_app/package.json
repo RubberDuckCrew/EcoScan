@@ -11,7 +11,7 @@
     "fix": "prettier . --write && expo lint --fix"
   },
   "dependencies": {
-    "@expo/vector-icons": "15.0.3",
+    "@expo/vector-icons": "15.1.1",
     "expo": "54.0.35",
     "expo-auth-session": "7.0.11",
     "expo-camera": "17.0.10",
@@ -23,7 +23,7 @@
     "expo-web-browser": "15.0.11",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-native": "0.81.5",
+    "react-native": "0.85.3",
     "react-native-paper": "5.15.3",
     "react-native-reanimated": "4.1.1",
     "react-native-safe-area-context": "5.6.0",
@@ -39,7 +39,7 @@
     "eslint-config-expo": "10.0.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.5",
-    "expo-doctor": "1.19.7",
+    "expo-doctor": "1.19.8",
     "prettier": "3.8.3",
     "typescript": "5.9.3"
   },
