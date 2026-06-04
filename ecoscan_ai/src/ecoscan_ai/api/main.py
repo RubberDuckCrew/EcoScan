@@ -9,6 +9,7 @@ from ecoscan_ai.api.routes.jobs import router as jobs_router
 from ecoscan_ai.api.routes.savings import savings_router
 from ecoscan_ai.api.routes.test import router as test_router
 from ecoscan_ai.api.services.job_store import cancel_background_tasks
+from ecoscan_ai.api.routes.alternatives import router as alternatives_router
 
 
 @asynccontextmanager
@@ -25,6 +26,8 @@ app.include_router(test_router)
 app.include_router(jobs_router)
 app.include_router(green_score_router)
 app.include_router(savings_router)
+app.include_router(alternatives_router)
+
 
 
 def start():
