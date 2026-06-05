@@ -13,3 +13,11 @@ score_task:
   expected_output: >
     A single integer score between 0 and 100 with a one-sentence justification.
   agent: score_agent
+
+reasoning_task:
+  description: >
+    Based on all previous results, write a clear explanation of the scores 
+    for a business audience.
+  expected_output: >
+    A 3-5 sentence human-readable german explanation of the sustainability assessment.
+  agent: reasoning_agent
