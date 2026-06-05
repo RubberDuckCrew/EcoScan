@@ -28,7 +28,7 @@ public class ScoreService {
 
         final Product product = productService.getProduct(id);
         final ScoreProductRequest scoreProductRequest = new ScoreProductRequest();
-        scoreProductRequest.setProductContext(product.getDescription());
+        scoreProductRequest.setProductContext(product.getData());
         final Optional<JobResponseGreenScoreResult> jobResponse;
 
         try {
