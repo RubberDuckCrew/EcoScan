@@ -25,7 +25,8 @@ public class ScanHistory extends BaseEntity {
 
     @NotNull private UUID userId;
 
-    @ManyToOne @NotNull private ScannedProduct product;
+    @ManyToOne
+    @NotNull private ScannedProduct product;
 
     @NotNull private LocalDateTime savedDate;
 }

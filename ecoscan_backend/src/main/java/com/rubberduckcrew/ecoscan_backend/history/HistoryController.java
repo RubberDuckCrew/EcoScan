@@ -32,8 +32,8 @@ public class HistoryController {
         final Pageable pageable = PageRequest.of(page, 10, Sort.by("savedDate").descending());
         final Slice<ScanHistory> history = historyService.getUserHistory(userId, pageable);
         final List<ScanHistoryDTO> historyDtos = history.getContent().stream()
-                .map(historyMapper::toDTO)
-                .toList();
+            .map(historyMapper::toDTO)
+            .toList();
         return new SliceDTO<>(historyDtos, history.hasNext(), history.getNumber());
     }
 }

@@ -17,21 +17,6 @@ public class SseService {
 
     private final Map<UUID, JobState> jobs = new ConcurrentHashMap<>();
 
-    private sealed interface BufferedItem permits BufferedItem.Event, BufferedItem.Complete {
-        record Event(SseEmitter.SseEventBuilder builder) implements BufferedItem {
-        }
-
-        record Complete() implements BufferedItem {
-        }
-    }
-
-    private static final class JobState {
-        private SseEmitter emitter;
-        private final List<BufferedItem> buffer = new ArrayList<>();
-        private boolean completed = false;
-        private final ReentrantLock lock = new ReentrantLock();
-    }
-
     public SseEmitter createEmitter(final UUID jobId) {
         final SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT_MS);
         final JobState state = jobs.computeIfAbsent(jobId, k -> new JobState());
@@ -115,12 +100,26 @@ public class SseService {
         jobs.remove(jobId);
     }
 
-    private void doSend(final SseEmitter emitter,
-            final SseEmitter.SseEventBuilder event) {
+    private void doSend(final SseEmitter emitter, final SseEmitter.SseEventBuilder event) {
         try {
             emitter.send(event);
         } catch (final IOException e) {
             emitter.completeWithError(e);
         }
+    }
+
+    private sealed interface BufferedItem permits BufferedItem.Event, BufferedItem.Complete {
+        record Event(SseEmitter.SseEventBuilder builder) implements BufferedItem {
+        }
+
+        record Complete() implements BufferedItem {
+        }
+    }
+
+    private static final class JobState {
+        private final List<BufferedItem> buffer = new ArrayList<>();
+        private final ReentrantLock lock = new ReentrantLock();
+        private SseEmitter emitter;
+        private boolean completed = false;
     }
 }
