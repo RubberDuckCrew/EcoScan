@@ -23,8 +23,8 @@ public class RabbitMQConfiguration {
     @Bean
     public Queue aiResultsQueue() {
         return QueueBuilder.durable(AI_RESULTS_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
-                .build();
+            .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+            .build();
     }
 
     @Bean
@@ -47,8 +47,8 @@ public class RabbitMQConfiguration {
     @Bean
     public Binding dlqBinding() {
         return BindingBuilder.bind(aiResultsDlq())
-                .to(aiResultsDlx())
-                .with(AI_RESULTS_QUEUE);
+            .to(aiResultsDlx())
+            .with(AI_RESULTS_QUEUE);
     }
 
     @Bean

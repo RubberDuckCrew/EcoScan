@@ -42,7 +42,7 @@ public class ScoreService {
         }
 
         return jobResponse.map(JobResponseGreenScoreResult::getJobId).orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Failed to score product"));
+            "Failed to score product"));
 
     }
 

@@ -19,13 +19,12 @@ public class ApiClientConfiguration {
     public ApiClient apiClient() {
 
         final RestClient restClient = RestClient.builder()
-                .baseUrl(baseUrl)
-                .requestFactory(new JdkClientHttpRequestFactory(
-                        HttpClient.newBuilder()
-                                .version(HttpClient.Version.HTTP_1_1)
-                                .build()
-                ))
-                .build();
+            .baseUrl(baseUrl)
+            .requestFactory(new JdkClientHttpRequestFactory(
+                HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .build()))
+            .build();
 
         final ApiClient client = new ApiClient(restClient);
         client.setBasePath(baseUrl);
