@@ -284,7 +284,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/ecoscan-openapi.json</inputSpec>
+                            <inputSpec>src/main/resources/ecoscan-openapi.json</inputSpec>
 
                             <generatorName>java</generatorName>
                             <library>restclient</library>
