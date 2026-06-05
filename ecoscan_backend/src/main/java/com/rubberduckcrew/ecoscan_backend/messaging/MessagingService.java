@@ -32,6 +32,6 @@ public class MessagingService {
             return;
         }
         log.info("Job ID: {}, Score: {}", jobId, score);
-        jobService.sendProductScore(jobId, score);
+        jobService.sendProductEvaluation(jobId, msg.getResult());
     }
 }
