@@ -1,0 +1,8 @@
+.venv
+.dockerignore
+.env
+.gitignore
+Dockerfile
+AGENTS.md
+ecoscan_ai.iml
+README.md
