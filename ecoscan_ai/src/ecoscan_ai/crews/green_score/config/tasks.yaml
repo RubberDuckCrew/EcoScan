@@ -19,5 +19,7 @@ reasoning_task:
     Based on all previous results, write a clear explanation of the scores 
     for a business audience.
   expected_output: >
-    A 3-5 sentence human-readable german explanation of the sustainability assessment.
+    Return a structured result containing:
+    - overall_score: integer between 0 - 100 (reuse the computed score from the score_task)
+    - reason: 3-5 sentence human readable german explanation of the sustainability assessment
   agent: reasoning_agent

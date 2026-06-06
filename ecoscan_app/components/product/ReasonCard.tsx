@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 import { theme } from "@/theme";

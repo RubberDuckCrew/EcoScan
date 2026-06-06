@@ -44,7 +44,7 @@ export default function Product() {
   }, [id, fetchGreenScore, fetchProduct]);
 
   function isFatalError(err: unknown): boolean {
-    if (err instanceof Error && err.message.includes("not found")) {
+    if (err instanceof Error && /not found/i.test(err.message)) {
       return true;
     }
 

@@ -16,7 +16,9 @@ class GreenScoreCrew:
 
     @agent
     def reasoning_agent(self) -> Agent:
-        return Agent(config=self.agents_config["reasoning_agent"], verbose=True)  # type: ignore[index]
+        return Agent(
+            config=self.agents_config["reasoning_agent"], reasoning=True, verbose=True
+        )  # type: ignore[index]
 
     @task
     def evaluate_task(self) -> Task:
@@ -25,7 +27,7 @@ class GreenScoreCrew:
     @task
     def score_task(self) -> Task:
         return Task(
-            config=self.tasks_config["score_task"],
+            config=self.tasks_config["score_task"],  # type: ignore[index]
         )
 
     @task
