@@ -12,9 +12,15 @@ type UseGreenScoreResult = {
   onError: (handler: (err?: any) => void) => void;
 };
 
+type GreenScoreResult = {
+  overall_score: number;
+  reason: string;
+};
+
 export function useGreenScore(): UseGreenScoreResult {
   const api = useApiClient();
-  const { startStream, closeStream } = useSseClient<number>("product-score");
+  const { startStream, closeStream } =
+    useSseClient<GreenScoreResult>("product-evaluation");
   const [loading, setLoading] = useState<boolean>(false);
   const [product, setProduct] = useState<Product>();
   const [jobId, setJobId] = useState<string>();
@@ -76,6 +82,7 @@ export function useGreenScore(): UseGreenScoreResult {
         console.error("fetchProduct fetch error", err);
         try {
           onErrorRef.current(err);
+          console.log("Called onErrorRef");
         } catch (e) {}
       } finally {
         setLoading(false);
@@ -89,8 +96,16 @@ export function useGreenScore(): UseGreenScoreResult {
     (jobId: string) => {
       startStream(
         `jobs/stream/${jobId}`,
-        (score) => {
-          setProduct((prev) => (prev ? { ...prev, score } : undefined));
+        (result) => {
+          setProduct((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  score: result.overall_score,
+                  justification: result.reason,
+                }
+              : undefined,
+          );
           setLoading(false);
           loadingRef.current = false;
         },

@@ -13,5 +13,6 @@ export const theme = {
     onSurface: "#000000",
     warning: "#f1c40f",
     error: "#b3261e",
+    outline: "#D1D5DC",
   },
 };

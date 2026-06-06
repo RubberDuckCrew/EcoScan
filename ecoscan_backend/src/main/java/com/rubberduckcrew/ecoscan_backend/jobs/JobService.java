@@ -1,5 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.jobs;
 
+import com.rubberduckcrew.ecoscanai.model.GreenScoreResult;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,8 @@ public class JobService {
         return sseService.createEmitter(jobId);
     }
 
-    public void sendProductScore(final UUID jobId, final int score) {
-        sseService.send(jobId, "product-score", score);
+    public void sendProductEvaluation(final UUID jobId, final GreenScoreResult score) {
+        sseService.send(jobId, "product-evaluation", score);
         sseService.complete(jobId);
     }
 

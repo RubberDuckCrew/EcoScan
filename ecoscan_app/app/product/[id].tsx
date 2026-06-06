@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
+import ReasonCard from "@/components/product/ReasonCard";
 
 export default function Product() {
   const { loading, product, fetchGreenScore, fetchProduct, onError } =
@@ -43,6 +44,10 @@ export default function Product() {
   }, [id, fetchGreenScore, fetchProduct]);
 
   function isFatalError(err: unknown): boolean {
+    if (err instanceof Error && /not found/i.test(err.message)) {
+      return true;
+    }
+
     if (err && typeof err === "object" && "status" in err) {
       const status = (err as { status: number }).status;
       return status >= 400;
@@ -61,9 +66,14 @@ export default function Product() {
             imageUrl={product.imageUrl || ""}
           />
           {product.score !== undefined && (
-            <View style={styles.scoreCard}>
-              <ScoreCard score={product.score} />
-            </View>
+            <>
+              <View style={styles.scoreCard}>
+                <ScoreCard score={product.score} />
+              </View>
+              <ReasonCard
+                reason={product.justification || "Keine Begründung verfügbar."}
+              />
+            </>
           )}
         </>
       )}

@@ -19,7 +19,9 @@ _background_tasks: set[asyncio.Task] = set()
     operation_id="scoreProduct",
     response_model=JobResponse[GreenScoreResult],
 )
-async def score(request: Request, body: ScoreProductRequest) -> JobResponse:
+async def score(
+    request: Request, body: ScoreProductRequest
+) -> JobResponse[GreenScoreResult]:
     job_id, created_at = create_job()
     inputs = {"productContext": body.productContext}
     crew_instance = GreenScoreCrew().crew()
