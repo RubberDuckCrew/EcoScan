@@ -1,0 +1,25 @@
+evaluate_task:
+  description: >
+    Evaluate the sustainability of the following product: {savingsContext}.
+    Analyze all relevant sustainability factors.
+  expected_output: >
+    A structured evaluation covering energy use, materials, transport, 
+    and social impact.
+  agent: evaluator
+
+score_task:
+  description: >
+    Based on the evaluation, calculate an overall sustainability score from 0-100.
+  expected_output: >
+    A single integer score between 0 and 100 with a one-sentence justification.
+  agent: score_agent
+
+reasoning_task:
+  description: >
+    Based on all previous results, write a clear explanation of the scores 
+    for a business audience.
+  expected_output: >
+    Return a structured result containing:
+    - overall_score: integer between 0 - 100 (reuse the computed score from the score_task)
+    - reason: 3-5 sentence human readable german explanation of the sustainability assessment
+  agent: reasoning_agent
