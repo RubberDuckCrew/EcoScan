@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="AI Run" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="uv run ecoscan_ai" />
+    <option name="SCRIPT_TEXT" value="uv run api" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="false" />
     <option name="SCRIPT_PATH" value="$PROJECT_DIR$/ecoscan_ai/src/ecoscan_ai" />
     <option name="SCRIPT_OPTIONS" value="" />
