@@ -26,7 +26,7 @@ public class HistoryController {
     private final HistoryService historyService;
     private final HistoryMapper historyMapper;
 
-    @GetMapping
+    @GetMapping("list")
     @Validated
     public SliceDTO<ScanHistoryDTO> getHistory(@RequestParam(defaultValue = "0") @Min(0) final int page) {
         final UUID userId = AuthUtils.getSub();

@@ -1,7 +1,7 @@
 import React from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { Card, Icon, Text } from "react-native-paper";
-import type { HistoryItem } from "@/types/history";
+import type { HistoryItem } from "@/types/history/item";
 import { formatRelativeDate } from "@/utils/formatDate";
 import { getScoreColor } from "@/utils/scoreColor";
 import { theme } from "@/theme";

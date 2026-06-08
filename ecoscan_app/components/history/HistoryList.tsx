@@ -2,8 +2,8 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import React, { ReactNode } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
-import { useHistory } from "@/hooks/useHistory";
-import { HistoryItem } from "@/types/history";
+import { useHistoryList } from "@/hooks/useHistoryList";
+import { HistoryItem } from "@/types/history/item";
 import HistoryListItem from "@/components/history/HistoryListItem";
 
 type HistoryListProps = {
@@ -11,7 +11,7 @@ type HistoryListProps = {
 };
 
 export function HistoryList({ headerComponent }: HistoryListProps) {
-  const { history, loading, loadNext, refresh, refreshing } = useHistory();
+  const { history, loading, loadNext, refresh, refreshing } = useHistoryList();
 
   const renderItem = ({ item }: { item: HistoryItem }) => (
     <HistoryListItem item={item} />
