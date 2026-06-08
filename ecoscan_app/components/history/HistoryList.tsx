@@ -1,12 +1,16 @@
 import { FlatList, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
-import React from "react";
+import React, { ReactNode } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { useHistory } from "@/hooks/useHistory";
 import { HistoryItem } from "@/types/history";
 import HistoryListItem from "@/components/history/HistoryListItem";
 
-export function HistoryList() {
+type HistoryListProps = {
+  headerComponent?: ReactNode;
+};
+
+export function HistoryList({ headerComponent }: HistoryListProps) {
   const { history, loading, loadNext, refresh, refreshing } = useHistory();
 
   const renderItem = ({ item }: { item: HistoryItem }) => (
@@ -29,6 +33,7 @@ export function HistoryList() {
 
   return (
     <FlatList
+      style={styles.list}
       data={history}
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
@@ -36,6 +41,7 @@ export function HistoryList() {
       onEndReachedThreshold={0.5}
       refreshing={refreshing}
       onRefresh={refresh}
+      ListHeaderComponent={<>{headerComponent}</>}
       ListFooterComponent={ListFooter}
       ListEmptyComponent={ListEmpty}
       contentContainerStyle={
@@ -46,6 +52,9 @@ export function HistoryList() {
 }
 
 const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
   footer: {
     paddingVertical: 16,
     paddingBottom: 16,

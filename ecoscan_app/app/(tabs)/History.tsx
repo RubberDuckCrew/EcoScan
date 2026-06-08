@@ -10,22 +10,24 @@ export default function History() {
   return (
     <PageContainer style={{ padding: 0 }}>
       <View style={styles.wrapper}>
-        <View style={[styles.section, styles.horizontalSpacing]}>
-          <Text variant="headlineLarge" style={styles.heading}>
-            Historie
-          </Text>
-          <SavingsCard />
-          <ScanStats />
-        </View>
-        <View style={styles.section}>
-          <Text
-            variant="headlineSmall"
-            style={[styles.horizontalSpacing, styles.heading]}
-          >
-            Scanverlauf
-          </Text>
-          <HistoryList />
-        </View>
+        <Text variant="headlineLarge" style={[styles.title]}>
+          Historie
+        </Text>
+        <HistoryList
+          headerComponent={
+            <View style={styles.header}>
+              <View style={styles.section}>
+                <SavingsCard />
+                <ScanStats />
+              </View>
+              <View style={styles.section}>
+                <Text variant="headlineSmall" style={styles.heading}>
+                  Scanverlauf
+                </Text>
+              </View>
+            </View>
+          }
+        />
       </View>
     </PageContainer>
   );
@@ -33,17 +35,21 @@ export default function History() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: "100%",
+    flex: 1,
     paddingTop: 16,
-    gap: 16,
+    gap: 8,
+  },
+  title: {
+    fontWeight: "bold",
+    marginInline: 16,
   },
   heading: {
     fontWeight: "bold",
   },
+  header: {
+    gap: 16,
+  },
   section: {
     gap: 8,
-  },
-  horizontalSpacing: {
-    marginInline: 16,
   },
 });
