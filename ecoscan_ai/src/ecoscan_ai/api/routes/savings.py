@@ -23,7 +23,7 @@ async def score(
         request: Request, body: SavingsRequest
 ) -> JobResponse[SavingsResult]:
     job_id, created_at = create_job()
-    inputs = {"productContext": body.productContext}
+    inputs = {"savingsContext": body.savingsContext}
     crew_instance = SavingsCrew().crew()
     task = asyncio.create_task(
         run_crew_background(job_id, crew_instance, inputs, endpoint=request.url.path)
