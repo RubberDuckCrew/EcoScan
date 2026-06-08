@@ -43,4 +43,11 @@ public class HistoryController {
         final UUID userId = AuthUtils.getSub();
         return historyService.getHistoryStats(userId);
     }
+
+    @GetMapping("savings")
+    @Validated
+    public UUID getSavings() {
+        final UUID userId = AuthUtils.getSub();
+        return historyService.getSavings(userId);
+    }
 }

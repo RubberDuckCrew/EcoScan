@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class HistoryService {
     private final HistoryRepository historyRepository;
+    private final SavingsService savingsService;
 
     public Slice<ScanHistory> getUserHistory(final UUID userId, final Pageable pageable) {
         log.info("Getting history for user {} with pageable {}", userId, pageable);
@@ -35,5 +36,9 @@ public class HistoryService {
             historyRepository.averageScore(userId),
             historyRepository.countAllByUserId(userId)
         );
+    }
+
+    public UUID getSavings(final UUID userId) {
+        return savingsService.calculateSavings(userId, getWeekHistory(userId));
     }
 }

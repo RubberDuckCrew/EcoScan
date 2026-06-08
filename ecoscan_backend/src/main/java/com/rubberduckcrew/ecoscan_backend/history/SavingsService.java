@@ -1,6 +1,5 @@
-package com.rubberduckcrew.ecoscan_backend.savings;
+package com.rubberduckcrew.ecoscan_backend.history;
 
-import com.rubberduckcrew.ecoscan_backend.history.HistoryService;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
@@ -22,13 +21,12 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 public class SavingsService {
-    private final HistoryService historyService;
     private final ProductMapper productMapper;
     private final SavingsApi savingsApi;
 
-    public UUID getSavings(final UUID userId) {
+    public UUID calculateSavings(final UUID userId, List<ScanHistory> weekHistory) {
         log.info("Calculating savings for user {}", userId);
-        final List<ProductDataDTO> history = historyService.getWeekHistory(userId).stream()
+        final List<ProductDataDTO> history = weekHistory.stream()
             .map(ScanHistory::getProduct)
             .map(productMapper::toDataDTO)
             .toList();
