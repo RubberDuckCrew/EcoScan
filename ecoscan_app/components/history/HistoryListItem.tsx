@@ -4,6 +4,7 @@ import { Card, Icon, Text } from "react-native-paper";
 import type { HistoryItem } from "@/types/history";
 import { formatRelativeDate } from "@/utils/formatDate";
 import { getScoreColor } from "@/utils/scoreColor";
+import { theme } from "@/theme";
 
 type Props = {
   item: HistoryItem;
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: "#666",
+    color: theme.colors.muted,
   },
   score: {
     alignItems: "center",
