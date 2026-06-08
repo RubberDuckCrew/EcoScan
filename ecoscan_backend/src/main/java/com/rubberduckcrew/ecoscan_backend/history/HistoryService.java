@@ -1,5 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.history;
 
+import com.rubberduckcrew.ecoscan_backend.history.dto.HistoryStatsDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,5 +27,13 @@ public class HistoryService {
         final LocalDateTime lastWeek = now.minusDays(7);
         log.info("Getting history for user {} between {} and {}", userId, lastWeek, now);
         return historyRepository.findAllByUserIdAndSavedDateBetween(userId, lastWeek, now);
+    }
+
+    public HistoryStatsDTO getHistoryStats(final UUID userId) {
+        log.info("Getting history stats for user {}", userId);
+        return new HistoryStatsDTO(
+            historyRepository.averageScore(userId),
+            historyRepository.countAllByUserId(userId)
+        );
     }
 }

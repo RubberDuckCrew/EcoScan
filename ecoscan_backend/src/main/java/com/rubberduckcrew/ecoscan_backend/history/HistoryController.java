@@ -1,6 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.history;
 
 import com.rubberduckcrew.ecoscan_backend.common.SliceDTO;
+import com.rubberduckcrew.ecoscan_backend.history.dto.HistoryStatsDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.ScanHistoryDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
 import com.rubberduckcrew.ecoscan_backend.utils.AuthUtils;
@@ -35,5 +36,11 @@ public class HistoryController {
             .map(historyMapper::toDTO)
             .toList();
         return new SliceDTO<>(historyDtos, history.hasNext(), history.getNumber());
+    }
+
+    @GetMapping("stats")
+    public HistoryStatsDTO getHistoryStats() {
+        final UUID userId = AuthUtils.getSub();
+        return historyService.getHistoryStats(userId);
     }
 }
