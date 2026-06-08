@@ -1,0 +1,61 @@
+import { Card, Icon, Text } from "react-native-paper";
+import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { theme } from "@/theme";
+
+type SavingsCardProps = {
+  style?: StyleProp<ViewStyle>;
+};
+
+const co2Saving = 12.4;
+const carRideEquivalent = 50;
+
+export function SavingsCard({ style }: SavingsCardProps) {
+  return (
+    <Card style={[styles.card, style]}>
+      <View style={styles.content}>
+        <View>
+          <Text variant="titleLarge" style={[styles.text, styles.title]}>
+            Diese Woche gespart
+          </Text>
+          <View style={styles.co2}>
+            <Text variant="displayLarge" style={styles.text}>
+              {co2Saving.toFixed(1).replace(".", ",")}
+            </Text>
+            <Text variant="titleLarge" style={styles.text}>
+              kg CO₂
+            </Text>
+          </View>
+          <Text variant="titleMedium" style={styles.text}>
+            Das entspricht {carRideEquivalent.toFixed(0)} km Autofahrt.
+          </Text>
+        </View>
+        <Icon size={100} source="sprout" color={theme.colors.background} />
+      </View>
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    padding: 16,
+    backgroundColor: theme.colors.primary,
+  },
+  content: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  text: {
+    color: theme.colors.inverseOnSurface,
+  },
+  title: {
+    fontWeight: "bold",
+  },
+  co2: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 8,
+  },
+});

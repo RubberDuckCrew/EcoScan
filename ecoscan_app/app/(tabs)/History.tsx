@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
 import { HistoryList } from "@/components/history/HistoryList";
+import { SavingsCard } from "@/components/history/SavingsCard";
 
 export default function History() {
   return (
@@ -11,6 +12,7 @@ export default function History() {
         <Text variant="headlineLarge" style={styles.heading}>
           Historie
         </Text>
+        <SavingsCard style={styles.card} />
         <Text variant="headlineSmall" style={styles.heading}>
           Scanverlauf
         </Text>
@@ -26,5 +28,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     gap: 8,
   },
-  heading: { paddingInline: 16, fontWeight: "bold" },
+  heading: {
+    paddingInline: 16,
+    fontWeight: "bold",
+  },
+  card: { marginInline: 16 },
 });
