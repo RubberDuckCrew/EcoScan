@@ -1,5 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.configuration;
 
+import com.rubberduckcrew.ecoscanai.api.AlternativesApi;
 import com.rubberduckcrew.ecoscanai.api.GreenScoreApi;
 import com.rubberduckcrew.ecoscanai.api.SavingsApi;
 import com.rubberduckcrew.ecoscanai.client.ApiClient;
@@ -35,6 +36,11 @@ public class ApiClientConfiguration {
     @Bean
     public GreenScoreApi greenScoreApi(final ApiClient apiClient) {
         return new GreenScoreApi(apiClient);
+    }
+
+    @Bean
+    public AlternativesApi alternativesApi(final ApiClient apiClient) {
+        return new AlternativesApi(apiClient);
     }
 
     @Bean
