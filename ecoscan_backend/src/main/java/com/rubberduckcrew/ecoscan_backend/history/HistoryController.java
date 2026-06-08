@@ -15,6 +15,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,7 +45,7 @@ public class HistoryController {
         return historyService.getHistoryStats(userId);
     }
 
-    @GetMapping("savings")
+    @PostMapping("savings")
     @Validated
     public UUID getSavings() {
         final UUID userId = AuthUtils.getSub();

@@ -39,14 +39,14 @@ public class SavingsService {
             jobResponse = Optional.ofNullable(savingsApi.savings(savingsRequest));
         } catch (ValidationException e) {
             log.error("OpenAPI client error while evaluating savings", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to score product", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to calculate savings", e);
         } catch (RestClientException e) {
             log.error("REST client error while evaluating savings", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to score product", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to calculate savings", e);
         }
 
         log.info("Created savings job with id {}", jobResponse.map(JobResponseSavingsResult::getJobId));
         return jobResponse.map(JobResponseSavingsResult::getJobId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to score product"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to calculate savings"));
     }
 }

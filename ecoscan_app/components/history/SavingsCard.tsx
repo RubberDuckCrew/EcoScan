@@ -1,34 +1,47 @@
 import { Card, Icon, Text } from "react-native-paper";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { theme } from "@/theme";
+import { useHistorySavings } from "@/hooks/useHistorySavings";
+import { LoadingIndicator } from "@/components/LoadingIndicator";
 
 type SavingsCardProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-const co2Saving = 12.4;
-const carRideEquivalent = 50;
-
 export function SavingsCard({ style }: SavingsCardProps) {
+  const { savings, loading } = useHistorySavings();
+
   return (
     <Card style={[styles.card, style]}>
       <View style={styles.content}>
-        <View>
-          <Text variant="titleLarge" style={[styles.text, styles.title]}>
-            Diese Woche gespart
-          </Text>
-          <View style={styles.co2}>
-            <Text variant="displayLarge" style={styles.text}>
-              {co2Saving.toFixed(1).replace(".", ",")}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <LoadingIndicator color={theme.colors.background} />
+          </View>
+        ) : (
+          <View>
+            <Text variant="titleLarge" style={[styles.text, styles.title]}>
+              Diese Woche gespart
             </Text>
-            <Text variant="titleLarge" style={styles.text}>
-              kg CO₂
+            <View style={styles.co2}>
+              <Text variant="displayLarge" style={styles.text}>
+                {savings && savings.co2Saving
+                  ? savings.co2Saving.toFixed(1).replace(".", ",")
+                  : "-"}
+              </Text>
+              <Text variant="titleLarge" style={styles.text}>
+                kg CO₂
+              </Text>
+            </View>
+            <Text variant="titleMedium" style={styles.text}>
+              Das entspricht{" "}
+              {savings && savings.carRideEquivalent
+                ? savings.carRideEquivalent.toFixed(0)
+                : "-"}{" "}
+              km Autofahrt.
             </Text>
           </View>
-          <Text variant="titleMedium" style={styles.text}>
-            Das entspricht {carRideEquivalent.toFixed(0)} km Autofahrt.
-          </Text>
-        </View>
+        )}
         <Icon size={100} source="sprout" color={theme.colors.background} />
       </View>
     </Card>
@@ -46,6 +59,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   text: {
     color: theme.colors.inverseOnSurface,
