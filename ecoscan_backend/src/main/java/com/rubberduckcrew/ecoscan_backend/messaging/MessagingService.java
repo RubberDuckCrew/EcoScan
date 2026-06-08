@@ -2,6 +2,7 @@ package com.rubberduckcrew.ecoscan_backend.messaging;
 
 import com.rubberduckcrew.ecoscan_backend.jobs.JobService;
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
+import com.rubberduckcrew.ecoscanai.model.JobResponseSavingsResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,15 @@ public class MessagingService {
         }
         log.info("Job ID: {}, Score: {}", jobId, score);
         jobService.sendProductEvaluation(jobId, msg.getResult());
+    }
+
+    public void receivedSavings(@Payload final JobResponseSavingsResult msg) {
+        final UUID jobId = msg.getJobId();
+        if (msg.getResult() == null) {
+            log.error("Savings job result from {} is null", jobId);
+            return;
+        }
+        log.info("Savings job with id {} resulted in: {}", jobId, msg.getResult());
+        jobService.sendSavingsEvaluation(jobId, msg.getResult());
     }
 }
