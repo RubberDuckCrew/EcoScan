@@ -1,19 +1,30 @@
 import { Card, Text } from "react-native-paper";
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { theme } from "@/theme";
+import { LoadingIndicator } from "@/components/LoadingIndicator";
 
 type StatsCardProps = {
-  value: number;
+  value?: number;
   description: string;
+  loading?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function StatsCard({ value, description, style }: StatsCardProps) {
+export function StatsCard({
+  value,
+  description,
+  style,
+  loading = false,
+}: StatsCardProps) {
   return (
     <Card style={[styles.card, style]}>
-      <Text variant="titleLarge" style={styles.value}>
-        {value}
-      </Text>
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <Text variant="titleLarge" style={styles.value}>
+          {value ?? "-"}
+        </Text>
+      )}
       <Text variant="bodySmall" style={styles.description}>
         {description}
       </Text>

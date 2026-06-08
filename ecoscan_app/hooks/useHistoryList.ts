@@ -2,17 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useApiClient } from "@/utils/apiClient";
 import type { HistoryItem } from "@/types/history/item";
 
-type UseHistoryResult = {
-  history: HistoryItem[];
-  page: number;
-  hasMore: boolean;
-  loading: boolean;
-  loadNext: () => Promise<void>;
-  refresh: () => Promise<void>;
-  refreshing: boolean;
-};
-
-export function useHistoryList(): UseHistoryResult {
+export function useHistoryList() {
   const api = useApiClient();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [page, setPage] = useState<number>(0);

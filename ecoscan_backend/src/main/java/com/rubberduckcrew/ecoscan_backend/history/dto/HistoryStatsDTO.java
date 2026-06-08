@@ -1,7 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.history.dto;
 
 public record HistoryStatsDTO(
-    int averageGreenScore,
+    int averageScore,
     long scanCount
 ) {
 }

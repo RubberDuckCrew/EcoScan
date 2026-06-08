@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
 import { HistoryList } from "@/components/history/HistoryList";
 import { SavingsCard } from "@/components/history/SavingsCard";
-import { ScanStats } from "@/components/history/ScanStats";
+import { ScanStats, ScanStatsRef } from "@/components/history/ScanStats";
 
 export default function History() {
+  const scanStatsRef = useRef<ScanStatsRef>(null);
+
+  const refresh = async () => {
+    scanStatsRef.current?.refresh();
+  };
+
   return (
     <PageContainer style={{ padding: 0 }}>
       <View style={styles.wrapper}>
@@ -14,11 +20,12 @@ export default function History() {
           Historie
         </Text>
         <HistoryList
+          onRefresh={refresh}
           headerComponent={
             <View style={styles.header}>
               <View style={styles.section}>
                 <SavingsCard />
-                <ScanStats />
+                <ScanStats ref={scanStatsRef} />
               </View>
               <View style={styles.section}>
                 <Text variant="headlineSmall" style={styles.heading}>

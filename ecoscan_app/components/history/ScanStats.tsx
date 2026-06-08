@@ -1,29 +1,44 @@
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { StatsCard } from "@/components/history/StatsCard";
+import { useHistoryStats } from "@/hooks/useHistoryStats";
+import { forwardRef, useImperativeHandle } from "react";
 
 type StatsProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-const averageGreenScore = 78;
-const scanCount = 24;
+export type ScanStatsRef = {
+  refresh: () => void;
+};
 
-export function ScanStats({ style }: StatsProps) {
-  return (
-    <View style={[styles.content, style]}>
-      <StatsCard
-        value={averageGreenScore}
-        description="Ø Green Score"
-        style={styles.card}
-      />
-      <StatsCard
-        value={scanCount}
-        description="Artikel gescannt"
-        style={styles.card}
-      />
-    </View>
-  );
-}
+export const ScanStats = forwardRef<ScanStatsRef, StatsProps>(
+  ({ style }, ref) => {
+    const { stats, loading, fetchStats } = useHistoryStats();
+
+    useImperativeHandle(ref, () => ({
+      refresh() {
+        void fetchStats();
+      },
+    }));
+
+    return (
+      <View style={[styles.content, style]}>
+        <StatsCard
+          value={stats?.averageScore}
+          loading={loading}
+          description="Ø Green Score"
+          style={styles.card}
+        />
+        <StatsCard
+          value={stats?.scanCount}
+          loading={loading}
+          description="Artikel gescannt"
+          style={styles.card}
+        />
+      </View>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   content: {
