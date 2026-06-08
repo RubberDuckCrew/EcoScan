@@ -4,7 +4,7 @@ import React from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { useHistory } from "@/hooks/useHistory";
 import { HistoryItem } from "@/types/history";
-import HistoryListItem from "@/components/HistoryListItem";
+import HistoryListItem from "@/components/history/HistoryListItem";
 
 export function HistoryList() {
   const { history, loading, loadNext, refresh, refreshing } = useHistory();

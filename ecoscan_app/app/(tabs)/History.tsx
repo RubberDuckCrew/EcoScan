@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
-import { HistoryList } from "@/components/HistoryList";
+import { HistoryList } from "@/components/history/HistoryList";
 
 export default function History() {
   return (
