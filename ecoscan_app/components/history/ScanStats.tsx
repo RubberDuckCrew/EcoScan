@@ -40,6 +40,8 @@ export const ScanStats = forwardRef<ScanStatsRef, StatsProps>(
   },
 );
 
+ScanStats.displayName = "ScanStats";
+
 const styles = StyleSheet.create({
   content: {
     flexDirection: "row",
