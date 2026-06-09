@@ -19,9 +19,7 @@ _background_tasks: set[asyncio.Task] = set()
     operation_id="savings",
     response_model=JobResponse[SavingsResult],
 )
-async def score(
-        request: Request, body: SavingsRequest
-) -> JobResponse[SavingsResult]:
+async def score(request: Request, body: SavingsRequest) -> JobResponse[SavingsResult]:
     job_id, created_at = create_job()
     inputs = {"savingsContext": body.savingsContext}
     crew_instance = SavingsCrew().crew()
