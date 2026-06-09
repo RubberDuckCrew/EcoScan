@@ -21,14 +21,14 @@ public class FoodDataController {
             .toList();
     }
 
-    private Map<String, Object> cleanRow(Map<String, Object> row) {
+    private Map<String, Object> cleanRow(final Map<String, Object> row) {
         return row.entrySet().stream()
             .collect(LinkedHashMap::new,
                 (map, entry) -> map.put(entry.getKey(), cleanValue(entry.getValue())),
                 Map::putAll);
     }
 
-    private Object cleanValue(Object value) {
+    private Object cleanValue(final Object value) {
         if (value != null && !value.getClass().getPackageName().startsWith("java.lang")) {
             return value.toString();
         }

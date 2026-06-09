@@ -13,7 +13,7 @@ public class FoodDataConfiguration {
 
     @Bean
     public FoodDataTemplate duckDbTemplate() {
-        SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
+        final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
         dataSource.setDriverClass(DuckDBDriver.class);
         dataSource.setUrl(duckdbUrl);
         return new FoodDataTemplate(dataSource);

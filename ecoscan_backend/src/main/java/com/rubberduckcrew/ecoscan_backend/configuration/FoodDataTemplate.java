@@ -4,7 +4,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class FoodDataTemplate extends JdbcTemplate {
-    public FoodDataTemplate(DataSource dataSource) {
+    public FoodDataTemplate(final DataSource dataSource) {
         super(dataSource);
     }
 }

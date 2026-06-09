@@ -12,8 +12,7 @@ public class FoodDataRepository {
     private final FoodDataTemplate foodDataTemplate;
 
     public List<Map<String, Object>> queryParquetData() {
-        String sql = "SELECT code FROM food LIMIT 10";
-
+        final String sql = "SELECT code FROM food LIMIT 10";
         return foodDataTemplate.queryForList(sql);
     }
 }
