@@ -31,4 +31,4 @@ logging:
     org.springframework.web: DEBUG
 
 ai.api.base-url: http://localhost:8000
-food-data.url: "jdbc:duckdb:ecoscan_backend/food.parquet"
+food-data.url: "jdbc:duckdb:data/food/food.parquet"
