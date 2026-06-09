@@ -15,7 +15,7 @@ public class FoodDataController {
     private final FoodDataRepository foodDataRepository;
 
     @GetMapping
-    public List<Map<String, Object>> test() {
+    public List<Map<String, Object>> getFoodData() {
         return foodDataRepository.queryParquetData().stream()
             .map(this::cleanRow)
             .toList();
