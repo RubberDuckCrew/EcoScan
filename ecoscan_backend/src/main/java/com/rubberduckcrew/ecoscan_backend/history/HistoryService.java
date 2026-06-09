@@ -34,8 +34,7 @@ public class HistoryService {
         log.info("Getting history stats for user {}", userId);
         return new HistoryStatsDTO(
             historyRepository.averageScore(userId),
-            historyRepository.countAllByUserId(userId)
-        );
+            historyRepository.countAllByUserId(userId));
     }
 
     public UUID getSavings(final UUID userId) {

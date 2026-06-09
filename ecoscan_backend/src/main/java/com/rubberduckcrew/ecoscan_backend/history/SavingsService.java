@@ -24,7 +24,7 @@ public class SavingsService {
     private final ProductMapper productMapper;
     private final SavingsApi savingsApi;
 
-    public UUID calculateSavings(final UUID userId, List<ScanHistory> weekHistory) {
+    public UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
         log.info("Calculating savings for user {}", userId);
         final List<ProductDataDTO> history = weekHistory.stream()
             .map(ScanHistory::getProduct)

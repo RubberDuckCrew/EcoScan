@@ -7,6 +7,5 @@ public record ProductDataDTO(
     int environmentScore,
     int socialScore,
     int healthScore,
-    String justification
-) {
+    String justification) {
 }
