@@ -1,18 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApiClient } from "@/utils/apiClient";
-import type { HistoryItem } from "@/types/history";
+import type { HistoryItem } from "@/types/history/item";
 
-type UseHistoryResult = {
-  history: HistoryItem[];
-  page: number;
-  hasMore: boolean;
-  loading: boolean;
-  loadNext: () => Promise<void>;
-  refresh: () => Promise<void>;
-  refreshing: boolean;
-};
-
-export function useHistory(): UseHistoryResult {
+export function useHistoryList() {
   const api = useApiClient();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [page, setPage] = useState<number>(0);
@@ -25,7 +15,7 @@ export function useHistory(): UseHistoryResult {
       if (loading) return;
       setLoading(true);
       try {
-        const data = await api.get(`history?page=${pageToLoad}`);
+        const data = await api.get(`history/list?page=${pageToLoad}`);
         const content: HistoryItem[] = Array.isArray(data?.content)
           ? data.content
           : [];
@@ -38,7 +28,7 @@ export function useHistory(): UseHistoryResult {
         );
         setHasMore(Boolean(data?.hasNext));
       } catch (err) {
-        console.error("useHistory fetch error", err);
+        console.error("useHistoryList fetch error", err);
       } finally {
         setLoading(false);
       }

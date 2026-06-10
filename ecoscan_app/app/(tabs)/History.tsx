@@ -1,56 +1,38 @@
-import React from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import React, { useRef } from "react";
+import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
-import HistoryListItem from "@/components/HistoryListItem";
-import { useHistory } from "@/hooks/useHistory";
-import type { HistoryItem } from "@/types/history";
-import { LoadingIndicator } from "@/components/LoadingIndicator";
+import { HistoryList } from "@/components/history/HistoryList";
+import { SavingsCard } from "@/components/history/SavingsCard";
+import { ScanStats, ScanStatsRef } from "@/components/history/ScanStats";
 
 export default function History() {
-  const { history, loading, loadNext, refresh, refreshing } = useHistory();
+  const scanStatsRef = useRef<ScanStatsRef>(null);
 
-  const renderItem = ({ item }: { item: HistoryItem }) => (
-    <HistoryListItem item={item} />
-  );
-
-  const ListFooter = () =>
-    loading &&
-    history.length > 0 && (
-      <View style={styles.footer}>
-        <LoadingIndicator />
-      </View>
-    );
-
-  const ListEmpty = () => (
-    <View style={styles.emptyContainer}>
-      {loading ? <LoadingIndicator /> : <Text>Keine Historie vorhanden</Text>}
-    </View>
-  );
+  const refresh = async () => {
+    scanStatsRef.current?.refresh();
+  };
 
   return (
     <PageContainer style={{ padding: 0 }}>
       <View style={styles.wrapper}>
-        <Text variant="headlineLarge" style={styles.heading}>
+        <Text variant="headlineLarge" style={[styles.title]}>
           Historie
         </Text>
-        <Text variant="headlineSmall" style={styles.heading}>
-          Scanverlauf
-        </Text>
-        <FlatList
-          data={history}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          onEndReached={loadNext}
-          onEndReachedThreshold={0.5}
-          refreshing={refreshing}
+        <HistoryList
           onRefresh={refresh}
-          ListFooterComponent={ListFooter}
-          ListEmptyComponent={ListEmpty}
-          contentContainerStyle={
-            history.length === 0
-              ? styles.emptyContainer
-              : styles.filledContainer
+          headerComponent={
+            <View style={styles.header}>
+              <View style={styles.section}>
+                <SavingsCard />
+                <ScanStats ref={scanStatsRef} />
+              </View>
+              <View style={styles.section}>
+                <Text variant="headlineSmall" style={styles.heading}>
+                  Scanverlauf
+                </Text>
+              </View>
+            </View>
           }
         />
       </View>
@@ -60,25 +42,21 @@ export default function History() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: "100%",
+    flex: 1,
     paddingTop: 16,
     gap: 8,
   },
-  heading: { paddingInline: 16, fontWeight: "bold" },
-  footer: {
-    paddingVertical: 16,
-    paddingBottom: 16,
-    alignItems: "center",
+  title: {
+    fontWeight: "bold",
+    marginInline: 16,
   },
-  emptyContainer: {
-    flex: 1,
-    padding: 16,
-    justifyContent: "center",
-    alignItems: "center",
+  heading: {
+    fontWeight: "bold",
   },
-  filledContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+  header: {
+    gap: 16,
+  },
+  section: {
     gap: 8,
   },
 });

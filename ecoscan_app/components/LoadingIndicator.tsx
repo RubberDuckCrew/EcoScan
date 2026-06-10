@@ -2,6 +2,11 @@ import { theme } from "@/theme";
 import { ActivityIndicator } from "react-native";
 import React from "react";
 
-export function LoadingIndicator() {
-  return <ActivityIndicator size="large" color={theme.colors.primary} />;
+type LoadingIndicatorProps = {
+  color?: string;
+};
+export function LoadingIndicator({
+  color = theme.colors.primary,
+}: LoadingIndicatorProps) {
+  return <ActivityIndicator size="large" color={color} />;
 }

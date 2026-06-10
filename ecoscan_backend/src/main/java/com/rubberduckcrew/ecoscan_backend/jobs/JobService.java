@@ -1,6 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.jobs;
 
 import com.rubberduckcrew.ecoscanai.model.GreenScoreResult;
+import com.rubberduckcrew.ecoscanai.model.SavingsResult;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,11 @@ public class JobService {
 
     public void sendProductEvaluation(final UUID jobId, final GreenScoreResult score) {
         sseService.send(jobId, "product-evaluation", score);
+        sseService.complete(jobId);
+    }
+
+    public void sendSavingsEvaluation(final UUID jobId, final SavingsResult result) {
+        sseService.send(jobId, "savings-evaluation", result);
         sseService.complete(jobId);
     }
 
