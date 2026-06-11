@@ -3,8 +3,8 @@ import { Text } from "react-native-paper";
 import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
+import {router, useLocalSearchParams} from "expo-router";
+import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
@@ -13,12 +13,6 @@ export default function Product() {
   const { loading, product, fetchGreenScore, fetchProduct, onError } =
     useGreenScore();
   const { id } = useLocalSearchParams();
-  const router = useRouter();
-
-  const routerRef = useRef(router);
-  useEffect(() => {
-    routerRef.current = router;
-  }, [router]);
 
   useEffect(() => {
     onError((err) => {
@@ -28,9 +22,13 @@ export default function Product() {
         routerRef.current.back();
       } catch (e) {
         console.error("Error navigating back: ", e);
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(tabs)/Scan");
       }
     });
-  }, [onError, router]);
+  }, [onError]);
 
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
@@ -42,18 +40,6 @@ export default function Product() {
       await fetchGreenScore(normalizedId);
     })();
   }, [id, fetchGreenScore, fetchProduct]);
-
-  function isFatalError(err: unknown): boolean {
-    if (err instanceof Error && /not found/i.test(err.message)) {
-      return true;
-    }
-
-    if (err && typeof err === "object" && "status" in err) {
-      const status = (err as { status: number }).status;
-      return status >= 400;
-    }
-    return false;
-  }
 
   return (
     <PageContainer>
