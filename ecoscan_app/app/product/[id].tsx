@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
+import AlternativesButton from "@/components/product/AlternativesButton";
 import { useError } from "@/context/ErrorContext";
 
 export default function Product() {
@@ -54,6 +55,9 @@ export default function Product() {
               <View style={styles.scoreCard}>
                 <ScoreCard score={product.score} />
               </View>
+              <View style={styles.buttonsRow}>
+                <AlternativesButton product={product}></AlternativesButton>
+              </View>
               <ReasonCard
                 reason={product.justification || "Keine Begründung verfügbar."}
               />
@@ -88,4 +92,8 @@ const styles = StyleSheet.create({
   scoreCard: {
     paddingTop: 16,
   },
+  buttonsRow: {
+    justifyContent: "space-evenly",
+    flexDirection: "row"
+  }
 });
