@@ -29,6 +29,7 @@ export default function AlternativesButton({
         <Button
           mode={"contained"}
           icon={"directions-fork"}
+          disabled={!product}
           onPress={handlePress}
         >
           Alternativen
