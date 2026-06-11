@@ -33,9 +33,7 @@ export function useGreenScore(): UseGreenScoreResult {
 
   useEffect(() => {
     if (!jobId) return;
-
     startSseListener(jobId);
-
     return () => {
       closeStream();
     };
@@ -47,7 +45,6 @@ export function useGreenScore(): UseGreenScoreResult {
 
       setLoading(true);
       loadingRef.current = true;
-
       try {
         const data = await api.post(`score/${productId}`);
         if (data) {

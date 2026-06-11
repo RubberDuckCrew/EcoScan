@@ -8,7 +8,7 @@ import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
-import {ErrorProvider} from "@/context/ErrorContext";
+import { ErrorProvider } from "@/context/ErrorContext";
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -39,13 +39,13 @@ function RootLayoutNav() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen
-          name="product/[id]"
-          options={{
-            headerShown: true,
-            title: "EcoScan",
-            headerStyle: { backgroundColor: theme.colors.secondary },
-            headerTitleStyle: { color: "black", fontWeight: "bold" },
-          }}
+        name="product/[id]"
+        options={{
+          headerShown: true,
+          title: "EcoScan",
+          headerStyle: { backgroundColor: theme.colors.secondary },
+          headerTitleStyle: { color: "black", fontWeight: "bold" },
+        }}
       />
     </Stack>
   );
@@ -55,9 +55,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ErrorProvider>
-      <PaperProvider theme={theme}>
-        <RootLayoutNav />
-      </PaperProvider>
+        <PaperProvider theme={theme}>
+          <RootLayoutNav />
+        </PaperProvider>
       </ErrorProvider>
     </AuthProvider>
   );

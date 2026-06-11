@@ -3,7 +3,7 @@ import { Text } from "react-native-paper";
 import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
-import {router, useLocalSearchParams} from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
@@ -15,12 +15,12 @@ export default function Product() {
   const { loading, product, fetchGreenScore, fetchProduct, onError } =
     useGreenScore();
 
-  const {setError} = useError();
+  const { setError } = useError();
   const { id } = useLocalSearchParams();
 
   useEffect(() => {
     onError((err) => {
-      setError(err)
+      setError(err);
       if (router.canGoBack()) {
         router.back();
       } else {
@@ -94,6 +94,6 @@ const styles = StyleSheet.create({
   },
   buttonsRow: {
     justifyContent: "space-evenly",
-    flexDirection: "row"
-  }
+    flexDirection: "row",
+  },
 });
