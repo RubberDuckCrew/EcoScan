@@ -81,7 +81,7 @@ export default function Product({scannedProduct}: AlternativesScreenProps) {
             </Text>
             <ProductCard {...scannedProductTesting} />
             <FlatList
-                style={{marginTop: 16}}
+                style={{marginTop: 16, paddingHorizontal: 2}}
                 data={alternatives.sort((a, b) => b.alternativeScore - a.alternativeScore)}
                 renderItem={({item}) =>
                     <AlternativeCard
