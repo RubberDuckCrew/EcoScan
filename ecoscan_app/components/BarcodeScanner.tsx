@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-    borderRadius: 14,
+    borderRadius: 12,
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
@@ -80,8 +80,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary,
     width: "100%",
     height: "100%",
-    borderWidth: 3,
-    borderRadius: 14,
+    borderWidth: 4,
+    borderRadius: 22,
   },
 
   permissionContainer: {
