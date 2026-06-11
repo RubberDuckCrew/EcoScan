@@ -54,8 +54,9 @@ export function useGreenScore(): UseGreenScoreResult {
         try {
           onErrorRef.current("Produktscore konnte nicht geladen werden.");
         } catch (e) {}
-        setLoading(false);
-        loadingRef.current = false;
+      }finally {
+          setLoading(false);
+          loadingRef.current = false;
       }
     },
     [api],
