@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
@@ -23,7 +22,7 @@ public class ProductService {
             "Product with id " + id + " not found"));
     }
 
-	public Object getProductFromOpenFoodFacts(final String id) {
+	public Product getProductFromOpenFoodFacts(final String id) {
 		return toProduct(foodDataRepository.getProduct(id));
 	}
 
@@ -36,12 +35,5 @@ public class ProductService {
 		//product.setImageUrl((String) json.get("imageUrl"));
 		product.setDescription((String) json.get("labels_tags"));
 		return product;
-	}
-
-	private Object cleanValue(final Object value) {
-		if (value != null && !value.getClass().getPackageName().startsWith("java.lang")) {
-			return value.toString();
-		}
-		return value;
 	}
 }
