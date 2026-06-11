@@ -38,6 +38,15 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen
+          name="product/[id]"
+          options={{
+            headerShown: true,
+            title: "EcoScan",
+            headerStyle: { backgroundColor: theme.colors.secondary },
+            headerTitleStyle: { color: "black", fontWeight: "bold" },
+          }}
+      />
     </Stack>
   );
 }
