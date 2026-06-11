@@ -18,6 +18,6 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ProductDTO getProductById(@PathVariable final String id) {
-        return productMapper.toDTO(productService.getProduct(id));
+        return productMapper.toDTO(productService.getProductFromOpenFoodFacts(id));
     }
 }

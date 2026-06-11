@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 public class FoodDataRepository {
     private final FoodDataTemplate foodDataTemplate;
 
-    public List<Map<String, Object>> queryParquetData() {
-        final String sql = "SELECT code FROM food LIMIT 10";
-        return foodDataTemplate.queryForList(sql);
+    public Map<String, Object> getProduct(final String id) {
+        final String sql = "SELECT code FROM food WHERE id = ?";
+        return foodDataTemplate.queryForObject(sql, id);
     }
 }
