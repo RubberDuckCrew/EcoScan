@@ -20,6 +20,10 @@ export function useAlternatives(): UseAlternativesResult {
     const onErrorRef = useRef<(err?: any) => void>(() => {});
 
     useEffect(() => {
+        loadingRef.current = loading;
+    }, [loading]);
+
+    useEffect(() => {
         if (!jobId) return;
 
         startSseListener(jobId);
@@ -51,6 +55,33 @@ export function useAlternatives(): UseAlternativesResult {
         },
         [startStream],
     );
+
+    const fetchAlternatives = useCallback(
+        async (productId: string, userCoordinates: string) => {
+            if (loadingRef.current) return;
+
+            setLoading(true);
+            loadingRef.current = true;
+            setAlternatives([]);
+
+            try {
+                const jobId = await api.post(`alternatives/${productId}`, {
+                    userCoordinates,
+                    //TODO: hier alle infos für die Agenten schicken?
+                });
+                if (jobId) {
+                    setJobId(jobId);
+                }
+            } catch (e) {
+                console.error("Error in fetchAlternatives", e);
+                try {
+                    onErrorRef.current(e);
+                } catch {}
+
+                setLoading(false);
+                loadingRef.current = false;
+            }
+        }, [api]);
 
     return {
         alternatives: []
