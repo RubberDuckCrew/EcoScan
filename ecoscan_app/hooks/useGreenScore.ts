@@ -54,9 +54,8 @@ export function useGreenScore(): UseGreenScoreResult {
           setJobId(data);
         }
       } catch (err) {
-        console.error("useGreenScore fetch error", err);
         try {
-          onErrorRef.current(err);
+          onErrorRef.current("Produktscore konnte nicht geladen werden.");
         } catch (e) {}
         setLoading(false);
         loadingRef.current = false;
@@ -79,10 +78,9 @@ export function useGreenScore(): UseGreenScoreResult {
           return data;
         }
       } catch (err) {
-        console.error("fetchProduct fetch error", err);
+        console.warn(err);
         try {
-          onErrorRef.current(err);
-          console.log("Called onErrorRef");
+          onErrorRef.current("Produkt konnte nicht geladen werden.");
         } catch (e) {}
       } finally {
         setLoading(false);
@@ -112,11 +110,10 @@ export function useGreenScore(): UseGreenScoreResult {
         () => {
           setLoading(false);
           loadingRef.current = false;
-          const err = new Error("Error in SSE stream");
           try {
-            onErrorRef.current(err);
+            onErrorRef.current("Ein unerwarteter Fehler ist aufgetreten.");
           } catch (e) {}
-          console.error("Error in SSE stream");
+          console.warn("Error in SSE stream");
         },
       );
     },
