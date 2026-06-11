@@ -3,11 +3,21 @@ import {Surface, Text} from "react-native-paper";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
 
-export default function AlternativesScreen() {
+type AlternativesScreenProps = {
+    scannedProduct: {
+        ean: string;
+        title: string;
+        image: string;
+        description: string;
+        score: number;
+    }
+}
+
+export default function Product({scannedProduct}: AlternativesScreenProps) {
     const alternatives = [
         {
             title: "Alternativprodukt",
-            image: require("../../assets/images/icon.png"),
+            image: require("../../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 95,
             targetLatitude: 48.15520,
@@ -15,7 +25,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt2",
-            image: require("../../assets/images/icon.png"),
+            image: require("../../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 90,
             targetLatitude: 48,
@@ -23,7 +33,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt3",
-            image: require("../../assets/images/icon.png"),
+            image: require("../../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 88,
             targetLatitude: 48.03655106953577,
@@ -31,7 +41,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt",
-            image: require("../../assets/images/icon.png"),
+            image: require("../../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 95,
             targetLatitude: 48.15520,
@@ -39,7 +49,7 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt2",
-            image: require("../../assets/images/icon.png"),
+            image: require("../../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 90,
             targetLatitude: 48,
@@ -47,19 +57,20 @@ export default function AlternativesScreen() {
         },
         {
             title: "Alternativprodukt3",
-            image: require("../../assets/images/icon.png"),
+            image: require("../../../assets/images/icon.png"),
             scanScore: 87,
             alternativeScore: 88,
             targetLatitude: 48.03655106953577,
             targetLongitude: 10.727155318771056,
         },
     ];
-    const defaultProduct = {
+    const scannedProductTesting = {
         title: "Titel des Produkts",
         description: "Beschreibung\nBeschreibung\nBeschreibung",
         image: "../assets/images/icon.png",
         score: 87,
-    }
+    }  // TODO change later to prop
+
     return (
         <Surface style={styles.pageStyle}>
             <Text variant="headlineMedium" style={styles.headline}>
@@ -68,7 +79,7 @@ export default function AlternativesScreen() {
             <Text variant={"bodyLarge"} style={styles.subHeadline}>
                 In deiner Nähe verfügbar
             </Text>
-            <ProductCard {...defaultProduct} />
+            <ProductCard {...scannedProductTesting} />
             <FlatList
                 style={{marginTop: 16}}
                 data={alternatives.sort((a, b) => b.alternativeScore - a.alternativeScore)}
