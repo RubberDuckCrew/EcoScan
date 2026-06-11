@@ -27,7 +27,7 @@ export default function Product() {
         router.replace("/(tabs)/Scan");
       }
     });
-  }, [onError]);
+  }, [onError, setError]);
 
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
