@@ -8,6 +8,7 @@ import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
+import {ErrorProvider} from "@/context/ErrorContext";
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -44,9 +45,11 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <AuthProvider>
+      <ErrorProvider>
       <PaperProvider theme={theme}>
         <RootLayoutNav />
       </PaperProvider>
+      </ErrorProvider>
     </AuthProvider>
   );
 }

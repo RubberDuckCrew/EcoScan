@@ -8,20 +8,18 @@ import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
+import { useError } from "@/context/ErrorContext";
 
 export default function Product() {
   const { loading, product, fetchGreenScore, fetchProduct, onError } =
     useGreenScore();
+
+  const {setError} = useError();
   const { id } = useLocalSearchParams();
 
   useEffect(() => {
     onError((err) => {
-      if (!isFatalError(err)) return;
-
-      try {
-        routerRef.current.back();
-      } catch (e) {
-        console.error("Error navigating back: ", e);
+      setError(err)
       if (router.canGoBack()) {
         router.back();
       } else {
