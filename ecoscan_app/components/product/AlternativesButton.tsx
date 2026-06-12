@@ -16,10 +16,8 @@ export default function AlternativesButton({
     if (product === undefined) {
       return;
     }
-    const encodedProduct = JSON.stringify(product);
     router.push({
-      pathname: "/alternatives/[product]",
-      params: { product: encodedProduct },
+      pathname: "/alternatives/",
     });
   };
 
