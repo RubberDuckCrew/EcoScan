@@ -10,10 +10,12 @@ import { StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
 import AlternativesButton from "@/components/product/AlternativesButton";
 import { useError } from "@/context/ErrorContext";
+import { useProduct } from "@/context/ProductContext";
 
 export default function Product() {
-  const { loading, product, fetchGreenScore, fetchProduct, onError } =
-    useGreenScore();
+  const { loading, fetchGreenScore, fetchProduct, onError } = useGreenScore();
+
+  const { product } = useProduct();
 
   const { setError } = useError();
   const { id } = useLocalSearchParams();
@@ -31,11 +33,14 @@ export default function Product() {
 
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
-
     if (!normalizedId) return;
 
     (async () => {
-      await fetchProduct(normalizedId);
+      const fetchedProduct = await fetchProduct(normalizedId);
+
+      if (fetchedProduct && fetchedProduct.score !== undefined) {
+        return;
+      }
       await fetchGreenScore(normalizedId);
     })();
   }, [id, fetchGreenScore, fetchProduct]);

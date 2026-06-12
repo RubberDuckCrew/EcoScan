@@ -1,14 +1,13 @@
 import { useApiClient } from "@/utils/apiClient";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Product } from "@/types/product";
 import { useSseClient } from "@/utils/sseClient";
+import { useProduct } from "@/context/ProductContext";
+import { Product } from "@/types/product";
 
 type UseGreenScoreResult = {
   loading: boolean;
-  product?: Product;
-  jobId?: string;
   fetchGreenScore: (productId: string) => Promise<void>;
-  fetchProduct: (productId: string) => Promise<void>;
+  fetchProduct: (productId: string) => Promise<Product>;
   onError: (handler: (err?: any) => void) => void;
 };
 
@@ -22,10 +21,15 @@ export function useGreenScore(): UseGreenScoreResult {
   const { startStream, closeStream } =
     useSseClient<GreenScoreResult>("product-evaluation");
   const [loading, setLoading] = useState<boolean>(false);
-  const [product, setProduct] = useState<Product>();
+  const { setProduct } = useProduct();
   const [jobId, setJobId] = useState<string>();
   const loadingRef = useRef(false);
   const onErrorRef = useRef<(err?: any) => void>(() => {});
+
+  const setLoading_ = useCallback((val: boolean) => {
+    setLoading(val);
+    loadingRef.current = val;
+  }, []);
 
   useEffect(() => {
     loadingRef.current = loading;
@@ -42,8 +46,7 @@ export function useGreenScore(): UseGreenScoreResult {
   const fetchGreenScore = useCallback(
     async (productId: string) => {
       if (loadingRef.current) return;
-      setLoading(true);
-      loadingRef.current = true;
+      setLoading_(true);
       try {
         const data = await api.post(`score/${productId}`);
         if (data) {
@@ -52,8 +55,7 @@ export function useGreenScore(): UseGreenScoreResult {
       } catch (err) {
         try {
           onErrorRef.current("Produktscore konnte nicht geladen werden.");
-          setLoading(false);
-          loadingRef.current = false;
+          setLoading_(false);
         } catch (e) {}
       }
     },
@@ -64,23 +66,20 @@ export function useGreenScore(): UseGreenScoreResult {
     async (productId: string) => {
       if (loadingRef.current) return;
 
-      setLoading(true);
-      loadingRef.current = true;
+      setLoading_(true);
 
       try {
         const data = await api.get(`product/${productId}`);
         if (data) {
           setProduct(data);
-          setLoading(false);
-          loadingRef.current = false;
+          setLoading_(false);
           return data;
         }
       } catch (err) {
         console.warn(err);
         try {
           onErrorRef.current("Produkt konnte nicht geladen werden.");
-          setLoading(false);
-          loadingRef.current = false;
+          setLoading_(false);
         } catch (e) {}
       }
     },
@@ -101,12 +100,10 @@ export function useGreenScore(): UseGreenScoreResult {
                 }
               : undefined,
           );
-          setLoading(false);
-          loadingRef.current = false;
+          setLoading_(false);
         },
         () => {
-          setLoading(false);
-          loadingRef.current = false;
+          setLoading_(false);
           try {
             onErrorRef.current("Ein unerwarteter Fehler ist aufgetreten.");
           } catch (e) {}
@@ -121,5 +118,5 @@ export function useGreenScore(): UseGreenScoreResult {
     onErrorRef.current = handler || (() => {});
   }, []);
 
-  return { fetchGreenScore, fetchProduct, product, loading, jobId, onError };
+  return { fetchGreenScore, fetchProduct, loading, onError };
 }

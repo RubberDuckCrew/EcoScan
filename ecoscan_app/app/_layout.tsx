@@ -9,6 +9,7 @@ import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { ErrorProvider } from "@/context/ErrorContext";
+import { ProductProvider } from "@/context/ProductContext";
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -46,9 +47,11 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ErrorProvider>
-        <PaperProvider theme={theme}>
-          <RootLayoutNav />
-        </PaperProvider>
+        <ProductProvider>
+          <PaperProvider theme={theme}>
+            <RootLayoutNav />
+          </PaperProvider>
+        </ProductProvider>
       </ErrorProvider>
     </AuthProvider>
   );
