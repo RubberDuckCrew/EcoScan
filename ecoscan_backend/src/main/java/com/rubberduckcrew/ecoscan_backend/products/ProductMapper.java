@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface ProductMapper {
 
+    ScannedProduct toScannedProduct(Product product);
+
     ProductDTO toDTO(Product product);
 
     ProductDataDTO toDataDTO(ScannedProduct product);

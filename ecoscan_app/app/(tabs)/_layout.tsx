@@ -1,41 +1,30 @@
 import { Tabs } from "expo-router";
 import { Icon } from "react-native-paper";
-import { theme } from "@/theme";
+import { headerOptions } from "@/theme";
 import React from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 type TabConfig = {
   title: string;
   icon: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+  headerShown: boolean;
 };
 
 const tabs = {
-  Scan: { title: "Scannen", icon: "barcode-scan" },
-  History: { title: "Historie", icon: "format-list-bulleted" },
-  Profile: { title: "Profil", icon: "account" },
+  "(scan)": { title: "Scannen", icon: "barcode-scan", headerShown: false },
+  History: {
+    title: "Historie",
+    icon: "format-list-bulleted",
+    headerShown: true,
+  },
+  Profile: { title: "Profil", icon: "account", headerShown: true },
 } satisfies Record<string, TabConfig>;
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        headerTitle: "EcoScan",
-        headerStyle: {
-          backgroundColor: theme.colors.secondary,
-        },
-        headerTitleStyle: {
-          color: "black",
-          fontWeight: "bold",
-          fontSize: 22,
-        },
-        headerTitleAlign: "center",
-
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-        },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.muted,
+        ...headerOptions,
       }}
     >
       {Object.entries(tabs).map(([name, tab]) => (
@@ -43,6 +32,7 @@ export default function TabLayout() {
           key={name}
           name={name}
           options={{
+            headerShown: tab.headerShown,
             title: tab.title,
             tabBarIcon: ({ color, size }) => (
               <Icon source={tab.icon} color={color} size={size} />

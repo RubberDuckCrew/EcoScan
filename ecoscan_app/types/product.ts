@@ -3,6 +3,9 @@ export type Product = {
   name: string;
   description: string;
   score: number | undefined;
-  justification: string;
+  socialScore: number | undefined;
+  healthScore: number | undefined;
+  environmentScore: number | undefined;
+  justification: string | undefined;
   imageUrl: string;
 };

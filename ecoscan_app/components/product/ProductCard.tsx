@@ -42,15 +42,16 @@ export default function ProductCard(props: ProductCardProps) {
         <Text style={styles.titleText} variant={"headlineMedium"}>
           {props.name}
         </Text>
-        <ScrollView
-          style={styles.descriptionContainer}
-          contentContainerStyle={{ paddingRight: 4 }}
-          showsVerticalScrollIndicator={true}
-        >
-          <Text style={styles.descriptionText} variant={"bodyLarge"}>
-            {props.description}
-          </Text>
-        </ScrollView>
+        <View style={styles.descriptionContainer}>
+          <ScrollView
+            contentContainerStyle={{ paddingRight: 4 }}
+            showsVerticalScrollIndicator={true}
+          >
+            <Text style={styles.descriptionText} variant={"bodyLarge"}>
+              {props.description}
+            </Text>
+          </ScrollView>
+        </View>
         <Text style={styles.barcodeText} variant={"bodyMedium"}>
           Barcode: {props.barcode}
         </Text>
@@ -62,7 +63,7 @@ export default function ProductCard(props: ProductCardProps) {
 const styles = StyleSheet.create({
   rootCard: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   imageContainer: {
     width: 128,
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     maxHeight: 70,
+    flexShrink: 1,
   },
   descriptionText: {
     color: theme.colors.muted,

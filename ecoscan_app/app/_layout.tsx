@@ -8,6 +8,8 @@ import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
+import { ErrorProvider } from "@/context/ErrorContext";
+import { ProductProvider } from "@/context/ProductContext";
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -24,7 +26,7 @@ function RootLayoutNav() {
 
     if (isAuthenticated) {
       if (!inTabsGroup && !inProductGroup) {
-        router.replace("/(tabs)/Scan");
+        router.replace("/(tabs)/(scan)");
       }
     } else {
       if (!inAuthGroup) {
@@ -44,9 +46,13 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <PaperProvider theme={theme}>
-        <RootLayoutNav />
-      </PaperProvider>
+      <ErrorProvider>
+        <ProductProvider>
+          <PaperProvider theme={theme}>
+            <RootLayoutNav />
+          </PaperProvider>
+        </ProductProvider>
+      </ErrorProvider>
     </AuthProvider>
   );
 }

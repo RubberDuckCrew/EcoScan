@@ -1,23 +1,29 @@
 package com.rubberduckcrew.ecoscan_backend.score;
 
+import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/score")
 public class ScoreController {
 
     private final ScoreService scoreService;
+    private final JobEanService jobEanService;
 
     @PostMapping("/{id}")
     public ResponseEntity<UUID> scoreProduct(@PathVariable final String id) {
-        return ResponseEntity.ok(scoreService.scoreProduct(id));
+        final UUID jobId = scoreService.scoreProduct(id);
+        jobEanService.register(jobId, id);
+        return ResponseEntity.ok(jobId);
     }
 
 }

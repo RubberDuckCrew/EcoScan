@@ -3,57 +3,47 @@ import { Text } from "react-native-paper";
 import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
+import AlternativesButton from "@/components/product/AlternativesButton";
+import { useError } from "@/context/ErrorContext";
+import { useProduct } from "@/context/ProductContext";
 
 export default function Product() {
-  const { loading, product, fetchGreenScore, fetchProduct, onError } =
-    useGreenScore();
-  const { id } = useLocalSearchParams();
-  const router = useRouter();
+  const { loading, fetchGreenScore, fetchProduct, onError } = useGreenScore();
 
-  const routerRef = useRef(router);
-  useEffect(() => {
-    routerRef.current = router;
-  }, [router]);
+  const { product } = useProduct();
+
+  const { setError } = useError();
+  const { id } = useLocalSearchParams();
 
   useEffect(() => {
     onError((err) => {
-      if (!isFatalError(err)) return;
-
-      try {
-        routerRef.current.back();
-      } catch (e) {
-        console.error("Error navigating back: ", e);
+      setError(err);
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(tabs)/(scan)");
       }
     });
-  }, [onError, router]);
+  }, [onError, setError]);
 
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
-
     if (!normalizedId) return;
 
     (async () => {
-      await fetchProduct(normalizedId);
+      const fetchedProduct = await fetchProduct(normalizedId);
+
+      if (fetchedProduct && fetchedProduct.score !== undefined) {
+        return;
+      }
       await fetchGreenScore(normalizedId);
     })();
   }, [id, fetchGreenScore, fetchProduct]);
-
-  function isFatalError(err: unknown): boolean {
-    if (err instanceof Error && /not found/i.test(err.message)) {
-      return true;
-    }
-
-    if (err && typeof err === "object" && "status" in err) {
-      const status = (err as { status: number }).status;
-      return status >= 400;
-    }
-    return false;
-  }
 
   return (
     <PageContainer>
@@ -69,6 +59,9 @@ export default function Product() {
             <>
               <View style={styles.scoreCard}>
                 <ScoreCard score={product.score} />
+              </View>
+              <View style={styles.buttonsRow}>
+                <AlternativesButton product={product}></AlternativesButton>
               </View>
               <ReasonCard
                 reason={product.justification || "Keine Begründung verfügbar."}
@@ -103,5 +96,11 @@ const styles = StyleSheet.create({
   },
   scoreCard: {
     paddingTop: 16,
+  },
+  buttonsRow: {
+    justifyContent: "space-evenly",
+    flexDirection: "row",
+    paddingBottom: 16,
+    paddingTop: 8,
   },
 });
