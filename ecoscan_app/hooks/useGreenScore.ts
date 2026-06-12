@@ -42,7 +42,6 @@ export function useGreenScore(): UseGreenScoreResult {
   const fetchGreenScore = useCallback(
     async (productId: string) => {
       if (loadingRef.current) return;
-
       setLoading(true);
       loadingRef.current = true;
       try {
@@ -53,10 +52,9 @@ export function useGreenScore(): UseGreenScoreResult {
       } catch (err) {
         try {
           onErrorRef.current("Produktscore konnte nicht geladen werden.");
+          setLoading(false);
+          loadingRef.current = false;
         } catch (e) {}
-      } finally {
-        setLoading(false);
-        loadingRef.current = false;
       }
     },
     [api],
@@ -73,16 +71,17 @@ export function useGreenScore(): UseGreenScoreResult {
         const data = await api.get(`product/${productId}`);
         if (data) {
           setProduct(data);
+          setLoading(false);
+          loadingRef.current = false;
           return data;
         }
       } catch (err) {
         console.warn(err);
         try {
           onErrorRef.current("Produkt konnte nicht geladen werden.");
+          setLoading(false);
+          loadingRef.current = false;
         } catch (e) {}
-      } finally {
-        setLoading(false);
-        loadingRef.current = false;
       }
     },
     [api],
