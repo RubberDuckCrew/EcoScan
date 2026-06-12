@@ -9,6 +9,7 @@ export const theme = {
     background: "#FFFFFF",
     surface: "#ECECEC",
     muted: "#606060",
+    lightMuted: "#9D9EA1",
     text: "#000000",
     onSurface: "#000000",
     warning: "#f1c40f",

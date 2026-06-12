@@ -1,13 +1,14 @@
-import { Text, ProgressBar } from "react-native-paper";
+import { Text, ProgressBar, IconButton } from "react-native-paper";
 import { StyleSheet, ViewStyle, TextStyle, View } from "react-native";
 import { theme } from "@/theme";
 import { getScoreVariant, ScoreVariant } from "@/utils/scoreColor";
 
 export interface ScoreCardProps {
   score: number;
+  onShare: () => void;
 }
 
-export default function ScoreCard({ score }: ScoreCardProps) {
+export default function ScoreCard({ score, onShare }: ScoreCardProps) {
   const normalizedScore = Math.max(
     0,
     Math.min(100, Math.round(Number(score) || 0)),
@@ -15,6 +16,13 @@ export default function ScoreCard({ score }: ScoreCardProps) {
   const variant = variantStyles[getScoreVariant(normalizedScore)];
   return (
     <View style={[styles.rootCard, variant.card]}>
+      <IconButton
+        icon="share-variant"
+        iconColor={theme.colors.lightMuted}
+        size={28}
+        style={styles.shareButton}
+        onPress={onShare}
+      />
       <Text style={variant.text} variant={"headlineSmall"}>
         Green Score
       </Text>
@@ -99,5 +107,11 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     alignSelf: "stretch",
+  },
+  shareButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    zIndex: 1,
   },
 });

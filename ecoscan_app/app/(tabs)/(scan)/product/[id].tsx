@@ -11,8 +11,10 @@ import ReasonCard from "@/components/product/ReasonCard";
 import AlternativesButton from "@/components/product/AlternativesButton";
 import { useError } from "@/context/ErrorContext";
 import { useProduct } from "@/context/ProductContext";
+import { useShareScreenshot } from "@/hooks/useShareScreenshot";
 
 export default function Product() {
+  const { viewRef, captureAndShare } = useShareScreenshot();
   const { loading, fetchGreenScore, fetchProduct, onError } = useGreenScore();
 
   const { product } = useProduct();
@@ -46,45 +48,57 @@ export default function Product() {
   }, [id, fetchGreenScore, fetchProduct]);
 
   return (
-    <PageContainer>
-      {product && (
-        <>
-          <ProductCard
-            name={product.name || "Unbekanntes Produkt"}
-            barcode={product.id || "Kein Barcode"}
-            description={product.description || "Keine Beschreibung verfügbar."}
-            imageUrl={product.imageUrl || ""}
-          />
-          {product.score !== undefined && (
-            <>
-              <View style={styles.scoreCard}>
-                <ScoreCard score={product.score} />
-              </View>
-              <View style={styles.buttonsRow}>
-                <AlternativesButton product={product}></AlternativesButton>
-              </View>
-              <ReasonCard
-                reason={product.justification || "Keine Begründung verfügbar."}
-              />
-            </>
-          )}
-        </>
-      )}
-      {loading && (
-        <>
-          <View style={styles.loadingIndicator}>
-            <LoadingIndicator />
-            <Text style={styles.loadingIndicatorText}>
-              Produkt wird analysiert...
-            </Text>
-          </View>
-        </>
-      )}
-    </PageContainer>
+    <View ref={viewRef} collapsable={false} style={styles.root}>
+      <PageContainer>
+        {product && (
+          <>
+            <ProductCard
+              name={product.name || "Unbekanntes Produkt"}
+              barcode={product.id || "Kein Barcode"}
+              description={
+                product.description || "Keine Beschreibung verfügbar."
+              }
+              imageUrl={product.imageUrl || ""}
+            />
+            {product.score !== undefined && (
+              <>
+                <View style={styles.scoreCard}>
+                  <ScoreCard
+                    score={product.score}
+                    onShare={() => captureAndShare("Produktscore teilen")}
+                  />
+                </View>
+                <View style={styles.buttonsRow}>
+                  <AlternativesButton product={product}></AlternativesButton>
+                </View>
+                <ReasonCard
+                  reason={
+                    product.justification || "Keine Begründung verfügbar."
+                  }
+                />
+              </>
+            )}
+          </>
+        )}
+        {loading && (
+          <>
+            <View style={styles.loadingIndicator}>
+              <LoadingIndicator />
+              <Text style={styles.loadingIndicatorText}>
+                Produkt wird analysiert...
+              </Text>
+            </View>
+          </>
+        )}
+      </PageContainer>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   loadingIndicator: {
     flex: 1,
     flexDirection: "column",
