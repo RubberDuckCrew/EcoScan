@@ -1,6 +1,8 @@
 package com.rubberduckcrew.ecoscan_backend.messaging;
 
+import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobService;
+import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseSavingsResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 public class MessagingService {
 
     private final JobService jobService;
+    private final ProductService productService;
+    private final JobEanService jobEanService;
 
     public void receivedTest(@Payload final JobResponseStr msg) {
         log.info("Received test");
@@ -33,6 +37,15 @@ public class MessagingService {
             return;
         }
         log.info("Job ID: {}, Score: {}", jobId, score);
+
+        final String id = jobEanService.getEan(jobId).orElse(null);
+        if (id == null) {
+            log.error("Job ID {} has no EAN", jobId);
+        } else {
+            productService.addScannedProduct(id, msg.getResult());
+        }
+        jobEanService.remove(jobId);
+
         jobService.sendProductEvaluation(jobId, msg.getResult());
     }
 
