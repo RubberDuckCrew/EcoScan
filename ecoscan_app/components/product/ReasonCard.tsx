@@ -26,6 +26,7 @@ export default function ReasonCard(props: ReasonCardProps) {
 const styles = StyleSheet.create({
   title: {
     fontWeight: "bold",
+    paddingBottom: 8,
   },
   card: {
     borderRadius: 12,
@@ -34,6 +35,6 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   scroll: {
-    maxHeight: 150,
+    maxHeight: 300,
   },
 });
