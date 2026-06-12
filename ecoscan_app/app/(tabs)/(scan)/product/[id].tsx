@@ -24,7 +24,7 @@ export default function Product() {
       if (router.canGoBack()) {
         router.back();
       } else {
-        router.replace("/(tabs)/Scan");
+        router.replace("/(tabs)/(scan)");
       }
     });
   }, [onError, setError]);
@@ -95,5 +95,7 @@ const styles = StyleSheet.create({
   buttonsRow: {
     justifyContent: "space-evenly",
     flexDirection: "row",
+    paddingBottom: 16,
+    paddingTop: 8,
   },
 });
