@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { Icon } from "react-native-paper";
-import { headerOptions, theme } from "@/theme";
+import { headerOptions } from "@/theme";
 import React from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 

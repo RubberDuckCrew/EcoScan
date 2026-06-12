@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { headerOptions, theme } from "@/theme";
+import { headerOptions } from "@/theme";
 
 export default function ScanLayout() {
   return (
