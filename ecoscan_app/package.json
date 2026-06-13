@@ -42,7 +42,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.5",
     "expo-doctor": "1.19.7",
-    "prettier": "3.8.3",
+    "prettier": "3.8.4",
     "typescript": "5.9.3"
   },
   "private": true
