@@ -15,7 +15,7 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
-FROM python:3.13.13-slim-trixie
+FROM python:3.14.5-slim-trixie
 
 RUN useradd -u 1000 -m app
 
