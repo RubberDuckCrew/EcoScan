@@ -6,20 +6,28 @@ import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
 import { theme } from "@/theme";
 import { useRouter } from "expo-router";
+import {useApiClient} from "@/utils/apiClient";
 
 export default function Scan() {
+  const api = useApiClient();
   const [barcode, setBarcode] = useState("");
   const router = useRouter();
 
-  const onScanned = (code: string) => {
+  const onScanned = async (code: string) => {
     const trimmed = code.trim();
     if (!trimmed) return;
     console.log("Scanned barcode:", code);
     setBarcode(trimmed);
-    router.push({
-      pathname: "/product/[id]",
-      params: { id: trimmed },
-    });
+    //router.push({
+    //7  pathname: "/product/[id]",
+    //  params: {id: trimmed},
+    //});
+    try {
+      const data = await api.get(`/product/openfoodfacts/`+trimmed);
+      console.log(data);
+    } catch (e) {
+      console.log(e)
+    }
   };
 
   return (

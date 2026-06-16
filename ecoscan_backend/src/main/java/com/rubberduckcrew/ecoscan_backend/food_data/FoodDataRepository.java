@@ -13,15 +13,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class FoodDataRepository {
     private final FoodDataTemplate foodDataTemplate;
-
-    @Value("${food-data.parquet-path}")
-    private String parquetPath;
+    private final static String TABLE_PATH = "read_parquet('data/food/food.parquet')";
 
     public Map<String, Object> getProduct(final String id) {
-        //TODO nicht alle Spalten
-        final String sql = "SELECT * FROM read_parquet(?) WHERE code = ?";
-        List<Map<String, Object>> results = foodDataTemplate.queryForList(sql, parquetPath, id);
+        //TODO nicht alle Spalten und labelTags funktionsfähig machen
+        final String sql = """
+        SELECT
+            code,
+            product_name[1].text AS product_name,
+            labels_tags
+        FROM ?
+        WHERE code = ?
+    """;
 
+        List<Map<String, Object>> results = foodDataTemplate.queryForList(sql, TABLE_PATH, id);
         if (results.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Product " + id + " not found");
