@@ -41,7 +41,7 @@
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version> <!-- must match the patch version of spotbugs-maven-plugin -->
         <findsecbugs-plugin.version>1.14.0</findsecbugs-plugin.version>
         <findbugs-maven-plugin.version>3.0.2</findbugs-maven-plugin.version>
-        <openapi-generator-maven-plugin.version>7.22.0</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>7.23.0</openapi-generator-maven-plugin.version>
         <spotbugs-annotations.version>4.10.2</spotbugs-annotations.version>
     </properties>
     <dependencies>
