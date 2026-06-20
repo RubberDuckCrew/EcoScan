@@ -29,8 +29,8 @@ public class ProductService {
         return toProduct(foodDataRepository.getProduct(id));
     }
 
-    public Product toProduct(Map<String, Object> json) {
-        Product product = new Product();
+    public Product toProduct(final Map<String, Object> json) {
+        final Product product = new Product();
         //TODO remove leading 0s
         product.setId((String) json.get("code"));
         product.setName((String) json.get("product_name"));

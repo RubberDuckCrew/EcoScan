@@ -25,7 +25,7 @@ public class FoodDataRepository {
                 WHERE code = ?
             """;
 
-        List<Map<String, Object>> results = foodDataTemplate.queryForList(sql, id);
+        final List<Map<String, Object>> results = foodDataTemplate.queryForList(sql, id);
         if (results.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Product " + id + " not found");
