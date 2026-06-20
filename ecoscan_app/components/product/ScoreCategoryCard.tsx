@@ -11,8 +11,8 @@ interface ScoreCardProps {
 
 export default function ScoreCategoryCard({ label, score }: ScoreCardProps) {
   const normalizedScore = Math.max(
-      0,
-      Math.min(100, Math.round(Number(score) || 0)),
+    0,
+    Math.min(100, Math.round(Number(score) || 0)),
   );
   const variant = variantStyles[getScoreVariant(normalizedScore)];
 
