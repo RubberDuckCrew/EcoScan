@@ -6,57 +6,49 @@ import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
 import { theme } from "@/theme";
 import { useRouter } from "expo-router";
-import {useApiClient} from "@/utils/apiClient";
 
 export default function Scan() {
-  const api = useApiClient();
   const [barcode, setBarcode] = useState("");
   const router = useRouter();
 
-  const onScanned = async (code: string) => {
+  const onScanned = (code: string) => {
     const trimmed = code.trim();
     if (!trimmed) return;
     console.log("Scanned barcode:", code);
     setBarcode(trimmed);
-    //router.push({
-    //7  pathname: "/product/[id]",
-    //  params: {id: trimmed},
-    //});
-    try {
-      const data = await api.get(`/product/openfoodfacts/`+trimmed);
-      console.log(data);
-    } catch (e) {
-      console.log(e)
-    }
+    router.push({
+      pathname: "/product/[id]",
+      params: { id: trimmed },
+    });
   };
 
   return (
-    <PageContainer>
-      <Text style={styles.title}>Produkt scannen</Text>
+      <PageContainer>
+        <Text style={styles.title}>Produkt scannen</Text>
 
-      <View style={styles.scannerContainer}>
-        <View style={styles.scannerBox}>
-          <BarcodeScanner onScanned={onScanned} />
+        <View style={styles.scannerContainer}>
+          <View style={styles.scannerBox}>
+            <BarcodeScanner onScanned={onScanned} />
+          </View>
         </View>
-      </View>
 
-      <Text style={styles.label}>Oder Barcode eingeben</Text>
+        <Text style={styles.label}>Oder Barcode eingeben</Text>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          value={barcode}
-          onChangeText={setBarcode}
-          placeholder="z.B. 4001686312520"
-          placeholderTextColor={theme.colors.muted}
-          keyboardType="numeric"
-          style={styles.input}
-        />
+        <View style={styles.inputRow}>
+          <TextInput
+              value={barcode}
+              onChangeText={setBarcode}
+              placeholder="z.B. 4001686312520"
+              placeholderTextColor={theme.colors.muted}
+              keyboardType="numeric"
+              style={styles.input}
+          />
 
-        <Button onPress={() => onScanned(barcode)} style={styles.button}>
-          <Text style={styles.buttonText}>Los</Text>
-        </Button>
-      </View>
-    </PageContainer>
+          <Button onPress={() => onScanned(barcode)} style={styles.button}>
+            <Text style={styles.buttonText}>Los</Text>
+          </Button>
+        </View>
+      </PageContainer>
   );
 }
 

@@ -18,12 +18,11 @@ public class FoodDataRepository {
     private final static String TABLE_PATH = "read_parquet('data/food/food.parquet')";
 
     public Map<String, Object> getProduct(final String id) {
-        //TODO nicht alle Spalten und labelTags funktionsfähig machen
         final String sql = """
         SELECT
             code,
             product_name[1].text AS product_name,
-            labels_tags
+            categories
         FROM read_parquet('data/food/food.parquet')
         WHERE code = ?
     """;

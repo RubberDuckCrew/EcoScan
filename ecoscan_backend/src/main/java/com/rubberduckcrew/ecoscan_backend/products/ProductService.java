@@ -33,26 +33,11 @@ public class ProductService {
 
 	public Product toProduct(Map<String, Object> json) {
 		Product product = new Product();
-		//TODO save 'categories' in Product-DB
 		//TODO remove leading 0s
 		product.setId((String) json.get("code"));
 		product.setName((String) json.get("product_name"));
+		product.setCategories((String) json.get("categories"));
 		//product.setImageUrl((String) json.get("imageUrl"));
-//		product.setDescription((String) json.get("labels_tags"));
-
-		Object rawLabels = json.get("labels_tags");
-		if (rawLabels instanceof org.duckdb.DuckDBArray duckDbArray) {
-			try {
-				String[] labelsArray = (String[]) duckDbArray.getArray();
-				// Hier nutzen wir jetzt ein einfaches Leerzeichen als Trenner
-				product.setDescription(String.join(" ", labelsArray));
-			} catch (Exception e) {
-				product.setDescription("");
-			}
-		} else if (rawLabels instanceof String) {
-			product.setDescription((String) rawLabels);
-		}
-
 		return product;
 	}
 
