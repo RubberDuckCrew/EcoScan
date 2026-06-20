@@ -14,12 +14,48 @@ score_task:
     A single integer score between 0 and 100 with a one-sentence justification.
   agent: score_agent
 
+category_scoring_task:
+  description: >
+    Based on the product context and the evaluation from the evaluator agent,
+    assess the product across the following three sustainability categories
+    and assign each a score from 0 (very poor) to 100 (excellent):
+
+    1. **Gesundheit (Health):** Impact on consumer health (ingredients,
+       chemicals, allergens, certifications like Bio/EU Organic) and worker
+       health during production.
+
+    2. **Soziales (Social):** Fair wages, labor rights, supply chain
+       transparency, certifications like Fairtrade or SA8000, and community
+       impact.
+
+    3. **Umwelt (Environment):** Carbon footprint, packaging, recyclability,
+       use of renewable resources, biodiversity impact, and certifications
+       like FSC, Cradle-to-Cradle, or EU Ecolabel.
+
+    Return your result strictly as a JSON object with this structure:
+    {
+      "gesundheit": <0-100>,
+      "soziales": <0-100>,
+      "umwelt": <0-100>
+    }
+
+    Do not include any text outside the JSON object.
+  expected_output: >
+    A valid JSON object with integer scores for gesundheit, soziales, and umwelt.
+  agent: category_scorer
+
 reasoning_task:
   description: >
     Based on all previous results, write a clear explanation of the scores 
     for a business audience.
   expected_output: >
-    Return a structured result containing:
-    - overall_score: integer between 0 - 100 (reuse the computed score from the score_task)
-    - reason: 3-5 sentence human readable german explanation of the sustainability assessment
+    Return a valid JSON object with exactly these fields:
+    {
+      "overall_score": <integer 0-100, reuse the score from score_task>,
+      "environmentScore": <integer 0-100, reuse from category_scoring_task>,
+      "socialScore": <integer 0-100, reuse from category_scoring_task>,
+      "healthScore": <integer 0-100, reuse from category_scoring_task>,
+      "reason": "<3-5 sentence human-readable explanation in German>"
+    }
+    Do not include any text outside the JSON object.
   agent: reasoning_agent
