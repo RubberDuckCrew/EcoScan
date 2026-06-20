@@ -13,6 +13,9 @@ type UseGreenScoreResult = {
 
 type GreenScoreResult = {
   overall_score: number;
+  environmentScore: number;
+  socialScore: number;
+  healthScore: number;
   reason: string;
 };
 

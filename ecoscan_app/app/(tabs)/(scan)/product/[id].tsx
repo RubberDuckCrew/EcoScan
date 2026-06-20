@@ -6,12 +6,13 @@ import { useGreenScore } from "@/hooks/useGreenScore";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
-import { StyleSheet, View } from "react-native";
+import {ScrollView, StyleSheet, View} from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
 import AlternativesButton from "@/components/product/AlternativesButton";
 import { useError } from "@/context/ErrorContext";
 import { useProduct } from "@/context/ProductContext";
 import { useShareScreenshot } from "@/hooks/useShareScreenshot";
+import ScoreCategoryCard from "@/components/product/ScoreCategoryCard";
 
 export default function Product() {
   const { viewRef, captureAndShare } = useShareScreenshot();
@@ -49,6 +50,7 @@ export default function Product() {
 
   return (
     <View ref={viewRef} collapsable={false} style={styles.root}>
+      <ScrollView>
       <PageContainer>
         {product && (
           <>
@@ -71,11 +73,27 @@ export default function Product() {
                 <View style={styles.buttonsRow}>
                   <AlternativesButton product={product}></AlternativesButton>
                 </View>
+                <View style={styles.categoryCardList}>
+                  <ScoreCategoryCard
+                    score={product.environmentScore ?? 0}
+                    label={"Umwelt"}
+                  />
+                  <ScoreCategoryCard
+                    score={product.socialScore ?? 0}
+                    label={"Soziales"}
+                  />
+                  <ScoreCategoryCard
+                    score={product.healthScore ?? 0}
+                    label={"Gesundheit"}
+                  />
+                </View>
+                <View style={styles.reasonCard}>
                 <ReasonCard
                   reason={
                     product.justification || "Keine Begründung verfügbar."
                   }
                 />
+                </View>
               </>
             )}
           </>
@@ -91,6 +109,7 @@ export default function Product() {
           </>
         )}
       </PageContainer>
+      </ScrollView>
     </View>
   );
 }
@@ -98,6 +117,12 @@ export default function Product() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  categoryCardList: {
+    gap: 12
+  },
+  reasonCard: {
+    paddingVertical: 16,
   },
   loadingIndicator: {
     flex: 1,
