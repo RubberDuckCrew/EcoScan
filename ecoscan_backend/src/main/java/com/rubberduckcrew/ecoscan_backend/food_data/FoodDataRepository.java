@@ -1,8 +1,10 @@
 package com.rubberduckcrew.ecoscan_backend.food_data;
 
 import com.rubberduckcrew.ecoscan_backend.configuration.FoodDataTemplate;
+
 import java.util.List;
 import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,11 +24,12 @@ public class FoodDataRepository {
             code,
             product_name[1].text AS product_name,
             labels_tags
-        FROM ?
+        FROM read_parquet('data/food/food.parquet')
         WHERE code = ?
     """;
 
-        List<Map<String, Object>> results = foodDataTemplate.queryForList(sql, TABLE_PATH, id);
+        List<Map<String, Object>> results = foodDataTemplate.queryForList(sql, id);
+        System.out.println("Result" + results);
         if (results.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Product " + id + " not found");
