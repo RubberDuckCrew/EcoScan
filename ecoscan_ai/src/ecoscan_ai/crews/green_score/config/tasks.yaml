@@ -13,6 +13,7 @@ score_task:
   expected_output: >
     A single integer score between 0 and 100 with a one-sentence justification.
   agent: score_agent
+  context: [evaluate_task]
 
 category_scoring_task:
   description: >
@@ -42,6 +43,7 @@ category_scoring_task:
     Do not include any text outside the JSON object.
   expected_output: >
     A valid JSON object with integer scores for health, social, and environment.
+  context: [evaluate_task, score_task]
   agent: category_scorer
 
 reasoning_task:
@@ -58,4 +60,5 @@ reasoning_task:
       "reason": "<3-5 sentence human-readable explanation in German>"
     }
     Do not include any text outside the JSON object.
+  context: [category_scoring_task, score_task, evaluate_task]
   agent: reasoning_agent
