@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,23 +14,21 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class FoodDataRepository {
     private final FoodDataTemplate foodDataTemplate;
-    private final static String TABLE_PATH = "read_parquet('data/food/food.parquet')";
 
     public Map<String, Object> getProduct(final String id) {
         final String sql = """
-        SELECT
-            code,
-            product_name[1].text AS product_name,
-            categories
-        FROM read_parquet('data/food/food.parquet')
-        WHERE code = ?
-    """;
+                SELECT
+                    code,
+                    product_name[1].text AS product_name,
+                    categories
+                FROM read_parquet('data/food/food.parquet')
+                WHERE code = ?
+            """;
 
         List<Map<String, Object>> results = foodDataTemplate.queryForList(sql, id);
-        System.out.println("Result" + results);
         if (results.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Product " + id + " not found");
+                "Product " + id + " not found");
         }
 
         return results.getFirst();

@@ -23,32 +23,32 @@ export default function Scan() {
   };
 
   return (
-      <PageContainer>
-        <Text style={styles.title}>Produkt scannen</Text>
+    <PageContainer>
+      <Text style={styles.title}>Produkt scannen</Text>
 
-        <View style={styles.scannerContainer}>
-          <View style={styles.scannerBox}>
-            <BarcodeScanner onScanned={onScanned} />
-          </View>
+      <View style={styles.scannerContainer}>
+        <View style={styles.scannerBox}>
+          <BarcodeScanner onScanned={onScanned} />
         </View>
+      </View>
 
-        <Text style={styles.label}>Oder Barcode eingeben</Text>
+      <Text style={styles.label}>Oder Barcode eingeben</Text>
 
-        <View style={styles.inputRow}>
-          <TextInput
-              value={barcode}
-              onChangeText={setBarcode}
-              placeholder="z.B. 4001686312520"
-              placeholderTextColor={theme.colors.muted}
-              keyboardType="numeric"
-              style={styles.input}
-          />
+      <View style={styles.inputRow}>
+        <TextInput
+          value={barcode}
+          onChangeText={setBarcode}
+          placeholder="z.B. 4001686312520"
+          placeholderTextColor={theme.colors.muted}
+          keyboardType="numeric"
+          style={styles.input}
+        />
 
-          <Button onPress={() => onScanned(barcode)} style={styles.button}>
-            <Text style={styles.buttonText}>Los</Text>
-          </Button>
-        </View>
-      </PageContainer>
+        <Button onPress={() => onScanned(barcode)} style={styles.button}>
+          <Text style={styles.buttonText}>Los</Text>
+        </Button>
+      </View>
+    </PageContainer>
   );
 }
 

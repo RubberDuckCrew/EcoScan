@@ -30,8 +30,7 @@ public class Product implements Serializable {
     @NotNull @Size(max = 2048) @Column(length = 2048, nullable = false)
     private String description;
 
-    @NotNull
-    private String categories;
+    @NotNull private String categories;
 
     @NotNull private String data;
 }
