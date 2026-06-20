@@ -100,6 +100,9 @@ export function useGreenScore(): UseGreenScoreResult {
                   ...prev,
                   score: result.overall_score,
                   justification: result.reason,
+                  environmentScore: result.environmentScore,
+                  socialScore: result.socialScore,
+                  healthScore: result.healthScore,
                 }
               : undefined,
           );
