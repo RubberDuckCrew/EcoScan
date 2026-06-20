@@ -20,28 +20,28 @@ category_scoring_task:
     assess the product across the following three sustainability categories
     and assign each a score from 0 (very poor) to 100 (excellent):
 
-    1. **Gesundheit (Health):** Impact on consumer health (ingredients,
+    1. **healthScore:** Impact on consumer health (ingredients,
        chemicals, allergens, certifications like Bio/EU Organic) and worker
        health during production.
 
-    2. **Soziales (Social):** Fair wages, labor rights, supply chain
+    2. **socialScore:** Fair wages, labor rights, supply chain
        transparency, certifications like Fairtrade or SA8000, and community
        impact.
 
-    3. **Umwelt (Environment):** Carbon footprint, packaging, recyclability,
+    3. **environmentScore:** Carbon footprint, packaging, recyclability,
        use of renewable resources, biodiversity impact, and certifications
        like FSC, Cradle-to-Cradle, or EU Ecolabel.
 
     Return your result strictly as a JSON object with this structure:
     {
-      "gesundheit": <0-100>,
-      "soziales": <0-100>,
-      "umwelt": <0-100>
+      "healthScore": <0-100>,
+      "socialScore": <0-100>,
+      "environmentScore": <0-100>
     }
 
     Do not include any text outside the JSON object.
   expected_output: >
-    A valid JSON object with integer scores for gesundheit, soziales, and umwelt.
+    A valid JSON object with integer scores for health, social, and environment.
   agent: category_scorer
 
 reasoning_task:
