@@ -6,7 +6,7 @@ import { useGreenScore } from "@/hooks/useGreenScore";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
-import {ScrollView, StyleSheet, View} from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
 import AlternativesButton from "@/components/product/AlternativesButton";
 import { useError } from "@/context/ErrorContext";
@@ -51,64 +51,64 @@ export default function Product() {
   return (
     <View ref={viewRef} collapsable={false} style={styles.root}>
       <ScrollView>
-      <PageContainer>
-        {product && (
-          <>
-            <ProductCard
-              name={product.name || "Unbekanntes Produkt"}
-              barcode={product.id || "Kein Barcode"}
-              description={
-                product.description || "Keine Beschreibung verfügbar."
-              }
-              imageUrl={product.imageUrl || ""}
-            />
-            {product.score !== undefined && (
-              <>
-                <View style={styles.scoreCard}>
-                  <ScoreCard
-                    score={product.score}
-                    onShare={() => captureAndShare("Produktscore teilen")}
-                  />
-                </View>
-                <View style={styles.buttonsRow}>
-                  <AlternativesButton product={product}></AlternativesButton>
-                </View>
-                <View style={styles.categoryCardList}>
-                  <ScoreCategoryCard
-                    score={product.environmentScore ?? 0}
-                    label={"Umwelt"}
-                  />
-                  <ScoreCategoryCard
-                    score={product.socialScore ?? 0}
-                    label={"Soziales"}
-                  />
-                  <ScoreCategoryCard
-                    score={product.healthScore ?? 0}
-                    label={"Gesundheit"}
-                  />
-                </View>
-                <View style={styles.reasonCard}>
-                <ReasonCard
-                  reason={
-                    product.justification || "Keine Begründung verfügbar."
-                  }
-                />
-                </View>
-              </>
-            )}
-          </>
-        )}
-        {loading && (
-          <>
-            <View style={styles.loadingIndicator}>
-              <LoadingIndicator />
-              <Text style={styles.loadingIndicatorText}>
-                Produkt wird analysiert...
-              </Text>
-            </View>
-          </>
-        )}
-      </PageContainer>
+        <PageContainer>
+          {product && (
+            <>
+              <ProductCard
+                name={product.name || "Unbekanntes Produkt"}
+                barcode={product.id || "Kein Barcode"}
+                description={
+                  product.description || "Keine Beschreibung verfügbar."
+                }
+                imageUrl={product.imageUrl || ""}
+              />
+              {product.score !== undefined && (
+                <>
+                  <View style={styles.scoreCard}>
+                    <ScoreCard
+                      score={product.score}
+                      onShare={() => captureAndShare("Produktscore teilen")}
+                    />
+                  </View>
+                  <View style={styles.buttonsRow}>
+                    <AlternativesButton product={product}></AlternativesButton>
+                  </View>
+                  <View style={styles.categoryCardList}>
+                    <ScoreCategoryCard
+                      score={product.environmentScore ?? 0}
+                      label={"Umwelt"}
+                    />
+                    <ScoreCategoryCard
+                      score={product.socialScore ?? 0}
+                      label={"Soziales"}
+                    />
+                    <ScoreCategoryCard
+                      score={product.healthScore ?? 0}
+                      label={"Gesundheit"}
+                    />
+                  </View>
+                  <View style={styles.reasonCard}>
+                    <ReasonCard
+                      reason={
+                        product.justification || "Keine Begründung verfügbar."
+                      }
+                    />
+                  </View>
+                </>
+              )}
+            </>
+          )}
+          {loading && (
+            <>
+              <View style={styles.loadingIndicator}>
+                <LoadingIndicator />
+                <Text style={styles.loadingIndicatorText}>
+                  Produkt wird analysiert...
+                </Text>
+              </View>
+            </>
+          )}
+        </PageContainer>
       </ScrollView>
     </View>
   );
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryCardList: {
-    gap: 12
+    gap: 12,
   },
   reasonCard: {
     paddingVertical: 16,
