@@ -20,6 +20,10 @@ class GreenScoreCrew:
             config=self.agents_config["reasoning_agent"], reasoning=True, verbose=True
         )  # type: ignore[index]
 
+    @agent
+    def category_scorer(self) -> Agent:
+        return Agent(config=self.agents_config["category_scorer"], verbose=True)  # type: ignore[index]
+
     @task
     def evaluate_task(self) -> Task:
         return Task(config=self.tasks_config["evaluate_task"])  # type: ignore[index]
@@ -28,6 +32,12 @@ class GreenScoreCrew:
     def score_task(self) -> Task:
         return Task(
             config=self.tasks_config["score_task"],  # type: ignore[index]
+        )
+
+    @task
+    def category_scoring_task(self) -> Task:
+        return Task(
+            config=self.tasks_config["category_scoring_task"],  # type: ignore[index]
         )
 
     @task
