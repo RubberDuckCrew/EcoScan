@@ -13,7 +13,7 @@ export default function ScoreCategoryCard({ label, score }: ScoreCardProps) {
   const variant = variantStyles[getScoreVariant(score)];
 
   return (
-      <Card style={[styles.card, variant.card]}>
+      <Card style={[styles.card]}>
         <Card.Content>
           <View style={styles.header}>
             <Text variant="titleMedium">{label}</Text>
