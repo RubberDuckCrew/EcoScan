@@ -43,7 +43,7 @@ export default function ScoreCard({ score, onShare }: ScoreCardProps) {
   );
 }
 
-const variantStyles: Record<
+export const variantStyles: Record<
   ScoreVariant,
   { card: ViewStyle; text: TextStyle; progressBar: string; message: string }
 > = {

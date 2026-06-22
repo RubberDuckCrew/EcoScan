@@ -13,6 +13,9 @@ type UseGreenScoreResult = {
 
 type GreenScoreResult = {
   overall_score: number;
+  environmentScore: number;
+  socialScore: number;
+  healthScore: number;
   reason: string;
 };
 
@@ -97,6 +100,9 @@ export function useGreenScore(): UseGreenScoreResult {
                   ...prev,
                   score: result.overall_score,
                   justification: result.reason,
+                  environmentScore: result.environmentScore,
+                  socialScore: result.socialScore,
+                  healthScore: result.healthScore,
                 }
               : undefined,
           );

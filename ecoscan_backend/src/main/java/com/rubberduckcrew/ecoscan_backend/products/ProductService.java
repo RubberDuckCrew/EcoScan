@@ -37,6 +37,9 @@ public class ProductService {
         scannedProduct.setScore(greenScoreResult.getOverallScore());
         scannedProduct.setJustification(greenScoreResult.getReason());
         scannedProduct.setScannedDate(LocalDateTime.now());
+        scannedProduct.setEnvironmentScore(greenScoreResult.getEnvironmentScore());
+        scannedProduct.setHealthScore(greenScoreResult.getHealthScore());
+        scannedProduct.setSocialScore(greenScoreResult.getSocialScore());
         scannedProductRepository.save(scannedProduct);
     }
 
