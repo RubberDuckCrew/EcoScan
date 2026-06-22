@@ -2,7 +2,7 @@ name: ecoscan-stack
 
 services:
   rabbitmq:
-    image: rabbitmq:4.3.1-management
+    image: rabbitmq:4.3.2-management
     container_name: rabbitmq
     ports:
       - "5672:5672"
