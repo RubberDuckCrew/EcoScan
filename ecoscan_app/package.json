@@ -38,7 +38,7 @@
     "@types/react": "19.1.10",
     "@typescript-eslint/parser": "8.61.1",
     "eslint": "9.39.4",
-    "eslint-config-expo": "10.0.0",
+    "eslint-config-expo": "56.0.4",
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.5",
     "expo-doctor": "1.19.7",
