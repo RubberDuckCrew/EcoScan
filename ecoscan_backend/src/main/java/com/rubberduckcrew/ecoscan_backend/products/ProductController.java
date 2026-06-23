@@ -1,5 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.products;
 
+import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDTO;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,5 +26,10 @@ public class ProductController {
             return productMapper.toDataDTO(productService.getScannedProduct(id));
         }
         return productMapper.toDTO(productService.getProduct(id));
+    }
+
+    @GetMapping("/openfoodfacts/{id}")
+    public ProductDTO getProductByIdTool(@PathVariable final String id) {
+        return productMapper.toDTO(productService.getProductFromOpenFoodFacts(id));
     }
 }
