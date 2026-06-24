@@ -3,7 +3,7 @@ name = "ecoscan_ai"
 version = "0.1.0"
 description = "ecoscan-ai using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
-requires-python = "==3.13.13"
+requires-python = "==3.14.6"
 dependencies = [
     "aio-pika==9.6.2",
     "crewai[tools]==1.14.7",
