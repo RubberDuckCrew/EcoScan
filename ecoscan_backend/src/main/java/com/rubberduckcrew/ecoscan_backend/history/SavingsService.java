@@ -1,28 +1,25 @@
 package com.rubberduckcrew.ecoscan_backend.history;
 
+import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsRequestDTO;
+import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsResultDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
-import com.rubberduckcrew.ecoscanai.api.SavingsApi;
-import com.rubberduckcrew.ecoscanai.model.JobResponseSavingsResult;
-import com.rubberduckcrew.ecoscanai.model.SavingsRequest;
-import jakarta.validation.ValidationException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class SavingsService {
     private final ProductMapper productMapper;
-    private final SavingsApi savingsApi;
+    private final RabbitTemplate rabbitTemplate;
 
     public UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
         log.info("Calculating savings for user {}", userId);
@@ -31,22 +28,20 @@ public class SavingsService {
             .map(productMapper::toDataDTO)
             .toList();
 
-        final SavingsRequest savingsRequest = new SavingsRequest();
-        savingsRequest.setSavingsContext(history.toString());
-        final Optional<JobResponseSavingsResult> jobResponse;
+        final SavingsRequestDTO request = new SavingsRequestDTO(
+            UUID.randomUUID(),
+            history.toString()
+        );
+        rabbitTemplate.convertAndSend(
+            "ecoscan.ai.tasks.savings",
+            request
+        );
 
-        try {
-            jobResponse = Optional.ofNullable(savingsApi.savings(savingsRequest));
-        } catch (ValidationException e) {
-            log.error("OpenAPI client error while evaluating savings", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to calculate savings", e);
-        } catch (RestClientException e) {
-            log.error("REST client error while evaluating savings", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to calculate savings", e);
-        }
+        return request.jobId();
+    }
 
-        log.info("Created savings job with id {}", jobResponse.map(JobResponseSavingsResult::getJobId));
-        return jobResponse.map(JobResponseSavingsResult::getJobId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to calculate savings"));
+    @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
+    public void handleSavingsResult(final SavingsResultDTO savingsResultDTO) {
+        log.info("Received savings results: {}", savingsResultDTO);
     }
 }
