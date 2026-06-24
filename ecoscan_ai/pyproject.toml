@@ -8,6 +8,7 @@ dependencies = [
     "aio-pika==9.6.2",
     "crewai[tools]==1.14.7",
     "fastapi[standard]==0.138.0",
+    "pika==1.4.1",
 ]
 
 [dependency-groups]
@@ -24,6 +25,7 @@ replay = "ecoscan_ai.main:replay"
 test = "ecoscan_ai.main:test"
 run_with_trigger = "ecoscan_ai.main:run_with_trigger"
 api = "ecoscan_ai.api.main:start"
+workers = "ecoscan_ai.main:workers"
 
 [tool.poe.tasks]
 format = "ruff format . --check"

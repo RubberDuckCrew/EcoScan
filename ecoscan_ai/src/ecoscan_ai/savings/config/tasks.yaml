@@ -1,0 +1,43 @@
+evaluate_task:
+  description: >-
+    Analyze the following raw product history data provided in the context:
+    {savingsContext}
+
+    Extract each product's name, description, scores (environment, social, health), and justification.
+    Create a clean, structured profile for each product.
+  expected_output: >-
+    A structured list of product profiles containing extracted names, descriptions, and scores.
+  agent: evaluator
+
+score_task:
+  description: >-
+    Review the structured product profiles from the evaluation task.
+    For each product, estimate the CO2 impact and potential savings compared to conventional baselines
+    (e.g., regional oat milk vs. traditional dairy milk).
+    Provide clear mathematical or logical reasoning for the estimated savings.
+  expected_output: >-
+    A detailed breakdown of CO2 savings per product, including the baseline assumptions used.
+  agent: score_agent
+
+reasoning_task:
+  description: >-
+    Review the entire analysis chain (raw data, extracted profiles, and CO2 calculations).
+    Synthesize the final results to match the required output schema precisely.
+
+    You must calculate and provide exactly two fields:
+    1. 'co2Saving': The total accumulated CO2 savings across all products, represented strictly
+       as a float in kilograms (kg). Do not include any text or unit symbols—only the raw decimal
+       number (e.g., 4.25).
+    2. 'carRideEquivalent': The equivalent distance driven by a standard petrol passenger car,
+       represented strictly as an integer in kilometers (km).
+       Calculation rule: Use a standard baseline of 0.14 kilograms of CO2 per kilometer.
+       Divide the total 'co2Saving' (in kg) by 0.14 and round it to the nearest whole integer.
+       Do not include text, decimals, or "km"—only the raw integer number
+       (e.g., if total saving is 4.2 kg, 4.2 / 0.14 = 30, so the output must be 30).
+
+    Ensure the data is perfectly structured to fit the SavingsResult model.
+    Important: The jobId field must be set to: {jobId}
+  expected_output: >-
+    An instance of the SavingsResult Pydantic model containing jobId (string), the total CO2
+    savings as a float (in kilograms) and the car ride equivalent as an integer (in kilometers).
+  agent: reasoning_agent
