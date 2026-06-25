@@ -3,10 +3,14 @@ import json
 import logging
 import threading
 import time
+from typing import TYPE_CHECKING
 
 import pika
 import pika.channel
 import pika.spec
+
+if TYPE_CHECKING:
+    import pika.adapters.blocking_connection
 
 from ecoscan_ai.core.models import AiDTO
 from ecoscan_ai.core.rabbitmq_connection import create_blocking_connection
@@ -38,6 +42,10 @@ class BaseWorker(abc.ABC):
                 connection = create_blocking_connection()
                 channel = connection.channel()
 
+                with self._lock:
+                    self._connection = connection
+                    self._channel = channel
+
                 channel.basic_qos(prefetch_count=1)
 
                 channel.queue_declare(queue=self.QUEUE_NAME, durable=True)
@@ -65,6 +73,10 @@ class BaseWorker(abc.ABC):
                     _RETRY_DELAY_SECONDS,
                 )
                 time.sleep(_RETRY_DELAY_SECONDS)
+            finally:
+                with self._lock:
+                    self._channel = None
+                    self._connection = None
 
         logger.info("[%s] Worker shut down cleanly.", self.FEATURE_NAME)
 
@@ -144,6 +156,15 @@ class BaseWorker(abc.ABC):
 
     def __init__(self) -> None:
         self._stop_event = threading.Event()
+        self._channel: "pika.adapters.blocking_connection.BlockingChannel | None" = None
+        self._connection: "pika.adapters.blocking_connection.BlockingConnection | None" = None
+        self._lock = threading.Lock()
 
     def stop(self) -> None:
         self._stop_event.set()
+        with self._lock:
+            if self._channel is not None:
+                try:
+                    self._channel.stop_consuming()
+                except Exception as exc:
+                    logger.warning("Error stopping consumer: %s", exc)
