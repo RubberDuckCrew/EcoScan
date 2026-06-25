@@ -20,7 +20,7 @@ public class JobService {
         sseService.send(jobId, "product-evaluation", score);
         sseService.complete(jobId);
     }
-    
+
     public void sendProcessingStatus(final UUID jobId, final String status) {
         sseService.send(jobId, "processing-status", status);
     }

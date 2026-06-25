@@ -31,9 +31,7 @@ class SavingsCrew:
 
     @task
     def co2_task(self) -> Task:
-        return Task(
-            config=self.tasks_config["co2_task"]
-        )  # type: ignore[index]
+        return Task(config=self.tasks_config["co2_task"])  # type: ignore[index]
 
     @task
     def format_task(self) -> Task:

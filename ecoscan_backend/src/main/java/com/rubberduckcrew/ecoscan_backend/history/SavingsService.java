@@ -33,12 +33,10 @@ public class SavingsService {
 
         final AiDTO<SavingsRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
-            new SavingsRequestDTO(history.toString())
-        );
+            new SavingsRequestDTO(history.toString()));
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.savings",
-            request
-        );
+            request);
 
         return request.jobId();
     }
