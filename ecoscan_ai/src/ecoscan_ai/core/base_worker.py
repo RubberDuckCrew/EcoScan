@@ -204,7 +204,9 @@ class BaseWorker(abc.ABC):
         self._channel: "pika.adapters.blocking_connection.BlockingChannel | None" = None
         self._connection: "pika.adapters.blocking_connection.BlockingConnection | None" = None
         self._lock = threading.Lock()
-        self._executor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="worker-bg")
+        self._executor = ThreadPoolExecutor(
+            max_workers=5, thread_name_prefix="worker-bg"
+        )
 
     def stop(self) -> None:
         self._stop_event.set()

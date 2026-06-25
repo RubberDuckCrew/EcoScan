@@ -62,7 +62,9 @@ class Orchestrator:
                 exc,
                 exc_info=True,
             )
-            logger.warning("[orchestrator] Triggering shutdown due to worker failure...")
+            logger.warning(
+                "[orchestrator] Triggering shutdown due to worker failure..."
+            )
             self._shutdown_event.set()
 
     def _graceful_shutdown(self) -> None:
