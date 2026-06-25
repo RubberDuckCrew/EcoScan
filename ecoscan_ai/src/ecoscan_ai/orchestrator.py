@@ -1,7 +1,7 @@
 import logging
 import signal
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
 from ecoscan_ai.savings.worker import SavingsWorker
@@ -21,6 +21,7 @@ class Orchestrator:
         self._workers: list["BaseWorker"] = [cls() for cls in WORKER_CLASSES]
         self._executor: ThreadPoolExecutor | None = None
         self._shutdown_event = threading.Event()
+        self._futures: list[tuple[Future, "BaseWorker"]] = []
 
     def start(self) -> None:
         self._register_signal_handlers()
@@ -31,12 +32,15 @@ class Orchestrator:
         )
 
         for worker in self._workers:
-            thread = self._executor.submit(worker.run)  # type: ignore
+            future = self._executor.submit(worker.run)  # type: ignore
+            self._futures.append((future, worker))
+
+            future.add_done_callback(lambda f, w=worker: self._on_worker_done(f, w))
+
             logger.info(
-                "[orchestrator] Worker started | Feature: %s | Queue: %s | Thread: %s",
+                "[orchestrator] Worker started | Feature: %s | Queue: %s",
                 worker.FEATURE_NAME,
                 worker.QUEUE_NAME,
-                thread,
             )
 
         logger.info(
@@ -46,6 +50,20 @@ class Orchestrator:
 
         self._shutdown_event.wait()
         self._graceful_shutdown()
+
+    def _on_worker_done(self, future: Future, worker: "BaseWorker") -> None:
+        try:
+            future.result()
+        except Exception as exc:
+            logger.error(
+                "[orchestrator] WORKER CRASH | Feature: %s | Queue: %s | Exception: %s",
+                worker.FEATURE_NAME,
+                worker.QUEUE_NAME,
+                exc,
+                exc_info=True,
+            )
+            logger.warning("[orchestrator] Triggering shutdown due to worker failure...")
+            self._shutdown_event.set()
 
     def _graceful_shutdown(self) -> None:
         logger.info("[orchestrator] Graceful shutdown initiated ...")
