@@ -33,6 +33,7 @@ class SavingsWorker(BaseWorker):
             len(request.savingsContext),
         )
 
+        # noinspection PyCallingNonCallable
         crew = SavingsCrew()
         result = crew.run(request)
 
