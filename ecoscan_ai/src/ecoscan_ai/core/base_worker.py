@@ -3,6 +3,7 @@ import json
 import logging
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
 import pika
@@ -88,34 +89,63 @@ class BaseWorker(abc.ABC):
         body: bytes,
     ) -> None:
         job_id = "<unknown>"
+        try:
+            raw = json.loads(body)
+            job_id = raw.get("jobId", "<unknown>")
+        except json.JSONDecodeError:
+            pass
+
+        logger.info("[%s] Message received | jobId: %s", self.FEATURE_NAME, job_id)
+
+        self._executor.submit(
+            self._process_message_in_background,
+            channel,
+            method.delivery_tag,
+            body,
+            job_id,
+        )
+
+    def _process_message_in_background(
+        self,
+        channel: pika.channel.Channel,
+        delivery_tag: int,
+        body: bytes,
+        job_id: str,
+    ) -> None:
+        """Process message in background thread and send result/ACK via callback."""
         # noinspection PyBroadException
         try:
-            try:
-                raw = json.loads(body)
-                job_id = raw.get("jobId", "<unknown>")
-            except json.JSONDecodeError:
-                pass
-
-            logger.info("[%s] Message received | jobId: %s", self.FEATURE_NAME, job_id)
-
             result_json = self._run_with_retry(body, job_id)
 
-            channel.basic_publish(
-                exchange="",
-                routing_key=self.RESULT_QUEUE,
-                body=result_json.encode("utf-8"),
-                properties=pika.BasicProperties(
-                    delivery_mode=pika.DeliveryMode.Persistent,
-                    content_type="application/json",
-                ),
-            )
+            def publish_and_ack() -> None:
+                try:
+                    channel.basic_publish(
+                        exchange="",
+                        routing_key=self.RESULT_QUEUE,
+                        body=result_json.encode("utf-8"),
+                        properties=pika.BasicProperties(
+                            delivery_mode=pika.DeliveryMode.Persistent,
+                            content_type="application/json",
+                        ),
+                    )
+                    channel.basic_ack(delivery_tag=delivery_tag)
+                    logger.info(
+                        "[%s] Result published & ACK sent | jobId: %s",
+                        self.FEATURE_NAME,
+                        job_id,
+                    )
+                except Exception as exc:
+                    logger.exception(
+                        "[%s] Error publishing result for jobId: %s: %s",
+                        self.FEATURE_NAME,
+                        job_id,
+                        exc,
+                    )
 
-            channel.basic_ack(delivery_tag=method.delivery_tag)
-            logger.info(
-                "[%s] Result published & ACK sent | jobId: %s",
-                self.FEATURE_NAME,
-                job_id,
-            )
+            with self._lock:
+                connection = self._connection
+            if connection is not None:
+                connection.add_callback_threadsafe(publish_and_ack)
 
         except Exception:
             logger.exception(
@@ -123,7 +153,22 @@ class BaseWorker(abc.ABC):
                 self.FEATURE_NAME,
                 job_id,
             )
-            channel.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+            def nack() -> None:
+                try:
+                    channel.basic_nack(delivery_tag=delivery_tag, requeue=False)
+                except Exception as exc:
+                    logger.exception(
+                        "[%s] Error sending NACK for jobId: %s: %s",
+                        self.FEATURE_NAME,
+                        job_id,
+                        exc,
+                    )
+
+            with self._lock:
+                connection = self._connection
+            if connection is not None:
+                connection.add_callback_threadsafe(nack)
 
     def _run_with_retry(self, body: bytes, job_id: str) -> str:
         last_exc: Exception | None = None
@@ -159,6 +204,7 @@ class BaseWorker(abc.ABC):
         self._channel: "pika.adapters.blocking_connection.BlockingChannel | None" = None
         self._connection: "pika.adapters.blocking_connection.BlockingConnection | None" = None
         self._lock = threading.Lock()
+        self._executor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="worker-bg")
 
     def stop(self) -> None:
         self._stop_event.set()
@@ -168,3 +214,5 @@ class BaseWorker(abc.ABC):
                     self._channel.stop_consuming()
                 except Exception as exc:
                     logger.warning("Error stopping consumer: %s", exc)
+        # Gracefully shutdown executor and wait for pending tasks
+        self._executor.shutdown(wait=True)
