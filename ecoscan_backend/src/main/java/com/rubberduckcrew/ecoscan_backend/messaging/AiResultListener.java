@@ -5,6 +5,7 @@ import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Argument;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -22,7 +23,7 @@ public class AiResultListener {
     private final MessagingService messagingService;
     private final RabbitTemplate rabbitTemplate;
 
-    @RabbitListener(queuesToDeclare = @Queue("ai_results"))
+    @RabbitListener(queuesToDeclare = @Queue(value = "ai_results", durable = "true", arguments = @Argument(name = "x-dead-letter-exchange", value = "ai_results_dlx")))
     public void handleResult(@Payload final Message message) {
         try {
             final JsonNode node = objectMapper.readTree(message.getBody());
