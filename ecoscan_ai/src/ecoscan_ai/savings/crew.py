@@ -14,7 +14,7 @@ class SavingsCrew:
     @agent
     def co2_analyst(self) -> Agent:
         return Agent(
-            config=self.agents_config["co2_analyst"],
+            config=self.agents_config["co2_analyst"],  # type: ignore[index]
             verbose=True,
             max_iter=5,
             allow_delegation=False,
@@ -23,7 +23,7 @@ class SavingsCrew:
     @agent
     def formatter(self) -> Agent:
         return Agent(
-            config=self.agents_config["formatter"],
+            config=self.agents_config["formatter"],  # type: ignore[index]
             verbose=True,
             max_iter=3,
             allow_delegation=False,
