@@ -6,6 +6,7 @@ import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -22,7 +23,7 @@ public class AiResultListener {
     private final MessagingService messagingService;
     private final RabbitTemplate rabbitTemplate;
 
-    @RabbitListener(queues = "ai_results")
+    @RabbitListener(queuesToDeclare = @Queue("ai_results"))
     public void handleResult(@Payload final Message message) {
         try {
             final JsonNode node = objectMapper.readTree(message.getBody());
