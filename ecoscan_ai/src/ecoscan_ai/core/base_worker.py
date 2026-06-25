@@ -4,15 +4,11 @@ import logging
 import threading
 import time
 
-# noinspection PyPackageRequirements
 import pika
-
-# noinspection PyPackageRequirements
 import pika.channel
-
-# noinspection PyPackageRequirements
 import pika.spec
 
+from ecoscan_ai.core.models import AiDTO
 from ecoscan_ai.core.rabbitmq_connection import create_blocking_connection
 
 logger = logging.getLogger(__name__)
@@ -79,7 +75,6 @@ class BaseWorker(abc.ABC):
         _: pika.spec.BasicProperties,
         body: bytes,
     ) -> None:
-        """Callback for each incoming message. Isolates errors (ANF-RES-03)."""
         job_id = "<unknown>"
         # noinspection PyBroadException
         try:
@@ -122,7 +117,11 @@ class BaseWorker(abc.ABC):
         last_exc: Exception | None = None
         for attempt in range(1, _LLM_RETRY_ATTEMPTS + 2):
             try:
-                return self.process(body)
+                try:
+                    raw = json.loads(body)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"Invalid JSON: {exc}") from exc
+                return self.process(raw).model_dump_json()
             except Exception as exc:
                 last_exc = exc
                 if attempt <= _LLM_RETRY_ATTEMPTS:
@@ -140,12 +139,8 @@ class BaseWorker(abc.ABC):
         raise last_exc
 
     @abc.abstractmethod
-    def process(self, body: bytes) -> str:
-        """
-        Processes the raw message body.
-        Must return the validated JSON result string.
-        Raises an exception on error.
-        """
+    def process(self, body: dict) -> AiDTO:
+        pass
 
     def __init__(self) -> None:
         self._stop_event = threading.Event()

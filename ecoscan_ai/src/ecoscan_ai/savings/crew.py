@@ -3,7 +3,7 @@ from pathlib import Path
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 
-from ecoscan_ai.savings.models import SavingsRequest, SavingsResult
+from ecoscan_ai.savings.models import SavingsResult, SavingsRequest
 
 
 @CrewBase
@@ -55,16 +55,7 @@ class SavingsCrew:
     def run(self, request: SavingsRequest) -> SavingsResult:
         inputs = {
             "savingsContext": request.savingsContext,
-            "jobId": request.jobId,
         }
         result = self.crew().kickoff(inputs=inputs)
         pydantic_output: SavingsResult = result.pydantic  # type: ignore[assignment]
-
-        if pydantic_output.jobId != request.jobId:
-            pydantic_output = SavingsResult(
-                jobId=request.jobId,
-                co2Saving=pydantic_output.co2Saving,
-                carRideEquivalent=pydantic_output.carRideEquivalent,
-            )
-
         return pydantic_output

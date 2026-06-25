@@ -35,9 +35,8 @@ reasoning_task:
        Do not include text, decimals, or "km"—only the raw integer number
        (e.g., if total saving is 4.2 kg, 4.2 / 0.14 = 30, so the output must be 30).
 
-    Ensure the data is perfectly structured to fit the SavingsResult model.
-    Important: The jobId field must be set to: {jobId}
+    Ensure the data is perfectly structured to fit the SavingsResultData model.
   expected_output: >-
-    An instance of the SavingsResult Pydantic model containing jobId (string), the total CO2
+    An instance of the SavingsResultData Pydantic model containing the total CO2
     savings as a float (in kilograms) and the car ride equivalent as an integer (in kilometers).
   agent: reasoning_agent

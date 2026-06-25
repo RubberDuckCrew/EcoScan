@@ -1,11 +1,11 @@
-import json
 import logging
 
 from pydantic import ValidationError
 
 from ecoscan_ai.core.base_worker import BaseWorker
+from ecoscan_ai.core.models import AiDTO
 from ecoscan_ai.savings.crew import SavingsCrew
-from ecoscan_ai.savings.models import SavingsRequest
+from ecoscan_ai.savings.models import SavingsRequest, SavingsResult
 
 logger = logging.getLogger(__name__)
 
@@ -15,14 +15,9 @@ class SavingsWorker(BaseWorker):
     RESULT_QUEUE = "ecoscan.ai.results.savings"
     FEATURE_NAME = "savings"
 
-    def process(self, body: bytes) -> str:
+    def process(self, body: dict) -> AiDTO[SavingsResult]:
         try:
-            raw = json.loads(body)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"Invalid JSON: {exc}") from exc
-
-        try:
-            request = SavingsRequest.model_validate(raw)
+            request = AiDTO[SavingsRequest].model_validate(body)
         except ValidationError as exc:
             raise ValueError(f"Payload validation error: {exc}") from exc
 
@@ -30,11 +25,14 @@ class SavingsWorker(BaseWorker):
             "[%s] Processing started | jobId: %s | Context length: %d characters",
             self.FEATURE_NAME,
             request.jobId,
-            len(request.savingsContext),
+            len(request.data.savingsContext),
         )
 
         # noinspection PyCallingNonCallable
         crew = SavingsCrew()
-        result = crew.run(request)
+        result = crew.run(request.data)
 
-        return result.model_dump_json()
+        return AiDTO[SavingsResult](
+            jobId=request.jobId,
+            data=result,
+        )

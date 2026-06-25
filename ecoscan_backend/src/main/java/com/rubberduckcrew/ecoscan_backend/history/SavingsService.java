@@ -1,5 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.history;
 
+import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsResultDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
@@ -30,9 +31,9 @@ public class SavingsService {
             .map(productMapper::toDataDTO)
             .toList();
 
-        final SavingsRequestDTO request = new SavingsRequestDTO(
+        final AiDTO<SavingsRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
-            history.toString()
+            new SavingsRequestDTO(history.toString())
         );
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.savings",
@@ -43,9 +44,9 @@ public class SavingsService {
     }
 
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
-    public void handleSavingsResult(final SavingsResultDTO savingsResultDTO) {
-        log.info("Received savings results: {}", savingsResultDTO);
-        sseService.send(savingsResultDTO.jobId(), "savings-evaluation", savingsResultDTO);
-        sseService.complete(savingsResultDTO.jobId());
+    public void handleSavingsResult(final AiDTO<SavingsResultDTO> result) {
+        log.info("Received savings results: {}", result.data());
+        sseService.send(result.jobId(), "savings-evaluation", result.data());
+        sseService.complete(result.jobId());
     }
 }
