@@ -1,5 +1,7 @@
 from typing import Generic, TypeVar
-from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 T = TypeVar("T")
 
@@ -14,9 +16,7 @@ class AiDTO(BaseModel, Generic[T]):
     @classmethod
     def validate_job_id(cls, v: str) -> str:
         try:
-            UUID4(v)
-        except ValueError:
-            from uuid import UUID
-
             UUID(v)
+        except (ValueError, AttributeError) as e:
+            raise ValueError(f"Invalid UUID format: {e}")
         return v
