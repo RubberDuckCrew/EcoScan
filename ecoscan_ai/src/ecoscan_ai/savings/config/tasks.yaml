@@ -1,42 +1,83 @@
-evaluate_task:
+co2_task:
   description: >-
-    Analyze the following raw product history data provided in the context:
+    Analyze the following product purchase data:
     {savingsContext}
 
-    Extract each product's name, description, scores (environment, social, health), and justification.
-    Create a clean, structured profile for each product.
-  expected_output: >-
-    A structured list of product profiles containing extracted names, descriptions, and scores.
-  agent: evaluator
+    For EACH product, execute these three steps:
 
-score_task:
+    ─── STEP 1: CATEGORIZE ───────────────────────────────────────────────────
+    Read the product name, description, and justification carefully.
+    Assign it to exactly ONE category from the BASELINE TABLE below.
+    Use "Unknown / other" only if no other category fits.
+
+    ─── STEP 2: CALCULATE ADJUSTMENT FACTOR ─────────────────────────────────
+    The adjustment factor reflects how "truly sustainable" this purchase is
+    compared to the ideal. Start at 0.80, then apply ALL applicable rules:
+
+      +0.15  → justification or description contains any of:
+               "regional", "lokal", "CO2-arm", "recycelt", "Kurzstrecke",
+               "aus der Region", "saisonal"
+      +0.10  → environmentScore >= 85
+      -0.15  → justification or description contains any of:
+               "langer Transportweg", "Übersee", "Import", "weit gereist",
+               "internationale Lieferkette"
+      -0.10  → environmentScore < 60
+
+    After applying all rules, CLAMP the result to [0.40, 1.00].
+    The factor is always positive. There are no negative savings.
+
+    ─── STEP 3: CALCULATE SAVINGS ────────────────────────────────────────────
+    savings_kg = category_max_savings × adjustment_factor
+    Round to 3 decimal places. Result is always >= 0.
+
+    ═══════════════════════════════════════════════════════════════════════════
+    BASELINE TABLE  (source: Poore & Nemecek 2018, Öko-Institut, Our World in Data)
+    ═══════════════════════════════════════════════════════════════════════════
+    Category                              | Conv. (kg CO2e) | Eco (kg CO2e) | Max Savings
+    --------------------------------------|-----------------|---------------|------------
+    Plant-based milk – oat/soy/almond, 1L| 3.20            | 0.90          | 2.30 kg
+    Coffee, beans or ground, 500g         | 5.00            | 3.75          | 1.25 kg
+    Vegetables, organic, 1kg              | 2.00            | 0.50          | 1.50 kg
+    Fruit, organic/regional, 1kg          | 1.50            | 0.40          | 1.10 kg
+    Bread / baked goods, organic, 500g    | 0.90            | 0.60          | 0.30 kg
+    Dairy – yogurt organic, 500g          | 2.40            | 1.60          | 0.80 kg
+    Dairy – cheese organic, 200g          | 2.80            | 2.00          | 0.80 kg
+    Meat alternatives – tofu/tempeh, 400g | 4.90            | 0.70          | 4.20 kg
+    Eggs, free-range / organic, 6 pcs     | 1.50            | 0.90          | 0.60 kg
+    Chocolate, fair trade / organic, 100g | 3.40            | 2.50          | 0.90 kg
+    Household cleaners, eco-certified 500ml| 1.20           | 0.40          | 0.80 kg
+    Snacks / muesli, organic, 400g        | 1.10            | 0.60          | 0.50 kg
+    Unknown / other                       | —               | —             | 0.40 kg
+    ═══════════════════════════════════════════════════════════════════════════
+
+    OUTPUT: Return a markdown table in exactly this format, then the total:
+
+    | Product Name | Category | Base Savings | Adj. Factor | Final Savings (kg) |
+    |---|---|---|---|---|
+    | Bio Haferdrink Barista | Plant-based milk | 2.30 kg | 0.95 | 2.185 |
+    | FairTrade Espresso ganze Bohne | Coffee | 1.25 kg | 0.75 | 0.938 |
+
+    TOTAL CO2 SAVINGS: X.XXX kg
+
+  expected_output: >-
+    A markdown table with columns: Product Name, Category, Base Savings, Adj. Factor,
+    Final Savings (kg). Every product from the input must appear as a row.
+    Followed by a single line: "TOTAL CO2 SAVINGS: X.XXX kg"
+  agent: co2_analyst
+
+format_task:
   description: >-
-    Review the structured product profiles from the evaluation task.
-    For each product, estimate the CO2 impact and potential savings compared to conventional baselines
-    (e.g., regional oat milk vs. traditional dairy milk).
-    Provide clear mathematical or logical reasoning for the estimated savings.
+    You receive a completed per-product CO2 savings table from the previous task.
+
+    1. Sum ALL values in the "Final Savings (kg)" column — do NOT re-derive them.
+    2. If your row sum differs from the stated TOTAL by more than 0.001 kg,
+       use your row sum and ignore the stated total.
+    3. Calculate: carRideEquivalent = round(co2Saving / 0.14)
+       Baseline: average EU petrol passenger car emits 0.14 kg CO2 per km.
+    4. Output the SavingsResult schema with no additional text or fields.
   expected_output: >-
-    A detailed breakdown of CO2 savings per product, including the baseline assumptions used.
-  agent: score_agent
-
-reasoning_task:
-  description: >-
-    Review the entire analysis chain (raw data, extracted profiles, and CO2 calculations).
-    Synthesize the final results to match the required output schema precisely.
-
-    You must calculate and provide exactly two fields:
-    1. 'co2Saving': The total accumulated CO2 savings across all products, represented strictly
-       as a float in kilograms (kg). Do not include any text or unit symbols—only the raw decimal
-       number (e.g., 4.25).
-    2. 'carRideEquivalent': The equivalent distance driven by a standard petrol passenger car,
-       represented strictly as an integer in kilometers (km).
-       Calculation rule: Use a standard baseline of 0.14 kilograms of CO2 per kilometer.
-       Divide the total 'co2Saving' (in kg) by 0.14 and round it to the nearest whole integer.
-       Do not include text, decimals, or "km"—only the raw integer number
-       (e.g., if total saving is 4.2 kg, 4.2 / 0.14 = 30, so the output must be 30).
-
-    Ensure the data is perfectly structured to fit the SavingsResultData model.
-  expected_output: >-
-    An instance of the SavingsResultData Pydantic model containing the total CO2
-    savings as a float (in kilograms) and the car ride equivalent as an integer (in kilometers).
-  agent: reasoning_agent
+    A SavingsResult instance with co2Saving as float (kg, 3 decimal places)
+    and carRideEquivalent as integer (km).
+  agent: formatter
+  context:
+    - co2_task
