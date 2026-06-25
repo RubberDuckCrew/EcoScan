@@ -4,7 +4,6 @@ import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
-import com.rubberduckcrew.ecoscanai.model.JobResponseSavingsResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -47,15 +46,5 @@ public class MessagingService {
         jobEanService.remove(jobId);
 
         jobService.sendProductEvaluation(jobId, msg.getResult());
-    }
-
-    public void receivedSavings(@Payload final JobResponseSavingsResult msg) {
-        final UUID jobId = msg.getJobId();
-        if (msg.getResult() == null) {
-            log.error("Savings job result from {} is null", jobId);
-            return;
-        }
-        log.info("Savings job with id {} resulted in: {}", jobId, msg.getResult());
-        jobService.sendSavingsEvaluation(jobId, msg.getResult());
     }
 }

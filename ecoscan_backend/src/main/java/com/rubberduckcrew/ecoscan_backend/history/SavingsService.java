@@ -3,6 +3,7 @@ package com.rubberduckcrew.ecoscan_backend.history;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsResultDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
+import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class SavingsService {
     private final ProductMapper productMapper;
     private final RabbitTemplate rabbitTemplate;
+    private final SseService sseService;
 
     public UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
         log.info("Calculating savings for user {}", userId);
@@ -43,5 +45,7 @@ public class SavingsService {
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
     public void handleSavingsResult(final SavingsResultDTO savingsResultDTO) {
         log.info("Received savings results: {}", savingsResultDTO);
+        sseService.send(savingsResultDTO.jobId(), "savings-evaluation", savingsResultDTO);
+        sseService.complete(savingsResultDTO.jobId());
     }
 }

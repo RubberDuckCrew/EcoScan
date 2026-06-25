@@ -1,7 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.messaging;
 
 import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
-import com.rubberduckcrew.ecoscanai.model.JobResponseSavingsResult;
 import com.rubberduckcrew.ecoscanai.model.JobResponseStr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,15 +44,6 @@ public class AiResultListener {
                     messagingService.receivedScore(job);
                 } catch (Exception e) {
                     log.error("Failed to deserialize JobResponseGreenScoreResult from message", e);
-                    routeToDlq(message, "deserialization_error", e);
-                }
-            }
-            case "/savings" -> {
-                try {
-                    final JobResponseSavingsResult job = objectMapper.treeToValue(node, JobResponseSavingsResult.class);
-                    messagingService.receivedSavings(job);
-                } catch (Exception e) {
-                    log.error("Failed to deserialize JobResponseSavingsResult from message", e);
                     routeToDlq(message, "deserialization_error", e);
                 }
             }
