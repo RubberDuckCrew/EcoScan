@@ -12,7 +12,7 @@ type UseGreenScoreResult = {
 };
 
 type GreenScoreResult = {
-  overall_score: number;
+  overallScore: number;
   environmentScore: number;
   socialScore: number;
   healthScore: number;
@@ -98,7 +98,7 @@ export function useGreenScore(): UseGreenScoreResult {
             prev
               ? {
                   ...prev,
-                  score: result.overall_score,
+                  score: result.overallScore,
                   justification: result.reason,
                   environmentScore: result.environmentScore,
                   socialScore: result.socialScore,
