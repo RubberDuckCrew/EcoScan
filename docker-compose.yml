@@ -26,7 +26,7 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: admin
       SPRING_RABBITMQ_PASSWORD: admin
-      SPRING_SECURITY_OAUTH2_RESSOURCESERVER_JWT_ISSUER_URI: http://keycloak:8100/auth/realms/local_realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8100/auth/realms/local_realm
       FOOD_DATA_URL: "jdbc:duckdb:data/food/food.parquet"
     volumes:
       - "./data/food/food.parquet:/data/food/food.parquet"
