@@ -1,7 +1,7 @@
 from crewai import Task, Agent, Crew, Process
 from crewai.project import agent, task, crew, CrewBase
 
-from ecoscan_ai.api.schemas.green_score_result import GreenScoreResult
+from ecoscan_ai.greenscore.models import GreenScoreResult
 
 
 @CrewBase
