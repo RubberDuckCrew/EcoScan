@@ -1,0 +1,129 @@
+name: ecoscan
+
+services:
+  backend:
+    image: ghcr.io/rubberduckcrew/ecoscan/backend:main
+    build:
+      context: ecoscan_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      init-keycloak:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    networks:
+      - auth-net
+      - mq-net
+      - db-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin
+      SPRING_SECURITY_OAUTH2_RESSOURCESERVER_JWT_ISSUER_URI: http://keycloak:8100/auth/realms/local_realm
+      FOOD_DATA_URL: "jdbc:duckdb:data/food/food.parquet"
+    volumes:
+      - "./data/food/food.parquet:/data/food/food.parquet"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  ai-system:
+    image: ghcr.io/rubberduckcrew/ecoscan/ai:main
+    build:
+      context: ecoscan_ai
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mq-net
+    env_file:
+      - ecoscan_ai/.env
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin
+
+  rabbitmq:
+    image: rabbitmq:4.3.2-management@sha256:76412b1ed2865b88ed01b4a504f72e888842f2089a7527743d325ce7c9d3a43b
+    restart: unless-stopped
+    networks:
+      - mq-net
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_ERLANG_COOKIE: "supersecretcookie"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:18.1-alpine3.21@sha256:44d837eb4c2ed263474a95f0cc24745413c50924df60dd73ed6c4c3e36b84259
+    networks:
+      - db-net
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    healthcheck: &healthcheck
+      test: ["CMD-SHELL", "pg_isready -d postgres -U admin"]
+      interval: 30s
+      timeout: 60s
+      retries: 3
+      start_period: 60s
+    security_opt: &security_settings
+      - no-new-privileg
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.1@sha256:dea26401d06341095cc4ea9d66896200b55de5ca1daa1d2fcbe58493afa6e0ad
+    command:
+      - start-dev
+    ports:
+      - "8100:8100"
+    networks:
+      - auth-net
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+      - KC_HTTP_PORT=8100
+      - KC_HTTP_RELATIVE_PATH=/auth
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then exit 0;else exit 1;fi;"]
+    security_opt: *security_settings
+
+  init-keycloak:
+    image: klg71/keycloakmigration:0.2.129@sha256:356bb15df86d6476f1469789718f597ac70583f83c2ae9c90408a3e00e3a1796
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks:
+      - auth-net
+    environment:
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: admin
+      BASEURL: http://keycloak:8100/auth
+      WAIT_FOR_KEYCLOAK: 'true'
+      FAIL_ON_UNDEFINED_VARIABLES: 'true'
+      KEYCLOAK_CHANGELOG: /migration/keycloak-changelog.yml
+    volumes:
+      - './stack/keycloak/migration:/migration'
+    security_opt: *security_settings
+
+networks:
+  auth-net:
+  mq-net:
+  db-net:
