@@ -11,7 +11,7 @@
     "fix": "prettier . --write && expo lint --fix"
   },
   "dependencies": {
-    "@expo/vector-icons": "15.0.3",
+    "@expo/vector-icons": "15.1.1",
     "expo": "54.0.35",
     "expo-auth-session": "7.0.11",
     "expo-camera": "17.0.10",
