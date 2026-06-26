@@ -12,10 +12,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-WORKER_CLASSES: list[type["BaseWorker"]] = [
-    SavingsWorker,
-    GreenScoreWorker
-]
+WORKER_CLASSES: list[type["BaseWorker"]] = [SavingsWorker, GreenScoreWorker]
 
 
 class Orchestrator:
