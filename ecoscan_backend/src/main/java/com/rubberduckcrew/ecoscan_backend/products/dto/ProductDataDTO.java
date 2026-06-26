@@ -4,7 +4,6 @@ public record ProductDataDTO(
     String id,
     String name,
     String description,
-    String imageUrl,
     int score,
     int environmentScore,
     int socialScore,

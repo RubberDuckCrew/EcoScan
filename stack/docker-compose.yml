@@ -11,6 +11,8 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
       RABBITMQ_ERLANG_COOKIE: "supersecretcookie"
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -95,3 +97,6 @@ services:
 
 networks:
   keycloak:
+
+volumes:
+  rabbitmq:

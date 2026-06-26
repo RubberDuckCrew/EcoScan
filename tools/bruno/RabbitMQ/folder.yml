@@ -1,0 +1,10 @@
+info:
+  name: RabbitMQ
+  type: folder
+  seq: 3
+
+request:
+  auth:
+    type: basic
+    username: admin
+    password: admin

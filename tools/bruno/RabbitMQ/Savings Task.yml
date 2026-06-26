@@ -1,0 +1,27 @@
+info:
+  name: Savings Task
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{rabbitmq}}/api/exchanges/%2F/amq.default/publish"
+  body:
+    type: json
+    data: |-
+      {
+        "properties": {
+          "content_type": "application/json",
+          "delivery_mode": 2
+        },
+        "routing_key": "ecoscan.ai.tasks.savings",
+        "payload": "{\"jobId\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\", \"data\": {\"savingsContext\": \"[ProductDataDTO[id=1000000000001, name=Bio Haferdrink Barista, description=Regionaler Haferdrink für Kaffee., score=92, environmentScore=95, socialScore=88, healthScore=93, justification=Regionaler Anbau, CO2-arm, recycelte Verpackung.], ProductDataDTO[id=1000000000002, name=FairTrade Espresso ganze Bohne, description=Aaromatischer Espresso aus fairem Handel., score=68, environmentScore=55, socialScore=90, healthScore=60, justification=Gute Arbeitsbedingungen, aber langer Transportweg.]]\"}}",
+        "payload_encoding": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
