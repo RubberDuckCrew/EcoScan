@@ -31,6 +31,8 @@ public class ScoreService {
         final Integer score = result.data().overallScore();
         if (score == null) {
             log.error("Job result from {} has null overallScore", jobId);
+            jobEanService.remove(jobId);
+            sseService.complete(jobId);
             return;
         }
         log.info("Job ID: {}, Score: {}", jobId, score);
