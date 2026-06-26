@@ -4,6 +4,7 @@ import threading
 from concurrent.futures import Future, ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
+from ecoscan_ai.greenscore.worker import GreenScoreWorker
 from ecoscan_ai.savings.worker import SavingsWorker
 
 if TYPE_CHECKING:
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 WORKER_CLASSES: list[type["BaseWorker"]] = [
     SavingsWorker,
+    GreenScoreWorker
 ]
 
 

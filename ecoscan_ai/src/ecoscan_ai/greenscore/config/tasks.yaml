@@ -53,7 +53,7 @@ reasoning_task:
   expected_output: >
     Return a valid JSON object with exactly these fields:
     {
-      "overall_score": <integer 0-100, reuse the score from score_task>,
+      "overallScore": <integer 0-100, reuse the score from score_task>,
       "environmentScore": <integer 0-100, reuse from category_scoring_task>,
       "socialScore": <integer 0-100, reuse from category_scoring_task>,
       "healthScore": <integer 0-100, reuse from category_scoring_task>,

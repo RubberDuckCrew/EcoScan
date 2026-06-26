@@ -1,7 +1,7 @@
 from crewai import Task, Agent, Crew, Process
 from crewai.project import agent, task, crew, CrewBase
 
-from ecoscan_ai.greenscore.models import GreenScoreResult
+from ecoscan_ai.greenscore.models import GreenScoreResult, ScoreProductRequest
 
 
 @CrewBase
@@ -17,7 +17,7 @@ class GreenScoreCrew:
     @agent
     def reasoning_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config["reasoning_agent"], reasoning=True, verbose=True
+            config=self.agents_config["reasoning_agent"], reasoning=False, verbose=True
         )  # type: ignore[index]
 
     @agent
@@ -59,3 +59,8 @@ class GreenScoreCrew:
             process=Process.sequential,
             verbose=True,
         )
+
+    def run(self, request: ScoreProductRequest) -> GreenScoreResult:
+        result = self.crew().kickoff(inputs={"productContext": request.productContext})
+        pydantic_output: GreenScoreResult = result.pydantic  # type: ignore[assignment]
+        return pydantic_output

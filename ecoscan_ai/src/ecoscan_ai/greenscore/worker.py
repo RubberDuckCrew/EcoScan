@@ -10,7 +10,7 @@ from ecoscan_ai.greenscore.models import GreenScoreResult, ScoreProductRequest
 logger = logging.getLogger(__name__)
 
 
-class SavingsWorker(BaseWorker):
+class GreenScoreWorker(BaseWorker):
     QUEUE_NAME = "ecoscan.ai.tasks.score"
     RESULT_QUEUE = "ecoscan.ai.results.score"
     FEATURE_NAME = "score"
