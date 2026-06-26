@@ -19,7 +19,7 @@ dev = [
 ]
 
 [project.scripts]
-workers = "ecoscan_ai.main:workers"
+ecoscan_ai = "ecoscan_ai.main:workers"
 
 [tool.poe.tasks]
 format = "ruff format . --check"
