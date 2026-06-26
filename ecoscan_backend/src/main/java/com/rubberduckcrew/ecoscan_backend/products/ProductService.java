@@ -30,6 +30,7 @@ public class ProductService {
             p.setId(id);
             p.setName("Product " + id);
             p.setDescription("Description for product " + id);
+			p.setImageUrl("");
             return p;
         });
         if (product.getData() == null) {

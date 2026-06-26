@@ -1,21 +1,13 @@
 analysis_task:
   description: >
-    Analyze the product: {productName} with description: {productDescription}.
-    Product ID: {productId}.
-    Provide comprehensive analysis including market overview, key features,
-    target audience, and competitive advantages.
+    Analyze the product: {productName} with the categories: {productDescription}
+    and product ID: {productId}.
+    Gather all available data about the product focusing on: its identifying features, ecological 
+    impact, sustainability aspects amd any other relevant information that can be found.
   expected_output: >
-    A detailed market analysis covering: market overview, key product features,
-    target audience analysis, competitive advantages, and strategic positioning.
+    A comprehensive report about the product, including but not limited to:
+    - Identifying features
+    - Ecological impact
+    - Sustainability aspects
+    - Any other relevant information that can be found.
   agent: product_analyzer
-
-recommendation_task:
-  description: >
-    Based on the product analysis provided, generate strategic recommendations
-    for product positioning, marketing, and growth opportunities.
-  expected_output: >
-    Strategic recommendations for product success including positioning,
-    marketing strategy, and key growth opportunities.
-  agent: recommendation_agent
-
-
