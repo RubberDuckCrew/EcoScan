@@ -180,6 +180,14 @@ class BaseWorker(abc.ABC):
                 except json.JSONDecodeError as exc:
                     raise ValueError(f"Invalid JSON: {exc}") from exc
                 return self.process(raw).model_dump_json()
+            except ValueError as exc:
+                logger.error(
+                    "[%s] Non-retryable processing error | jobId: %s | %s",
+                    self.FEATURE_NAME,
+                    job_id,
+                    exc,
+                )
+                raise exc
             except Exception as exc:
                 last_exc = exc
                 if attempt <= _LLM_RETRY_ATTEMPTS:
@@ -211,11 +219,25 @@ class BaseWorker(abc.ABC):
 
     def stop(self) -> None:
         self._stop_event.set()
-        with self._lock:
-            if self._channel is not None:
-                try:
-                    self._channel.stop_consuming()
-                except Exception as exc:
-                    logger.warning("Error stopping consumer: %s", exc)
-        # Gracefully shutdown executor and wait for pending tasks
+        self._schedule_stop_consuming()
         self._executor.shutdown(wait=True)
+
+    def _schedule_stop_consuming(self) -> None:
+        with self._lock:
+            channel = self._channel
+            connection = self._connection
+
+        if channel is None or connection is None:
+            return
+
+        def stop_consuming() -> None:
+            # noinspection PyBroadException
+            try:
+                channel.stop_consuming()  # type: ignore[attr-defined]
+            except Exception as ex:
+                logger.warning("Error stopping consumer: %s", ex)
+
+        try:
+            connection.add_callback_threadsafe(stop_consuming)
+        except Exception as exc:
+            logger.warning("Error scheduling consumer stop: %s", exc)
