@@ -84,7 +84,7 @@ services:
       retries: 3
       start_period: 60s
     security_opt: &security_settings
-      - no-new-privileg
+      - no-new-privileges:true
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.1@sha256:dea26401d06341095cc4ea9d66896200b55de5ca1daa1d2fcbe58493afa6e0ad
