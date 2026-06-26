@@ -91,7 +91,8 @@ class BaseWorker(abc.ABC):
         job_id = "<unknown>"
         try:
             raw = json.loads(body)
-            job_id = raw.get("jobId", "<unknown>")
+            if isinstance(raw, dict):
+                job_id = raw.get("jobId", "<unknown>")
         except json.JSONDecodeError:
             pass
 
