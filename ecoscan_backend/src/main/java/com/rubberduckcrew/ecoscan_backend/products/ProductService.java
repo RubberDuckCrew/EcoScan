@@ -50,6 +50,7 @@ public class ProductService {
         product.setId((String) json.get("code"));
         product.setName((String) json.get("product_name"));
         product.setCategories((String) json.get("categories"));
+		product.setDescription((String) json.get("categories"));
         //product.setImageUrl((String) json.get("imageUrl"));
         return product;
     }

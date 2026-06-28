@@ -19,12 +19,21 @@ class ProductAnalysisWorker(BaseWorker):
         try:
             request = AiDTO[ProductAnalysisRequest].model_validate(body)
         except ValidationError as exc:
+            logger.error(
+                "[%s] Payload validation error for body: %s | error: %s",
+                self.FEATURE_NAME,
+                body,
+                exc,
+            )
             raise ValueError(f"Payload validation error: {exc}") from exc
 
         logger.info(
             "[%s] Processing started | jobId: %s | Context length: %d characters",
             self.FEATURE_NAME,
             request.jobId,
+            len(request.data.productName)
+            +len(request.data.productDescription)
+            +len(request.data.productId),
         )
 
         # noinspection PyCallingNonCallable

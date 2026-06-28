@@ -1,7 +1,7 @@
 from crewai import Task, Agent, Crew, Process
 from crewai.project import agent, task, crew, CrewBase
 
-from ecoscan_ai.product_analysis.models import ProductAnalysisResult
+from ecoscan_ai.product_analysis.models import ProductAnalysisResult, ProductAnalysisRequest
 
 
 @CrewBase
@@ -25,3 +25,15 @@ class ProductAnalysisCrew:
             process=Process.sequential,
             verbose=True,
         )
+
+
+    def run(self, request: ProductAnalysisRequest) -> ProductAnalysisResult:
+        result = self.crew().kickoff(
+            inputs={
+                "productName": request.productName,
+                "productDescription": request.productDescription,
+                "productId": request.productId,
+            }
+        )
+        pydantic_output: ProductAnalysisResult = result.pydantic  # type: ignore[assignment]
+        return pydantic_output
