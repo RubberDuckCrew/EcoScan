@@ -6,13 +6,16 @@ import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import com.rubberduckcrew.ecoscanai.model.GreenScoreResult;
 import java.time.LocalDateTime;
 import java.util.Map;
-import com.rubberduckcrew.ecoscanai.api.ProductAnalysisApi;
-import com.rubberduckcrew.ecoscanai.model.ProductAnalysisRequest;
+import java.util.UUID;import lombok.extern.slf4j.Slf4j;
+
+
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -21,25 +24,14 @@ public class ProductService {
     private final ScannedProductRepository scannedProductRepository;
     private final ProductMapper productMapper;
     private final FoodDataRepository foodDataRepository;
-    private final ProductAnalysisApi productAnalysisApi;
+	private final ProductAnalysisService productAnalysisService;
 
     public Product getProduct(final String id) {
-        final Product product = productRepository.getProductById(id).orElseGet(() -> {
-            //TODO get from openfoodfacts database; for now use dummy
-            final Product p = new Product();
-            p.setId(id);
-            p.setName("Product " + id);
-            p.setDescription("Description for product " + id);
-			p.setImageUrl("");
-            return p;
-        });
+        final Product product = productRepository.getProductById(id).orElseGet(() -> getProductFromOpenFoodFacts(id));
         if (product.getData() == null) {
             try {
-                final ProductAnalysisRequest req = new ProductAnalysisRequest()
-                    .productId(product.getId())
-                    .productName(product.getName())
-                    .productDescription(product.getDescription());
-                productAnalysisApi.analyzeProduct(req);
+				final UUID jobId = productAnalysisService.analyzeProduct(product);
+				log.info("Started AI-Analyzer for product with id {} and jobId {}", id, jobId);
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to start AI-Analyzer for product with id " + id, e);
@@ -81,11 +73,5 @@ public class ProductService {
         scannedProduct.setHealthScore(greenScoreResult.getHealthScore());
         scannedProduct.setSocialScore(greenScoreResult.getSocialScore());
         scannedProductRepository.save(scannedProduct);
-    }
-
-    public void updateProductData(final String id, final String data) {
-        final Product p = getProduct(id);
-        p.setData(data);
-        productRepository.save(p);
     }
 }

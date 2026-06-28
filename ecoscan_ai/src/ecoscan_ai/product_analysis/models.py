@@ -10,4 +10,3 @@ class ProductAnalysisRequest(BaseModel):
 class ProductAnalysisResult(BaseModel):
     productId: str
     data: str
-

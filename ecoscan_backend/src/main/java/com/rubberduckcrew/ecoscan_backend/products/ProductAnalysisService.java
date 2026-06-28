@@ -1,0 +1,51 @@
+package com.rubberduckcrew.ecoscan_backend.products;
+
+import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
+import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisRequestDTO;
+import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisResponseDTO;
+import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
+import java.util.UUID;
+
+import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ProductAnalysisService {
+	private final RabbitTemplate rabbitTemplate;
+	private final SseService sseService;
+	private final ProductRepository productRepository;
+
+	public UUID analyzeProduct(final Product product) {
+		log.info("Analyzing product {}", product.getId());
+		final AiDTO<ProductAnalysisRequestDTO> request = new AiDTO<>(
+				UUID.randomUUID(),
+				new ProductAnalysisRequestDTO(
+						product.getName(),
+						product.getDescription(),
+						product.getId())
+		);
+		rabbitTemplate.convertAndSend(
+				"ecoscan.ai.tasks.product-analysis",
+				request);
+		return request.jobId();
+	}
+
+	@RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.product-analysis"))
+	public void handleProductAnalysisResponse(final AiDTO<ProductAnalysisResponseDTO> response) {
+		final ProductAnalysisResponseDTO result = response.data();
+		log.info("Received ProductAnalysis results: {}", result.data());
+		final Product p = productRepository.getProductById(result.productId())
+				.orElseThrow(() -> new RuntimeException("Product not found: " + result.productId()));
+		p.setData(result.data());
+		productRepository.save(p);
+		sseService.send(response.jobId(), "product-analysis-evaluation", p);
+		sseService.complete(response.jobId());
+	}
+}

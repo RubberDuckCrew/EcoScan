@@ -1,7 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.configuration;
 
 import com.rubberduckcrew.ecoscanai.api.GreenScoreApi;
-import com.rubberduckcrew.ecoscanai.api.ProductAnalysisApi;
 import com.rubberduckcrew.ecoscanai.client.ApiClient;
 import java.net.http.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,10 +34,5 @@ public class ApiClientConfiguration {
     @Bean
     public GreenScoreApi greenScoreApi(final ApiClient apiClient) {
         return new GreenScoreApi(apiClient);
-    }
-
-    @Bean
-    public ProductAnalysisApi productAnalysisApi(final ApiClient apiClient) {
-        return new ProductAnalysisApi(apiClient);
     }
 }

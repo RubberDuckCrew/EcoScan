@@ -1,7 +1,7 @@
 from crewai import Task, Agent, Crew, Process
 from crewai.project import agent, task, crew, CrewBase
 
-from ecoscan_ai.api.schemas.product_analysis import ProductAnalysisResult
+from ecoscan_ai.product_analysis.models import ProductAnalysisResult
 
 
 @CrewBase

@@ -8,8 +8,6 @@ from ecoscan_ai.api.routes.green_score import router as green_score_router
 from ecoscan_ai.api.routes.jobs import router as jobs_router
 from ecoscan_ai.api.routes.test import router as test_router
 from ecoscan_ai.api.services.job_store import cancel_background_tasks
-from ecoscan_ai.api.routes.product_analysis import router as product_analysis_router
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,7 +22,6 @@ app = FastAPI(title="Ecoscan AI API", version="0.1.0", lifespan=lifespan)
 app.include_router(test_router)
 app.include_router(jobs_router)
 app.include_router(green_score_router)
-app.include_router(product_analysis_router)
 
 
 def start():
