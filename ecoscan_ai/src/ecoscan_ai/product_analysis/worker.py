@@ -5,7 +5,10 @@ from pydantic import ValidationError
 from ecoscan_ai.core.base_worker import BaseWorker
 from ecoscan_ai.core.models import AiDTO
 from ecoscan_ai.product_analysis.crew import ProductAnalysisCrew
-from ecoscan_ai.product_analysis.models import ProductAnalysisRequest, ProductAnalysisResult
+from ecoscan_ai.product_analysis.models import (
+    ProductAnalysisRequest,
+    ProductAnalysisResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +35,8 @@ class ProductAnalysisWorker(BaseWorker):
             self.FEATURE_NAME,
             request.jobId,
             len(request.data.productName)
-            +len(request.data.productDescription)
-            +len(request.data.productId),
+            + len(request.data.productDescription)
+            + len(request.data.productId),
         )
 
         # noinspection PyCallingNonCallable

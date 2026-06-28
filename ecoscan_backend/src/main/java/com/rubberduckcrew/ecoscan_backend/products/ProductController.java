@@ -2,6 +2,7 @@ package com.rubberduckcrew.ecoscan_backend.products;
 
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDTO;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,5 +32,10 @@ public class ProductController {
     @GetMapping("/openfoodfacts/{id}")
     public ProductDTO getProductByIdTool(@PathVariable final String id) {
         return productMapper.toDTO(productService.getProductFromOpenFoodFacts(id));
+    }
+
+    @GetMapping("/analyze/{id}")
+    public UUID analyzeProduct(@PathVariable final String id) {
+        return productService.analyzeProduct(id);
     }
 }
