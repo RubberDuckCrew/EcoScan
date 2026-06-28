@@ -28,6 +28,4 @@ ENV PATH="/app/.venv/bin:$PATH" \
 
 USER app
 
-EXPOSE 8000
-
-ENTRYPOINT ["api"]
+ENTRYPOINT ["ecoscan_ai"]

@@ -15,18 +15,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "poethepoet==0.46.0",
-    "ruff==0.15.18",
+    "ruff==0.15.19",
 ]
 
 [project.scripts]
-ecoscan_ai = "ecoscan_ai.main:run"
-run_crew = "ecoscan_ai.main:run"
-train = "ecoscan_ai.main:train"
-replay = "ecoscan_ai.main:replay"
-test = "ecoscan_ai.main:test"
-run_with_trigger = "ecoscan_ai.main:run_with_trigger"
-api = "ecoscan_ai.api.main:start"
-workers = "ecoscan_ai.main:workers"
+ecoscan_ai = "ecoscan_ai.main:workers"
 
 [tool.poe.tasks]
 format = "ruff format . --check"

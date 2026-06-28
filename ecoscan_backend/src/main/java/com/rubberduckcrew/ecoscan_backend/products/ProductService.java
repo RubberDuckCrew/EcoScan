@@ -3,7 +3,7 @@ package com.rubberduckcrew.ecoscan_backend.products;
 import com.rubberduckcrew.ecoscan_backend.food_data.FoodDataRepository;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
-import com.rubberduckcrew.ecoscanai.model.GreenScoreResult;
+import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;import lombok.extern.slf4j.Slf4j;
@@ -62,16 +62,16 @@ public class ProductService {
         return scannedProductRepository.getScannedProductById(id);
     }
 
-    public void addScannedProduct(final String id, final GreenScoreResult greenScoreResult) {
+    public void addScannedProduct(final String id, final GreenScoreResultDTO greenScoreResult) {
         final Product product = getProduct(id);
         productRepository.delete(product);
         final ScannedProduct scannedProduct = productMapper.toScannedProduct(product);
-        scannedProduct.setScore(greenScoreResult.getOverallScore());
-        scannedProduct.setJustification(greenScoreResult.getReason());
+        scannedProduct.setScore(greenScoreResult.overallScore());
+        scannedProduct.setJustification(greenScoreResult.reason());
         scannedProduct.setScannedDate(LocalDateTime.now());
-        scannedProduct.setEnvironmentScore(greenScoreResult.getEnvironmentScore());
-        scannedProduct.setHealthScore(greenScoreResult.getHealthScore());
-        scannedProduct.setSocialScore(greenScoreResult.getSocialScore());
+        scannedProduct.setEnvironmentScore(greenScoreResult.environmentScore());
+        scannedProduct.setHealthScore(greenScoreResult.healthScore());
+        scannedProduct.setSocialScore(greenScoreResult.socialScore());
         scannedProductRepository.save(scannedProduct);
     }
 }

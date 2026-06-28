@@ -1,12 +1,64 @@
-name: ecoscan-stack
+name: ecoscan
 
 services:
+  backend:
+    image: ghcr.io/rubberduckcrew/ecoscan/backend:main
+    build:
+      context: ecoscan_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      init-keycloak:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    networks:
+      - auth-net
+      - mq-net
+      - db-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8100/auth/realms/local_realm
+      FOOD_DATA_URL: "jdbc:duckdb:data/food/food.parquet"
+    volumes:
+      - "./data/food/food.parquet:/data/food/food.parquet"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  ai-system:
+    image: ghcr.io/rubberduckcrew/ecoscan/ai:main
+    build:
+      context: ecoscan_ai
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mq-net
+    env_file:
+      - ecoscan_ai/.env
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin
+
   rabbitmq:
     image: rabbitmq:4.3.2-management@sha256:76412b1ed2865b88ed01b4a504f72e888842f2089a7527743d325ce7c9d3a43b
     restart: unless-stopped
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    networks:
+      - mq-net
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
@@ -19,12 +71,12 @@ services:
 
   postgres:
     image: postgres:18.1-alpine3.21@sha256:44d837eb4c2ed263474a95f0cc24745413c50924df60dd73ed6c4c3e36b84259
+    networks:
+      - db-net
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
-    ports:
-      - "5432:5432"
     healthcheck: &healthcheck
       test: ["CMD-SHELL", "pg_isready -d postgres -U admin"]
       interval: 30s
@@ -34,43 +86,20 @@ services:
     security_opt: &security_settings
       - no-new-privileges:true
 
-  # see https://event-driven.io/en/automatically_connect_pgadmin_to_database/
-  pg-admin:
-    image: dpage/pgadmin4:9.15.0@sha256:cefc4cc6b7d9d71a9e81e76fb9d7e14038ab5661b539a190eea1b63fa612589a
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
-      - PGADMIN_CONFIG_SERVER_MODE=False
-      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
-      - PGADMIN_LISTEN_PORT=5050
-    ports:
-      - "5050:5050"
-    depends_on:
-      - postgres
-    healthcheck:
-      <<: *healthcheck
-      test: ["CMD", "wget", "-O", "-", "http://localhost:5050/misc/ping"]
-    security_opt: *security_settings
-    volumes:
-      - './pgadmin/servers.json:/pgadmin4/servers.json:ro'
-      - './pgadmin/pgpass:/pgadmin4/pgpass'
-    user: root # see https://github.com/pgadmin-org/pgadmin4/issues/6257
-    entrypoint: /bin/sh -c "chmod 600 /pgadmin4/pgpass; /entrypoint.sh;" # see https://www.postgresql.org/docs/current/libpq-pgpass.html#LIBPQ-PGPASS (last paragraph)
-
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.1@sha256:dea26401d06341095cc4ea9d66896200b55de5ca1daa1d2fcbe58493afa6e0ad
     command:
       - start-dev
+    ports:
+      - "8100:8100"
+    networks:
+      - auth-net
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
       - KC_HTTP_PORT=8100
       - KC_HTTP_RELATIVE_PATH=/auth
-    ports:
-      - "8100:8100"
-    networks:
-      - keycloak
     healthcheck:
       <<: *healthcheck
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then exit 0;else exit 1;fi;"]
@@ -79,7 +108,10 @@ services:
   init-keycloak:
     image: klg71/keycloakmigration:0.2.129@sha256:356bb15df86d6476f1469789718f597ac70583f83c2ae9c90408a3e00e3a1796
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
+    networks:
+      - auth-net
     environment:
       ADMIN_USER: admin
       ADMIN_PASSWORD: admin
@@ -88,10 +120,10 @@ services:
       FAIL_ON_UNDEFINED_VARIABLES: 'true'
       KEYCLOAK_CHANGELOG: /migration/keycloak-changelog.yml
     volumes:
-      - './keycloak/migration:/migration'
-    networks:
-      - keycloak
+      - './stack/keycloak/migration:/migration'
     security_opt: *security_settings
 
 networks:
-  keycloak:
+  auth-net:
+  mq-net:
+  db-net:

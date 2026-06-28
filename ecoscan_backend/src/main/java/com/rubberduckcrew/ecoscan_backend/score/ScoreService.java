@@ -1,19 +1,19 @@
 package com.rubberduckcrew.ecoscan_backend.score;
 
+import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
+import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
-import com.rubberduckcrew.ecoscanai.api.GreenScoreApi;
-import com.rubberduckcrew.ecoscanai.model.JobResponseGreenScoreResult;
-import com.rubberduckcrew.ecoscanai.model.ScoreProductRequest;
-import jakarta.validation.ValidationException;
-import java.util.Optional;
+import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
+import com.rubberduckcrew.ecoscan_backend.score.dto.ScoreRequestDTO;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,29 +21,45 @@ import org.springframework.web.server.ResponseStatusException;
 public class ScoreService {
 
     private final ProductService productService;
+    private final JobEanService jobEanService;
+    private final RabbitTemplate rabbitTemplate;
+    private final SseService sseService;
 
-    private final GreenScoreApi greenScoreApi;
+    @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.score"))
+    public void handleSavingsResult(final AiDTO<GreenScoreResultDTO> result) {
+        final UUID jobId = result.jobId();
+        final Integer score = result.data().overallScore();
+        if (score == null) {
+            log.error("Job result from {} has null overallScore", jobId);
+            jobEanService.remove(jobId);
+            sseService.complete(jobId);
+            return;
+        }
+        log.info("Job ID: {}, Score: {}", jobId, score);
+
+        final String id = jobEanService.getEan(jobId).orElse(null);
+        if (id == null) {
+            log.error("Job ID {} has no EAN", jobId);
+        } else {
+            productService.addScannedProduct(id, result.data());
+        }
+        jobEanService.remove(jobId);
+        sseService.send(result.jobId(), "product-evaluation", result.data());
+        sseService.complete(result.jobId());
+    }
 
     public UUID scoreProduct(final String id) {
 
         final Product product = productService.getProduct(id);
-        final ScoreProductRequest scoreProductRequest = new ScoreProductRequest();
-        scoreProductRequest.setProductContext(product.getData());
-        final Optional<JobResponseGreenScoreResult> jobResponse;
 
-        try {
-            jobResponse = Optional.ofNullable(greenScoreApi.scoreProduct(scoreProductRequest));
-        } catch (ValidationException e) {
-            log.error("OpenAPI client error while scoring product", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to score product", e);
-        } catch (RestClientException e) {
-            log.error("REST client error while scoring product", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to score product", e);
-        }
+        final AiDTO<ScoreRequestDTO> request = new AiDTO<>(
+            UUID.randomUUID(),
+            new ScoreRequestDTO(product.getData()));
+        rabbitTemplate.convertAndSend(
+            "ecoscan.ai.tasks.score",
+            request);
 
-        return jobResponse.map(JobResponseGreenScoreResult::getJobId).orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-            "Failed to score product"));
-
+        return request.jobId();
     }
 
 }
