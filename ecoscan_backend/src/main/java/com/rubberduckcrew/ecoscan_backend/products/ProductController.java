@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -38,5 +40,10 @@ public class ProductController {
     @PostMapping("/analyze/{id}")
     public UUID analyzeProduct(@PathVariable final String id) {
         return productService.analyzeProduct(id);
+    }
+
+    @GetMapping("/by-category/{category}")
+    public List<ProductDTO> getProductsByCategory(@PathVariable String category) {
+        return productService.getProductsByCategory(category);
     }
 }

@@ -1,10 +1,12 @@
 package com.rubberduckcrew.ecoscan_backend.products;
 
 import com.rubberduckcrew.ecoscan_backend.food_data.FoodDataRepository;
+import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDTO;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -88,4 +90,13 @@ public class ProductService {
         scannedProduct.setSocialScore(greenScoreResult.socialScore());
         scannedProductRepository.save(scannedProduct);
     }
+
+    public List<ProductDTO> getProductsByCategory(String category) {
+        return foodDataRepository.getProductsByCategory(category)
+                .stream()
+                .map(this::toProduct)
+                .map(productMapper::toDTO)
+                .toList();
+    }
+
 }

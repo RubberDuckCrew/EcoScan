@@ -1,11 +1,9 @@
 from crewai.tools import tool
-from ddgs import DDGS
 
-@tool("DuckDuckGo Search")
-def duckduckgo_search(query: str) -> str:
-    """Search the web using DuckDuckGo and return a summary of results."""
-    results = DDGS().text(query, max_results=5)
-    return "\n\n".join(
-        f"Title: {r['title']}\n{r['href']}\n{r['body']}"
-        for r in results
+@tool("Search products by category")
+def search_products_by_category(category: str) -> str:
+    import requests
+    response = requests.get(
+        f"http://localhost:8080/products/by-category/{category}"
     )
+    return response.json()
