@@ -9,6 +9,7 @@ import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { ErrorProvider } from "@/context/ErrorContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import { ProductProvider } from "@/context/ProductContext";
 
 function RootLayoutNav() {
@@ -47,11 +48,13 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ErrorProvider>
-        <ProductProvider>
-          <PaperProvider theme={theme}>
-            <RootLayoutNav />
-          </PaperProvider>
-        </ProductProvider>
+        <NotificationProvider>
+          <ProductProvider>
+            <PaperProvider theme={theme}>
+              <RootLayoutNav />
+            </PaperProvider>
+          </ProductProvider>
+        </NotificationProvider>
       </ErrorProvider>
     </AuthProvider>
   );

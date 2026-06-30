@@ -1,13 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import { Button, Card, Divider, Icon, Text } from "react-native-paper";
+import {
+  Button,
+  Card,
+  Divider,
+  Icon,
+  Snackbar,
+  Text,
+} from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
 import { useAuth } from "@/context/AuthContext";
+import { useNotification } from "@/context/NotificationContext";
 import { useUserInfo } from "@/hooks/useUserInfo";
 
 export default function Profile() {
   const { logout } = useAuth();
   const { userInfo, loading, error } = useUserInfo();
+  const { sendTestNotification } = useNotification();
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const handleTestNotification = async () => {
+    try {
+      await sendTestNotification(
+        "EcoScan Test",
+        "Dies ist eine Test-Benachrichtigung vom Backend!",
+      );
+      setSnackbarMessage("Benachrichtigung gesendet!");
+      setSnackbarVisible(true);
+    } catch {
+      setSnackbarMessage("Fehler beim Senden");
+      setSnackbarVisible(true);
+    }
+  };
 
   return (
     <PageContainer>
@@ -39,12 +64,27 @@ export default function Profile() {
             )}
           </Card.Content>
           <Card.Actions>
+            <Button
+              mode="outlined"
+              onPress={handleTestNotification}
+              style={{ marginRight: 8, marginTop: 10 }}
+              icon="bell-ring"
+            >
+              Test-Benachrichtigung
+            </Button>
             <Button mode="contained" onPress={logout} style={{ marginTop: 10 }}>
               Abmelden
             </Button>
           </Card.Actions>
         </Card>
       </ScrollView>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </PageContainer>
   );
 }
