@@ -7,6 +7,7 @@ changes:
   - updateRealm:
       id: local_realm
       loginTheme: ecoscan-theme
+      displayName: EcoScan
 
   - addClientScope:
       realm: local_realm
