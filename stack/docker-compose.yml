@@ -69,6 +69,8 @@ services:
       - KC_HTTP_RELATIVE_PATH=/auth
     ports:
       - "8100:8100"
+    volumes:
+      - ./keycloak/themes:/opt/keycloak/themes/
     networks:
       - keycloak
     healthcheck:
