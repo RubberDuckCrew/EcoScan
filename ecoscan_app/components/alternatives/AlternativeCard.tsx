@@ -1,7 +1,6 @@
 import {Image, StyleSheet, View} from "react-native";
 import {Card, Text} from "react-native-paper";
 import {useEffect, useMemo, useState} from "react";
-import * as Location from 'expo-location';
 
 type AlternativeCardProps = {
     title: string;
@@ -10,45 +9,19 @@ type AlternativeCardProps = {
     alternativeScore: number;
     targetLatitude: number;
     targetLongitude: number;
+    userLatitude: number;
+    userLongitude: number;
 }
-
 export default function AlternativeCard({
                                             title,
                                             image,
                                             scanScore,
                                             alternativeScore,
                                             targetLatitude,
-                                            targetLongitude
+                                            targetLongitude, userLatitude, userLongitude
                                         }: AlternativeCardProps) {
 
     const scoreDifference = alternativeScore - scanScore;
-    const [userLatitude, setUserLatitude] = useState<number>(-1);
-    const [userLongitude, setUserLongitude] = useState<number>(-1);
-
-    useEffect(() => {
-        async function getCurrentLocation() {
-            const {status} = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                console.log(status);
-                return;
-            }
-            const {coords} = await Location.getCurrentPositionAsync({});
-            setUserLatitude(coords.latitude);
-            setUserLongitude(coords.longitude);
-        }
-
-        getCurrentLocation().catch((err) => {
-            console.error('Location error:', err);
-            setUserLatitude(-1);
-            setUserLongitude(-1);
-        });
-    }, []);
-
-    useEffect(() => {
-        console.log("Lat:", userLatitude);
-        console.log("Lon:", userLongitude);
-    }, [userLatitude, userLongitude]);
-
 
     const distance = useMemo(() => {
         if (userLatitude === -1 || userLongitude === -1) return null;

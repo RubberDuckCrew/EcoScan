@@ -2,74 +2,48 @@ import {FlatList, StyleSheet} from "react-native";
 import {Surface, Text} from "react-native-paper";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
+import {useProduct} from "@/context/ProductContext";
+import {useAlternatives} from "@/hooks/useAlternatives";
+import {useEffect, useState} from "react";
+import * as Location from 'expo-location';
 
-type AlternativesScreenProps = {
-    scannedProduct: {
-        ean: string;
-        title: string;
-        image: string;
-        description: string;
-        score: number;
-    }
-}
 
-export default function Product({scannedProduct}: AlternativesScreenProps) {
-    const alternatives = [
-        {
-            title: "Alternativprodukt",
-            image: require("../../../assets/images/icon.png"),
-            scanScore: 87,
-            alternativeScore: 95,
-            targetLatitude: 48.15520,
-            targetLongitude: 11.55457,
-        },
-        {
-            title: "Alternativprodukt2",
-            image: require("../../../assets/images/icon.png"),
-            scanScore: 87,
-            alternativeScore: 90,
-            targetLatitude: 48,
-            targetLongitude: 10,
-        },
-        {
-            title: "Alternativprodukt3",
-            image: require("../../../assets/images/icon.png"),
-            scanScore: 87,
-            alternativeScore: 88,
-            targetLatitude: 48.03655106953577,
-            targetLongitude: 10.727155318771056,
-        },
-        {
-            title: "Alternativprodukt",
-            image: require("../../../assets/images/icon.png"),
-            scanScore: 87,
-            alternativeScore: 95,
-            targetLatitude: 48.15520,
-            targetLongitude: 11.55457,
-        },
-        {
-            title: "Alternativprodukt2",
-            image: require("../../../assets/images/icon.png"),
-            scanScore: 87,
-            alternativeScore: 90,
-            targetLatitude: 48,
-            targetLongitude: 10,
-        },
-        {
-            title: "Alternativprodukt3",
-            image: require("../../../assets/images/icon.png"),
-            scanScore: 87,
-            alternativeScore: 88,
-            targetLatitude: 48.03655106953577,
-            targetLongitude: 10.727155318771056,
-        },
-    ];
-    const scannedProductTesting = {
-        title: "Titel des Produkts",
-        description: "Beschreibung\nBeschreibung\nBeschreibung",
-        image: "../assets/images/icon.png",
-        score: 87,
-    }  // TODO change later to prop
+export default function Product() {
+    const {product} = useProduct();
+    const [userLatitude, setUserLatitude] = useState<number>(-1);
+    const [userLongitude, setUserLongitude] = useState<number>(-1);
+    const {alternatives, loading, fetchAlternatives} = useAlternatives();
+
+    useEffect(() => {
+        if (product?.id) {
+            fetchAlternatives(product.id, "");
+        }
+    }, [product?.id]);
+
+    useEffect(() => {
+        async function getCurrentLocation() {
+            const {status} = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                console.log(status);
+                return;
+            }
+            const {coords} = await Location.getCurrentPositionAsync({});
+            setUserLatitude(coords.latitude);
+            setUserLongitude(coords.longitude);
+        }
+
+        getCurrentLocation().catch((err) => {
+            console.error('Location error:', err);
+            setUserLatitude(-1);
+            setUserLongitude(-1);
+        });
+    }, []);
+
+    useEffect(() => {
+        if (product?.id && userLatitude !== -1 && userLongitude !== -1) {
+            fetchAlternatives(product.id, `${userLatitude},${userLongitude}`);
+        }
+    }, [product?.id, userLatitude, userLongitude]);
 
     return (
         <Surface style={styles.pageStyle}>
@@ -79,10 +53,14 @@ export default function Product({scannedProduct}: AlternativesScreenProps) {
             <Text variant={"bodyLarge"} style={styles.subHeadline}>
                 In deiner Nähe verfügbar
             </Text>
-            <ProductCard {...scannedProductTesting} />
+            <ProductCard
+                title={product?.name ?? ""}
+                description={product?.description ?? ""}
+                image={product?.imageUrl ?? ""}
+                score={product?.score ?? 0} />
             <FlatList
                 style={{marginTop: 16, paddingHorizontal: 2}}
-                data={alternatives.sort((a, b) => b.alternativeScore - a.alternativeScore)}
+                data={alternatives.sort((a, b) => b.score - a.alternativeScore)}
                 renderItem={({item}) =>
                     <AlternativeCard
                         title={item.title}
@@ -91,6 +69,8 @@ export default function Product({scannedProduct}: AlternativesScreenProps) {
                         alternativeScore={item.alternativeScore}
                         targetLatitude={item.targetLatitude}
                         targetLongitude={item.targetLongitude}
+                        userLatitude={userLatitude}
+                        userLongitude={userLongitude}
                     />
                 }
             />

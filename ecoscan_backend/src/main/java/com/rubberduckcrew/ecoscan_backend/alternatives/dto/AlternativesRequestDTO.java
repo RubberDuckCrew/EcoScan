@@ -1,4 +1,4 @@
 package com.rubberduckcrew.ecoscan_backend.alternatives.dto;
 
-public record AlternativesRequestDTO(String categories) {
+public record AlternativesRequestDTO(String categories, String userCoordinates) {
 }

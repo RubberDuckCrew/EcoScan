@@ -1,20 +1,23 @@
 import {useApiClient} from "@/utils/apiClient";
 import {useSseClient} from "@/utils/sseClient";
 import {useCallback, useEffect, useRef, useState} from "react";
+import {useGreenScore} from "@/hooks/useGreenScore";
 
 type UseAlternativesResult = {
-    alternatives: Alternative[]
+    alternatives: Alternative[];
+    loading: boolean;
+    fetchAlternatives: (productId: string, userCoordinates: string) => Promise<void>;
+    onError: (handler: (err?: any) => void) => void;
 }
 
-type Alternative = {
-
-}
+type Alternative = string;
 export function useAlternatives(): UseAlternativesResult {
     const api = useApiClient();
     const { startStream, closeStream } = useSseClient<Alternative[]>("product-score");
     const [loading, setLoading] = useState<boolean>(false);
     const [alternatives, setAlternatives] = useState<Alternative[]>([]);
     const [jobId, setJobId] = useState<string>();
+    const { fetchProduct, fetchGreenScore } = useGreenScore();
 
     const loadingRef = useRef(false);
     const onErrorRef = useRef<(err?: any) => void>(() => {});
@@ -25,9 +28,7 @@ export function useAlternatives(): UseAlternativesResult {
 
     useEffect(() => {
         if (!jobId) return;
-
         startSseListener(jobId);
-
         return () => {
             closeStream();
         };
@@ -37,10 +38,13 @@ export function useAlternatives(): UseAlternativesResult {
         (jobId: string) => {
             startStream(
                 `jobs/stream/${jobId}`,
-                (recommendedAlternatives) => {
-                    setAlternatives(recommendedAlternatives);
-                    setLoading(false);
-                    loadingRef.current = false;
+                (recommendedEans) => {
+                    recommendedEans.forEach(async (ean) => {
+                        const product = await fetchProduct(ean);
+                        if (product && product.score === undefined) {
+                            await fetchGreenScore(ean);
+                        }
+                    });
                 },
                 () => {
                     setLoading(false);
@@ -65,10 +69,9 @@ export function useAlternatives(): UseAlternativesResult {
             setAlternatives([]);
 
             try {
-                const jobId = await api.post(`alternatives/${productId}`, {
-                    userCoordinates,
-                    //TODO: hier alle infos für die Agenten schicken?
-                });
+                const jobId = await api.post(
+                    `alternatives/${productId}?userCoordinates=${encodeURIComponent(userCoordinates)}`
+                );
                 if (jobId) {
                     setJobId(jobId);
                 }
@@ -84,6 +87,11 @@ export function useAlternatives(): UseAlternativesResult {
         }, [api]);
 
     return {
-        alternatives: []
+        alternatives,
+        loading,
+        fetchAlternatives,
+        onError: useCallback((handler: (err?: any) => void) => {
+            onErrorRef.current = handler || (() => {});
+        }, []),
     };
 }

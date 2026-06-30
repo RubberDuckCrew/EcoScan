@@ -27,12 +27,12 @@ public class AlternativesService {
     private final SseService sseService;
     private final FoodDataRepository foodDataRepository;
 
-    public UUID findAlternatives(final String id) {
+    public UUID findAlternatives(final String id, String userCoordinates) {
         final Product product = productService.getProduct(id);
 
         final AiDTO<AlternativesRequestDTO> request = new AiDTO<>(
                 UUID.randomUUID(),
-                new AlternativesRequestDTO(product.getCategories()));
+                new AlternativesRequestDTO(product.getCategories(), userCoordinates));
 
         rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives", request);
         return request.jobId();
