@@ -54,6 +54,7 @@ public class ScoreService {
 
         final AiDTO<ScoreRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
+            UUID.randomUUID(),
             new ScoreRequestDTO(product.getData()));
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.score",

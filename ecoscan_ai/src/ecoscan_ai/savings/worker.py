@@ -34,5 +34,6 @@ class SavingsWorker(BaseWorker):
 
         return AiDTO[SavingsResult](
             jobId=request.jobId,
+            userId=request.userId,
             data=result,
         )
