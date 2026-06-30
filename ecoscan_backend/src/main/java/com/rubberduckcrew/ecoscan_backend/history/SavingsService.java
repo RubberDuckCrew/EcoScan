@@ -20,11 +20,32 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class SavingsService {
+    private final HistoryService historyService;
+    private final SavingsRepository savingsRepository;
     private final ProductMapper productMapper;
+    private final SavingsMapper savingsMapper;
     private final RabbitTemplate rabbitTemplate;
     private final SseService sseService;
 
-    public UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
+    public UUID getSavings(final UUID userId) {
+        log.info("Getting savings for user {}", userId);
+        if (savingsRepository.existsById(userId)) {
+            log.info("Savings already calculated for user {}", userId);
+            final UUID jobId = UUID.randomUUID();
+            sendSavingsResponse(jobId, savingsMapper.toDTO(savingsRepository.findById(userId).orElseThrow()));
+            return jobId;
+        }
+        return calculateSavings(userId, historyService.getWeekHistory(userId));
+    }
+
+    @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
+    public void handleSavingsResult(final AiDTO<SavingsResultDTO> result) {
+        log.info("Received savings results: {}", result);
+        savingsRepository.save(savingsMapper.toEntity(result.data(), result.userId()));
+        sendSavingsResponse(result.jobId(), result.data());
+    }
+
+    private UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
         log.info("Calculating savings for user {}", userId);
         final List<ProductDataDTO> history = weekHistory.stream()
             .map(ScanHistory::getProduct)
@@ -33,6 +54,7 @@ public class SavingsService {
 
         final AiDTO<SavingsRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
+            userId,
             new SavingsRequestDTO(history.toString()));
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.savings",
@@ -41,10 +63,9 @@ public class SavingsService {
         return request.jobId();
     }
 
-    @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
-    public void handleSavingsResult(final AiDTO<SavingsResultDTO> result) {
-        log.info("Received savings results: {}", result.data());
-        sseService.send(result.jobId(), "savings-evaluation", result.data());
-        sseService.complete(result.jobId());
+    private void sendSavingsResponse(final UUID jobId, final SavingsResultDTO result) {
+        log.info("Sending savings response for job {}: {}", jobId, result);
+        sseService.send(jobId, "savings-evaluation", result);
+        sseService.complete(jobId);
     }
 }
