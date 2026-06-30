@@ -39,7 +39,7 @@
 
 .pf-v5-c-input-group__item:not(:first-child) {
   border: none;
-  margin-inline-start: 0.5rem
+  margin-inline-start: 0.5rem;
 }
 
 @media (prefers-color-scheme: light) {
