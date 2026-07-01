@@ -56,8 +56,12 @@ public class ProductService {
         //TODO remove leading 0s
         product.setId((String) json.get("code"));
         product.setName((String) json.get("product_name"));
-        product.setCategories((String) json.get("categories"));
-        product.setDescription((String) json.get("categories"));
+        String categories = (String) json.get("categories");
+        if (categories == null || categories.isEmpty()) {
+            categories = "";
+        }
+        product.setCategories(categories);
+        product.setDescription(categories);
         //TODO fix dummy values
         product.setImageUrl("");
         product.setData("");

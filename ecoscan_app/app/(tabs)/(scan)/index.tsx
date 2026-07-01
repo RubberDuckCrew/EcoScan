@@ -1,62 +1,91 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Text } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
 import { theme } from "@/theme";
 import { useRouter } from "expo-router";
-import { useApiClient } from "@/utils/apiClient";
+import { useAnalyzeProduct } from "@/hooks/useAnalyzeProduct";
+import { useError } from "@/context/ErrorContext";
 
 export default function Scan() {
   const [barcode, setBarcode] = useState("");
+  const [error, setError] = useState<string | undefined>();
   const router = useRouter();
-  const api = useApiClient();
+  const { loading, analyzeProduct } = useAnalyzeProduct();
+  const { consumeError } = useError();
 
   const onScanned = async (code: string) => {
     const trimmed = code.trim();
-    if (!trimmed) return;
-    console.log("Scanned barcode:", code);
-    setBarcode(trimmed);
-    try {
-      const result = await api.get(`product/analyze/${trimmed}`);
-      console.log(result);
-    } catch (err) {
-      console.error("Product not found", err);
+    if (!trimmed) {
+      setError("Barcode darf nicht leer sein.");
       return;
     }
+    setError(undefined);
+    setBarcode(trimmed);
+    await analyzeProduct(trimmed);
+  };
+
+  useEffect(() => {
+    const errorMsg = consumeError();
+    if (errorMsg) {
+      setError(errorMsg);
+    }
+  }, [consumeError]);
+
+  useEffect(() => {
+    if (loading || !barcode) return;
+
     router.push({
       pathname: "/product/[id]",
-      params: { id: trimmed },
+      params: { id: barcode },
     });
-  };
+  }, [loading, barcode, router]);
 
   return (
     <PageContainer>
       <Text style={styles.title}>Produkt scannen</Text>
-
       <View style={styles.scannerContainer}>
         <View style={styles.scannerBox}>
           <BarcodeScanner onScanned={onScanned} />
         </View>
       </View>
-
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
       <Text style={styles.label}>Oder Barcode eingeben</Text>
-
       <View style={styles.inputRow}>
         <TextInput
           value={barcode}
-          onChangeText={setBarcode}
+          onChangeText={(text) => {
+            setBarcode(text);
+            setError(undefined);
+          }}
           placeholder="z.B. 4001686312520"
           placeholderTextColor={theme.colors.muted}
           keyboardType="numeric"
           style={styles.input}
         />
-
-        <Button onPress={() => onScanned(barcode)} style={styles.button}>
+        <Button
+          onPress={() => onScanned(barcode)}
+          style={styles.button}
+          disabled={loading || !barcode}
+        >
           <Text style={styles.buttonText}>Los</Text>
         </Button>
       </View>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            animating={true}
+            size="large"
+            color={theme.colors.primary}
+          />
+        </View>
+      )}
     </PageContainer>
   );
 }
@@ -84,6 +113,20 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  errorContainer: {
+    backgroundColor: theme.colors.error,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 16,
+  },
+
+  errorText: {
+    color: theme.colors.onError,
+    fontSize: 14,
+    fontWeight: "500",
   },
 
   label: {
@@ -122,5 +165,12 @@ const styles = StyleSheet.create({
     color: theme.colors.surface,
     fontSize: 16,
     fontWeight: "700",
+  },
+
+  loadingContainer: {
+    position: "absolute",
+    bottom: 24,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
