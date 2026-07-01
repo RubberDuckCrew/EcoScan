@@ -5,7 +5,7 @@ description = "ecoscan-ai using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = "==3.13.13"
 dependencies = [
-    "crewai[tools]==1.15.0",
+    "crewai[tools]==1.15.1",
     "litellm==1.89.4",
     "pika==1.4.1",
 ]

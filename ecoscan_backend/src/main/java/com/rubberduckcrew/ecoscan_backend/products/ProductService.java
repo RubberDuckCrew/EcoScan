@@ -6,11 +6,14 @@ import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -19,14 +22,33 @@ public class ProductService {
     private final ScannedProductRepository scannedProductRepository;
     private final ProductMapper productMapper;
     private final FoodDataRepository foodDataRepository;
+    private final ProductAnalysisService productAnalysisService;
 
     public Product getProduct(final String id) {
-        return productRepository.getProductById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Product with id " + id + " not found"));
+        return productRepository.getProductById(id).orElseGet(() -> getProductFromOpenFoodFacts(id));
+    }
+
+    public UUID analyzeProduct(final String id) {
+        final Product product = productRepository.getProductById(id).orElseGet(() -> getProductFromOpenFoodFacts(id));
+        if (product.getData() == null || product.getData().isEmpty()) {
+            try {
+                final UUID jobId = productAnalysisService.analyzeProduct(product);
+                log.info("Started AI-Analyzer for product with id {} and jobId {}", id, jobId);
+                return jobId;
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to start AI-Analyzer for product with id " + id, e);
+            }
+        } else {
+            log.info("Product with id {} already has analysis data, skipping AI-Analyzer", id);
+            return null;
+        }
     }
 
     public Product getProductFromOpenFoodFacts(final String id) {
-        return toProduct(foodDataRepository.getProduct(id));
+        final Product product = toProduct(foodDataRepository.getProduct(id));
+        productRepository.save(product);
+        return product;
     }
 
     public Product toProduct(final Map<String, Object> json) {
@@ -34,8 +56,15 @@ public class ProductService {
         //TODO remove leading 0s
         product.setId((String) json.get("code"));
         product.setName((String) json.get("product_name"));
-        product.setCategories((String) json.get("categories"));
-        //product.setImageUrl((String) json.get("imageUrl"));
+        String categories = (String) json.get("categories");
+        if (categories == null || categories.isEmpty()) {
+            categories = "";
+        }
+        product.setCategories(categories);
+        product.setDescription(categories);
+        //TODO fix dummy values
+        product.setImageUrl("");
+        product.setData("");
         return product;
     }
 
@@ -59,5 +88,4 @@ public class ProductService {
         scannedProduct.setSocialScore(greenScoreResult.socialScore());
         scannedProductRepository.save(scannedProduct);
     }
-
 }
