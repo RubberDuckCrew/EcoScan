@@ -12,7 +12,9 @@ class TestToolInput(BaseModel):
 
 class TestTool(BackendTool):
     name: str = "test_query"
-    description: str = "Calls the secured test endpoint on the backend to check DuckDB access."
+    description: str = (
+        "Calls the secured test endpoint on the backend to check DuckDB access."
+    )
     args_schema: type[BaseModel] = TestToolInput
 
     def _run(self) -> str:

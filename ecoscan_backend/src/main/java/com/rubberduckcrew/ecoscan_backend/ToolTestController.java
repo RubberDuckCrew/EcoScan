@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class Test {
+@SuppressWarnings("PMD.UnitTestShouldUseTestAnnotation")
+public class ToolTestController {
     @GetMapping("/test")
     @PreAuthorize(Authorities.AI)
-    public Map<String, Object> test(final @AuthenticationPrincipal Jwt jwt) {
+    public Map<String, Object> test(@AuthenticationPrincipal final Jwt jwt) {
         return Map.of(
             "message", "Zugriff erfolgreich",
             "clientId", Objects.requireNonNull(jwt.getClaimAsString("azp")),
             "subject", Objects.requireNonNull(jwt.getSubject()),
-            "timestamp", Instant.now()
-        );
+            "timestamp", Instant.now());
     }
 }

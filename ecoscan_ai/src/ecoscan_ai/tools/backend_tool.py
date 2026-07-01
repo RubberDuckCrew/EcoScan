@@ -4,6 +4,7 @@ from abc import ABC
 
 # noinspection PyPackageRequirements
 import requests
+
 # noinspection PyPackageRequirements
 from crewai.tools import BaseTool
 
@@ -23,7 +24,7 @@ class BackendTool(BaseTool, ABC):
             return self._token
 
         resp = requests.post(
-            f"{self._keycloak_url.rstrip("/")}/auth/realms/{self._keycloak_realm}/protocol/openid-connect/token",
+            f"{self._keycloak_url.rstrip('/')}/auth/realms/{self._keycloak_realm}/protocol/openid-connect/token",
             data={
                 "grant_type": "client_credentials",
                 "client_id": self._client_id,
@@ -41,4 +42,4 @@ class BackendTool(BaseTool, ABC):
         return {"Authorization": f"Bearer {self._get_token()}"}
 
     def _request_url(self, path: str) -> str:
-        return f"{self._backend_url.rstrip("/")}/api/{path.strip("/")}"
+        return f"{self._backend_url.rstrip('/')}/api/{path.strip('/')}"
