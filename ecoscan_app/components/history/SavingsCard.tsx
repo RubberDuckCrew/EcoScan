@@ -11,53 +11,55 @@ type SavingsCardProps = {
 
 export type SavingsCardRef = {
   refresh: () => void;
-}
+};
 
-export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(({style}, ref) => {
-  const {savings, loading, fetchHistorySavings} = useHistorySavings();
+export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
+  ({ style }, ref) => {
+    const { savings, loading, fetchHistorySavings } = useHistorySavings();
 
-  useImperativeHandle(ref, () => ({
-    refresh() {
-      void fetchHistorySavings();
-    },
-  }));
+    useImperativeHandle(ref, () => ({
+      refresh() {
+        void fetchHistorySavings();
+      },
+    }));
 
-  return (
-    <Card style={[styles.card, style]}>
-      <View style={styles.content}>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <LoadingIndicator color={theme.colors.background} />
-          </View>
-        ) : (
-          <View>
-            <Text variant="titleLarge" style={[styles.text, styles.title]}>
-              Diese Woche gespart
-            </Text>
-            <View style={styles.co2}>
-              <Text variant="displayLarge" style={styles.text}>
-                {savings && savings.co2Saving
-                  ? savings.co2Saving.toFixed(1).replace(".", ",")
-                  : "-"}
+    return (
+      <Card style={[styles.card, style]}>
+        <View style={styles.content}>
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <LoadingIndicator color={theme.colors.background} />
+            </View>
+          ) : (
+            <View>
+              <Text variant="titleLarge" style={[styles.text, styles.title]}>
+                Diese Woche gespart
               </Text>
-              <Text variant="titleLarge" style={styles.text}>
-                kg CO₂
+              <View style={styles.co2}>
+                <Text variant="displayLarge" style={styles.text}>
+                  {savings && savings.co2Saving
+                    ? savings.co2Saving.toFixed(1).replace(".", ",")
+                    : "-"}
+                </Text>
+                <Text variant="titleLarge" style={styles.text}>
+                  kg CO₂
+                </Text>
+              </View>
+              <Text variant="titleMedium" style={styles.text}>
+                Das entspricht{" "}
+                {savings && savings.carRideEquivalent
+                  ? savings.carRideEquivalent.toFixed(0)
+                  : "-"}{" "}
+                km Autofahrt.
               </Text>
             </View>
-            <Text variant="titleMedium" style={styles.text}>
-              Das entspricht{" "}
-              {savings && savings.carRideEquivalent
-                ? savings.carRideEquivalent.toFixed(0)
-                : "-"}{" "}
-              km Autofahrt.
-            </Text>
-          </View>
-        )}
-        <Icon size={100} source="sprout" color={theme.colors.background} />
-      </View>
-    </Card>
-  );
-});
+          )}
+          <Icon size={100} source="sprout" color={theme.colors.background} />
+        </View>
+      </Card>
+    );
+  },
+);
 
 SavingsCard.displayName = "SavingsCard";
 

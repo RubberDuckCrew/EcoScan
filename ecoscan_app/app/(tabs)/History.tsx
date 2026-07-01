@@ -16,7 +16,7 @@ export default function History() {
   };
 
   return (
-    <PageContainer style={{padding: 0}}>
+    <PageContainer style={{ padding: 0 }}>
       <View style={styles.wrapper}>
         <Text variant="headlineLarge" style={[styles.title]}>
           Historie

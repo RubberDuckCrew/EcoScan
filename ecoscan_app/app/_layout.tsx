@@ -1,15 +1,10 @@
-import {
-  Stack,
-  useRootNavigationState,
-  useRouter,
-  useSegments,
-} from "expo-router";
+import { Stack, useRootNavigationState, useRouter, useSegments, } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { ErrorProvider } from "@/context/ErrorContext";
-import { NotificationProvider } from "@/context/NotificationContext";
+import { NotificationProvider } from "@/context/NotificationProvider";
 import { ProductProvider } from "@/context/ProductContext";
 
 function RootLayoutNav() {
