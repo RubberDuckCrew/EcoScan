@@ -44,6 +44,7 @@ public class HistoryService {
     }
 
     public UUID saveProductToHistory(final UUID userId, final String ean) {
+        log.info("Saving product with EAN {} to history for user {}", ean, userId);
         final ScanHistory scanHistory = new ScanHistory();
         scanHistory.setUserId(userId);
         scanHistory.setProduct(productService.getScannedProduct(ean));
