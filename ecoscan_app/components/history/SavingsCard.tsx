@@ -3,13 +3,24 @@ import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { theme } from "@/theme";
 import { useHistorySavings } from "@/hooks/useHistorySavings";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
+import { forwardRef, useImperativeHandle } from "react";
 
 type SavingsCardProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-export function SavingsCard({ style }: SavingsCardProps) {
-  const { savings, loading } = useHistorySavings();
+export type SavingsCardRef = {
+  refresh: () => void;
+}
+
+export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(({style}, ref) => {
+  const {savings, loading, fetchHistorySavings} = useHistorySavings();
+
+  useImperativeHandle(ref, () => ({
+    refresh() {
+      void fetchHistorySavings();
+    },
+  }));
 
   return (
     <Card style={[styles.card, style]}>
@@ -46,7 +57,9 @@ export function SavingsCard({ style }: SavingsCardProps) {
       </View>
     </Card>
   );
-}
+});
+
+SavingsCard.displayName = "SavingsCard";
 
 const styles = StyleSheet.create({
   card: {

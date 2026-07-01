@@ -3,18 +3,20 @@ import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
 import { HistoryList } from "@/components/history/HistoryList";
-import { SavingsCard } from "@/components/history/SavingsCard";
+import { SavingsCard, SavingsCardRef } from "@/components/history/SavingsCard";
 import { ScanStats, ScanStatsRef } from "@/components/history/ScanStats";
 
 export default function History() {
   const scanStatsRef = useRef<ScanStatsRef>(null);
+  const savingsCardRef = useRef<SavingsCardRef>(null);
 
   const refresh = async () => {
     scanStatsRef.current?.refresh();
+    savingsCardRef.current?.refresh();
   };
 
   return (
-    <PageContainer style={{ padding: 0 }}>
+    <PageContainer style={{padding: 0}}>
       <View style={styles.wrapper}>
         <Text variant="headlineLarge" style={[styles.title]}>
           Historie
@@ -24,7 +26,7 @@ export default function History() {
           headerComponent={
             <View style={styles.header}>
               <View style={styles.section}>
-                <SavingsCard />
+                <SavingsCard ref={savingsCardRef} />
                 <ScanStats ref={scanStatsRef} />
               </View>
               <View style={styles.section}>
