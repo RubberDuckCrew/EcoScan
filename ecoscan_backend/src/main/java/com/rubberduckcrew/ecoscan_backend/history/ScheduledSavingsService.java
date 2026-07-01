@@ -18,7 +18,7 @@ public class ScheduledSavingsService {
 
     @Scheduled(cron = "${ecoscan.savings.cron:0 0 4 * * SUN}")
     public void calculateSavingsForActiveUsers() {
-        List<UUID> activeUsers = historyService.getActiveUsers();
+        final List<UUID> activeUsers = historyService.getActiveUsers();
         log.info("Running scheduled savings job for {} active users", activeUsers.size());
         activeUsers.forEach(userId -> {
             try {
