@@ -1,0 +1,58 @@
+:root {
+  --keycloak-bg-logo-url: url("../img/background.png");
+  --keycloak-card-top-color: #009A0A;
+}
+
+#kc-login {
+  background: var(--keycloak-card-top-color);
+  border-radius: 0.5rem;
+}
+
+#kc-header-wrapper,
+.pf-v5-c-login__main {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
+}
+
+#kc-header-wrapper {
+  padding: 1rem;
+}
+
+.pf-v5-c-form-control, #password-show-password {
+  background: transparent;
+  border: 0.1rem solid white;
+  border-radius: 0.5rem;
+}
+
+.pf-v5-c-form-control input:focus-visible {
+  outline: none;
+}
+
+.pf-v5-c-form-control:focus-within {
+  border: 0.1rem solid var(--keycloak-card-top-color);
+}
+
+.pf-v5-c-form-control::after, .pf-v5-c-form-control::before, .pf-v5-c-button.pf-m-control::after {
+  display: none;
+}
+
+.pf-v5-c-input-group__item:not(:first-child) {
+  border: none;
+  margin-inline-start: 0.5rem;
+}
+
+@media (prefers-color-scheme: light) {
+  #kc-header-wrapper,
+  .pf-v5-c-login__main {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  #kc-header-wrapper {
+    color: black !important;
+  }
+
+  .pf-v5-c-form-control, #password-show-password {
+    border: 0.1rem solid black;
+  }
+}
