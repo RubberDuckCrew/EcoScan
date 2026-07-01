@@ -1,6 +1,6 @@
 import { Surface, Text } from "react-native-paper";
 import { Image, StyleSheet, View, ScrollView } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { theme } from "@/theme";
 
@@ -22,6 +22,10 @@ export default function ProductCard({
   const handleImageError = () => {
     setImageLoadError(true);
   };
+
+  useEffect(() => {
+    setImageLoadError(false);
+  }, [imageUrl]);
 
   const isImageValid: boolean = imageUrl.trim() !== "";
 
