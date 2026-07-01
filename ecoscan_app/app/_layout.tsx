@@ -1,9 +1,4 @@
-import {
-  Stack,
-  useRootNavigationState,
-  useRouter,
-  useSegments,
-} from "expo-router";
+import { Stack, useRootNavigationState, useRouter, useSegments } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
@@ -36,26 +31,30 @@ function RootLayoutNav() {
     }
   }, [isAuthenticated, isLoading, segments, navigationState?.key, router]);
 
-  return (
+  const stack = (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
     </Stack>
   );
+
+  return isAuthenticated && !isLoading ? (
+    <ProductProvider>
+      <NotificationProvider>{stack}</NotificationProvider>
+    </ProductProvider>
+  ) : (
+    stack
+  );
 }
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
+    <PaperProvider theme={theme}>
       <ErrorProvider>
-        <NotificationProvider>
-          <ProductProvider>
-            <PaperProvider theme={theme}>
-              <RootLayoutNav />
-            </PaperProvider>
-          </ProductProvider>
-        </NotificationProvider>
+        <AuthProvider>
+          <RootLayoutNav />
+        </AuthProvider>
       </ErrorProvider>
-    </AuthProvider>
+    </PaperProvider>
   );
 }
