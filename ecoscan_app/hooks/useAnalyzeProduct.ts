@@ -54,47 +54,40 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
 
   const analyzeProduct = useCallback(
     async (productId: string): Promise<boolean> => {
+      if (completionRef.current) {
+        throw new Error("A product analysis is already in progress.");
+      }
       setLoading(true);
-      return new Promise<boolean>(async (resolve, reject) => {
-        completionRef.current = { resolve, reject };
-        try {
-          const data = await api.post(`product/analyze/${productId}`);
-          if (data) {
+      try {
+        const data = await api.post(`product/analyze/${productId}`);
+        if (data) {
+          return new Promise<boolean>((resolve, reject) => {
+            completionRef.current = { resolve, reject };
             setJobId(String(data));
-            return;
+          });
+        }
+        try {
+          const productData = await api.get(`product/${productId}`);
+          setLoading(false);
+          if (productData) {
+            setProduct(productData);
+            return true;
           }
-          try {
-            const productData = await api.get(`product/${productId}`);
-            if (productData) {
-              setProduct(productData);
-              setLoading(false);
-              completionRef.current = null;
-              resolve(true);
-              return;
-            } else {
-              setLoading(false);
-              completionRef.current = null;
-              resolve(false);
-              return;
-            }
-          } catch (err) {
-            setLoading(false);
-            completionRef.current = null;
-            setError("Produkt konnte nicht geladen werden.");
-            reject(err);
-            return;
-          }
+          return false;
         } catch (err) {
           setLoading(false);
-          completionRef.current = null;
-          const errorMsg =
-            err instanceof Error
-              ? err.message
-              : "Produkt konnte nicht analysiert werden.";
-          setError(errorMsg);
-          reject(err);
+          setError("Produkt konnte nicht geladen werden.");
+          throw err;
         }
-      });
+      } catch (err) {
+        setLoading(false);
+        const errorMsg =
+          err instanceof Error
+            ? err.message
+            : "Produkt konnte nicht analysiert werden.";
+        setError(errorMsg);
+        throw err;
+      }
     },
     [api, setError, setProduct],
   );
