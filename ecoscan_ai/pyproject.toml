@@ -5,9 +5,7 @@ description = "ecoscan-ai using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = "==3.13.13"
 dependencies = [
-    "aio-pika==9.6.2",
-    "crewai[tools]==1.14.7",
-    "fastapi[standard]==0.138.0",
+    "crewai[tools]==1.15.0",
     "litellm==1.89.4",
     "pika==1.4.1",
 ]
@@ -15,7 +13,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "poethepoet==0.46.0",
-    "ruff==0.15.19",
+    "ruff==0.15.20",
 ]
 
 [project.scripts]
