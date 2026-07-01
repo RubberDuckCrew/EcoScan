@@ -37,7 +37,7 @@ services:
       retries: 3
       start_period: 30s
 
-  ai-system:
+  ai-service:
     image: ghcr.io/rubberduckcrew/ecoscan/ai:main
     build:
       context: ecoscan_ai
@@ -46,6 +46,7 @@ services:
         condition: service_healthy
     networks:
       - mq-net
+      - auth-net
     env_file:
       - ecoscan_ai/.env
     environment:
@@ -53,6 +54,11 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin
+      KEYCLOAK_URL: http://keycloak:8100
+      KEYCLOAK_REALM: local_realm
+      CLIENT_ID: ai-service
+      CLIENT_SECRET: ai-service-client-secret
+      BACKEND_URL: http://backend:8080
 
   rabbitmq:
     image: rabbitmq:4.3.2-management@sha256:76412b1ed2865b88ed01b4a504f72e888842f2089a7527743d325ce7c9d3a43b
