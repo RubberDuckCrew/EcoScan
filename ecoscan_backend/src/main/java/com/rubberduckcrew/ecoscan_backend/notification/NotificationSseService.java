@@ -30,17 +30,31 @@ public class NotificationSseService {
         try {
             state.emitters.add(emitter);
             pending = List.copyOf(state.buffer);
-            state.buffer.clear();
         } finally {
             state.lock.unlock();
         }
 
         emitter.onCompletion(() -> cleanup(userId, emitter));
         emitter.onTimeout(() -> cleanup(userId, emitter));
-        emitter.onError(e -> cleanup(userId, emitter));
+        emitter.onError(_ -> cleanup(userId, emitter));
 
+        boolean allSent = true;
         for (final NotificationDTO notification : pending) {
-            doSend(emitter, notification);
+            if (!doSend(emitter, notification)) {
+                allSent = false;
+            }
+        }
+
+        if (allSent) {
+            state.lock.lock();
+            try {
+                state.buffer.removeIf(n -> {
+                    for (final NotificationDTO p : pending) if (n == p) return true;
+                    return false;
+                });
+            } finally {
+                state.lock.unlock();
+            }
         }
 
         log.info("Created SSE emitter for user {}", userId);
@@ -64,13 +78,25 @@ public class NotificationSseService {
             state.lock.unlock();
         }
 
+        boolean anySent = false;
         for (final SseEmitter emitter : emitters) {
-            doSend(emitter, notificationDTO);
+            if (doSend(emitter, notificationDTO)) {
+                anySent = true;
+            }
+        }
+
+        if (!anySent) {
+            state.lock.lock();
+            try {
+                state.buffer.add(notificationDTO);
+            } finally {
+                state.lock.unlock();
+            }
         }
     }
 
     private void cleanup(final UUID userId, final SseEmitter emitter) {
-        connections.computeIfPresent(userId, (key, state) -> {
+        connections.computeIfPresent(userId, (_, state) -> {
             state.lock.lock();
             try {
                 state.emitters.remove(emitter);
@@ -84,11 +110,16 @@ public class NotificationSseService {
         });
     }
 
-    private void doSend(final SseEmitter emitter, final NotificationDTO notification) {
+    private boolean doSend(final SseEmitter emitter, final NotificationDTO notification) {
         try {
             emitter.send(SseEmitter.event().name("notification").data(notification));
+            return true;
         } catch (final IOException e) {
-            emitter.completeWithError(e);
+            try {
+                emitter.completeWithError(e);
+            } catch (final Exception _) {
+            }
+            return false;
         }
     }
 
