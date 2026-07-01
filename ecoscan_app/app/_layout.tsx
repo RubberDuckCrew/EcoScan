@@ -1,4 +1,9 @@
-import { Stack, useRootNavigationState, useRouter, useSegments } from "expo-router";
+import {
+  Stack,
+  useRootNavigationState,
+  useRouter,
+  useSegments,
+} from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";

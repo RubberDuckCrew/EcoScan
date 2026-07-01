@@ -49,7 +49,11 @@ public class NotificationSseService {
             state.lock.lock();
             try {
                 state.buffer.removeIf(n -> {
-                    for (final NotificationDTO p : pending) if (n == p) return true;
+                    for (final NotificationDTO p : pending) {
+                        if (n.equals(p)) {
+                            return true;
+                        }
+                    }
                     return false;
                 });
             } finally {
@@ -115,10 +119,7 @@ public class NotificationSseService {
             emitter.send(SseEmitter.event().name("notification").data(notification));
             return true;
         } catch (final IOException e) {
-            try {
-                emitter.completeWithError(e);
-            } catch (final Exception _) {
-            }
+            emitter.completeWithError(e);
             return false;
         }
     }
