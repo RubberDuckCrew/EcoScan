@@ -11,6 +11,7 @@ import com.rubberduckcrew.ecoscan_backend.notification.NotificationSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,42 +35,50 @@ public class SavingsService {
 
     public UUID getSavings(final UUID userId) {
         log.info("Getting savings for user {}", userId);
-        if (savingsRepository.existsById(userId)) {
-            log.info("Savings already calculated for user {}", userId);
-            final UUID jobId = UUID.randomUUID();
-            sendSavingsResponse(jobId, savingsMapper.toDTO(savingsRepository.findById(userId).orElseThrow()));
-            return jobId;
+        final Optional<UUID> existingJob = jobUserService.getJobId(userId);
+        if (existingJob.isPresent()) {
+            log.info("Existing job found for user {}: {}", userId, existingJob.get());
+            return existingJob.get();
         }
-        return calculateSavings(userId, historyService.getWeekHistory(userId));
+        final UUID jobId = jobUserService.register(userId);
+        return savingsRepository.findById(userId)
+            .map(savings -> {
+                log.info("Savings already calculated for user {}", userId);
+                sendSavingsResponse(jobId, savingsMapper.toDTO(savings));
+                return jobId;
+            })
+            .orElseGet(() -> calculateSavings(jobId, historyService.getWeekHistory(userId)));
     }
 
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
     public void handleSavingsResult(final AiDTO<SavingsResultDTO> result) {
         log.info("Received savings results: {}", result);
-        final UUID userId = jobUserService.getUserId(result.jobId()).orElseThrow();
-        savingsRepository.save(savingsMapper.toEntity(result.data(), userId));
+        final Optional<UUID> userId = jobUserService.getUserId(result.jobId());
+        if (userId.isEmpty()) {
+            log.warn("Received AI result for job {}, but the job has already expired or does not exist.", result.jobId());
+            return;
+        }
+        savingsRepository.save(savingsMapper.toEntity(result.data(), userId.get()));
         sendSavingsResponse(result.jobId(), result.data());
-        jobUserService.remove(result.jobId());
         notificationSseService.sendNotification(
-            userId,
+            userId.get(),
             Notification.builder()
                 .title("Dein Wochen-Ergebnis \uD83C\uDF3F")
-                .message(String.format("Du hast diese Woche %s CO₂ eingespart! Sieh dir jetzt deine gesamte Statistik an.", result.data().co2Saving()))
+                .message(String.format("Du hast diese Woche %,.1f kg CO₂ eingespart! Sieh dir jetzt deine gesamte Statistik an.", result.data().co2Saving()))
                 .url("/History")
                 .build());
     }
 
-    private UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
-        log.info("Calculating savings for user {}", userId);
+    private UUID calculateSavings(final UUID jobId, final List<ScanHistory> weekHistory) {
+        log.info("Calculating savings for job {}", jobId);
         final List<ProductDataDTO> history = weekHistory.stream()
             .map(ScanHistory::getProduct)
             .map(productMapper::toDataDTO)
             .toList();
 
         final AiDTO<SavingsRequestDTO> request = new AiDTO<>(
-            UUID.randomUUID(),
+            jobId,
             new SavingsRequestDTO(history.toString()));
-        jobUserService.register(request.jobId(), userId);
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.savings",
             request);
@@ -81,5 +90,6 @@ public class SavingsService {
         log.info("Sending savings response for job {}: {}", jobId, result);
         sseService.send(jobId, "savings-evaluation", result);
         sseService.complete(jobId);
+        jobUserService.remove(jobId);
     }
 }
