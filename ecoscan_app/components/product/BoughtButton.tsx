@@ -10,7 +10,8 @@ export interface BoughtButtonProps {
 }
 
 export default function BoughtButton({ product }: BoughtButtonProps) {
-  const { saveProduct, loading, error, success } = useSaveProduct();
+  const { saveProduct, loading, error, success, saved, resetSaved } =
+    useSaveProduct();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -19,18 +20,24 @@ export default function BoughtButton({ product }: BoughtButtonProps) {
     }
   }, [success, error]);
 
+  useEffect(() => {
+    resetSaved();
+  }, [product?.id, resetSaved]);
+
   const handlePress = async () => {
     if (!product?.id) return;
     await saveProduct(product.id);
   };
 
+  const isPrimary = product?.score && product.score >= 50;
+
   return (
     <>
       <Button
-        mode="contained"
+        mode={isPrimary ? "contained" : "outlined"}
         icon="archive-arrow-down-outline"
         loading={loading}
-        disabled={loading || !product?.id}
+        disabled={loading || !product?.id || saved}
         style={styles.buttonContainer}
         onPress={handlePress}
       >

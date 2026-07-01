@@ -6,6 +6,8 @@ type UseSaveProductReturn = {
   loading: boolean;
   error: string | null;
   success: boolean;
+  saved: boolean;
+  resetSaved: () => void;
 };
 
 export function useSaveProduct(): UseSaveProductReturn {
@@ -13,9 +15,12 @@ export function useSaveProduct(): UseSaveProductReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const saveProduct = useCallback(
     async (id: string) => {
+      if (saved) return;
+
       setLoading(true);
       setError(null);
       setSuccess(false);
@@ -26,6 +31,7 @@ export function useSaveProduct(): UseSaveProductReturn {
           throw new Error("Keine Daten erhalten");
         }
         setSuccess(true);
+        setSaved(true);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Ein Fehler ist aufgetreten",
@@ -34,8 +40,9 @@ export function useSaveProduct(): UseSaveProductReturn {
         setLoading(false);
       }
     },
-    [api],
+    [api, saved],
   );
+  const resetSaved = useCallback(() => setSaved(false), []);
 
-  return { saveProduct, loading, error, success };
+  return { saveProduct, loading, error, success, saved, resetSaved };
 }
