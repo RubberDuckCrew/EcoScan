@@ -77,11 +77,11 @@ export function useGreenScore(): UseGreenScoreReturn {
       try {
         const jobId = await api.post(`score/${productId}`);
         if (!jobId || typeof jobId !== "string") {
-            setError("Produktscore konnte nicht geladen werden.")
-            updateLoading(false);
-            return;
+          setError("Produktscore konnte nicht geladen werden.");
+          updateLoading(false);
+          return;
         }
-          startSseListener(jobId);
+        startSseListener(jobId);
       } catch (err) {
         console.warn("Failed to fetch green score:", err);
         setError("Produktscore konnte nicht geladen werden.");
