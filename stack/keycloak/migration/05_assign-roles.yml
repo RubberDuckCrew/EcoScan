@@ -6,3 +6,7 @@ changes:
       user: user
       role: ecoscan-user
       clientId: local
+
+  - assignRoleToClient:
+      clientId: ai-service
+      role: ecoscan-ai

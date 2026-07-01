@@ -8,3 +8,8 @@ changes:
       clientRole: true
       clientId: local
       composite: false
+
+  - addRole:
+      name: ecoscan-ai
+      clientRole: false
+      description: Allows CrewAI agents read-only access to defined backend endpoints

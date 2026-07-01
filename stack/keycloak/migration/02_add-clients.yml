@@ -30,3 +30,9 @@ changes:
   - assignDefaultClientScope:
       clientId: local
       clientScopeName: openid
+
+  - addSimpleClient:
+      clientId: ai-service
+      publicClient: false
+      serviceAccountsEnabled: true
+      secret: "${AI_SERVICE_CLIENT_SECRET}"
