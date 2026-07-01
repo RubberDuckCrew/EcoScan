@@ -49,6 +49,7 @@ export default function Product() {
 
     async function loadProduct() {
       setProductLoading(true);
+      setProduct(undefined);
       try {
         const data = await api.get(`product/${normalizedId}`);
         if (cancelled) return;

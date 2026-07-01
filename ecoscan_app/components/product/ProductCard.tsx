@@ -46,7 +46,7 @@ export default function ProductCard({
         )}
       </View>
       <Surface style={styles.textCard} elevation={0}>
-        <Text style={styles.titleText} variant={"headlineMedium"}>
+        <Text style={styles.titleText} variant={"headlineSmall"}>
           {name}
         </Text>
         <View style={styles.descriptionContainer}>
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontWeight: "bold",
+    lineHeight: 26
   },
   descriptionContainer: {
     maxHeight: 70,
