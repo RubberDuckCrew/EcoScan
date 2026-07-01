@@ -1,5 +1,4 @@
 import { Button } from "react-native-paper";
-import { TouchableOpacity } from "react-native";
 import { Product } from "@/types/product";
 import { useRouter } from "expo-router";
 
@@ -13,26 +12,21 @@ export default function AlternativesButton({
   const router = useRouter();
 
   const handlePress = () => {
-    if (product === undefined) {
-      return;
-    }
     router.push({
       pathname: "/alternatives/",
     });
   };
 
+  const isPrimary =
+    product && product.score !== undefined && product.score < 50;
   return (
-    <>
-      <TouchableOpacity>
-        <Button
-          mode={"contained"}
-          icon={"directions-fork"}
-          disabled={!product}
-          onPress={handlePress}
-        >
-          Alternativen
-        </Button>
-      </TouchableOpacity>
-    </>
+    <Button
+      mode={isPrimary ? "contained" : "outlined"}
+      icon="directions-fork"
+      disabled={!product}
+      onPress={handlePress}
+    >
+      Alternativen
+    </Button>
   );
 }

@@ -6,7 +6,7 @@ export interface ReasonCardProps {
   reason: string;
 }
 
-export default function ReasonCard(props: ReasonCardProps) {
+export default function ReasonCard({ reason }: ReasonCardProps) {
   return (
     <View>
       <Text style={styles.title} variant={"headlineSmall"}>
@@ -15,7 +15,7 @@ export default function ReasonCard(props: ReasonCardProps) {
       <Card style={styles.card}>
         <Card.Content>
           <ScrollView style={styles.scroll}>
-            <Text variant={"bodyMedium"}>{props.reason}</Text>
+            <Text variant={"bodyMedium"}>{reason}</Text>
           </ScrollView>
         </Card.Content>
       </Card>

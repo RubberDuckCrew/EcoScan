@@ -4,7 +4,7 @@ import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { ScrollView, StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
@@ -13,40 +13,79 @@ import { useError } from "@/context/ErrorContext";
 import { useProduct } from "@/context/ProductContext";
 import { useShareScreenshot } from "@/hooks/useShareScreenshot";
 import ScoreCategoryCard from "@/components/product/ScoreCategoryCard";
+import { useApiClient } from "@/utils/apiClient";
+import BoughtButton from "@/components/product/BoughtButton";
 
 export default function Product() {
   const { viewRef, captureAndShare } = useShareScreenshot();
-  const { loading, fetchGreenScore, fetchProduct, onError } = useGreenScore();
+  const {
+    loading: scoreLoading,
+    error: scoreError,
+    fetchGreenScore,
+    cancelGreenScore,
+  } = useGreenScore();
 
-  const { product } = useProduct();
-
+  const { product, setProduct } = useProduct();
   const { setError } = useError();
   const { id } = useLocalSearchParams();
+  const api = useApiClient();
+  const [productLoading, setProductLoading] = useState(false);
+
+  const loading = productLoading || scoreLoading;
 
   useEffect(() => {
-    onError((err) => {
-      setError(err);
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace("/(tabs)/(scan)");
-      }
-    });
-  }, [onError, setError]);
+    if (!scoreError) return;
+    setError(scoreError);
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/(scan)");
+    }
+  }, [scoreError, setError]);
 
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
     if (!normalizedId) return;
 
-    (async () => {
-      const fetchedProduct = await fetchProduct(normalizedId);
+    let cancelled = false;
 
-      if (fetchedProduct && fetchedProduct.score !== undefined) {
-        return;
+    async function loadProduct() {
+      setProductLoading(true);
+      setProduct(undefined);
+      try {
+        const data = await api.get(`product/${normalizedId}`);
+        if (cancelled) return;
+
+        if (data) {
+          setProduct(data);
+
+          if (data.score === undefined) {
+            await fetchGreenScore(normalizedId);
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to load product:", err);
+        if (cancelled) return;
+        setError("Produkt konnte nicht geladen werden.");
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace("/(tabs)/(scan)");
+        }
+      } finally {
+        if (!cancelled) {
+          setProductLoading(false);
+        }
       }
-      await fetchGreenScore(normalizedId);
-    })();
-  }, [id, fetchGreenScore, fetchProduct]);
+    }
+
+    void loadProduct();
+
+    return () => {
+      cancelled = true;
+      cancelGreenScore();
+    };
+  }, [id, api, setProduct, fetchGreenScore, setError, cancelGreenScore]);
 
   return (
     <View ref={viewRef} collapsable={false} style={styles.root}>
@@ -71,20 +110,21 @@ export default function Product() {
                     />
                   </View>
                   <View style={styles.buttonsRow}>
-                    <AlternativesButton product={product}></AlternativesButton>
+                    <AlternativesButton product={product} />
+                    <BoughtButton product={product} />
                   </View>
                   <View style={styles.categoryCardList}>
                     <ScoreCategoryCard
                       score={product.environmentScore ?? 0}
-                      label={"Umwelt"}
+                      label="Umwelt"
                     />
                     <ScoreCategoryCard
                       score={product.socialScore ?? 0}
-                      label={"Soziales"}
+                      label="Soziales"
                     />
                     <ScoreCategoryCard
                       score={product.healthScore ?? 0}
-                      label={"Gesundheit"}
+                      label="Gesundheit"
                     />
                   </View>
                   <View style={styles.reasonCard}>
@@ -99,14 +139,12 @@ export default function Product() {
             </>
           )}
           {loading && (
-            <>
-              <View style={styles.loadingIndicator}>
-                <LoadingIndicator />
-                <Text style={styles.loadingIndicatorText}>
-                  Produkt wird analysiert...
-                </Text>
-              </View>
-            </>
+            <View style={styles.loadingIndicator}>
+              <LoadingIndicator />
+              <Text style={styles.loadingIndicatorText}>
+                Produkt wird analysiert...
+              </Text>
+            </View>
           )}
         </PageContainer>
       </ScrollView>

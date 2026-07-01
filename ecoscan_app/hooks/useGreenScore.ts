@@ -2,14 +2,6 @@ import { useApiClient } from "@/utils/apiClient";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSseClient } from "@/utils/sseClient";
 import { useProduct } from "@/context/ProductContext";
-import { Product } from "@/types/product";
-
-type UseGreenScoreResult = {
-  loading: boolean;
-  fetchGreenScore: (productId: string) => Promise<void>;
-  fetchProduct: (productId: string) => Promise<Product>;
-  onError: (handler: (err?: any) => void) => void;
-};
 
 type GreenScoreResult = {
   overallScore: number;
@@ -19,75 +11,35 @@ type GreenScoreResult = {
   reason: string;
 };
 
-export function useGreenScore(): UseGreenScoreResult {
+type UseGreenScoreReturn = {
+  loading: boolean;
+  error: string | undefined;
+  fetchGreenScore: (productId: string) => Promise<void>;
+  clearError: () => void;
+  cancelGreenScore: () => void;
+};
+
+export function useGreenScore(): UseGreenScoreReturn {
   const api = useApiClient();
   const { startStream, closeStream } =
     useSseClient<GreenScoreResult>("product-evaluation");
-  const [loading, setLoading] = useState<boolean>(false);
   const { setProduct } = useProduct();
-  const [jobId, setJobId] = useState<string>();
-  const loadingRef = useRef(false);
-  const onErrorRef = useRef<(err?: any) => void>(() => {});
 
-  const setLoading_ = useCallback((val: boolean) => {
-    setLoading(val);
-    loadingRef.current = val;
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const loadingRef = useRef(false);
+  const fetchIdRef = useRef(0);
+
+  const updateLoading = useCallback((value: boolean) => {
+    loadingRef.current = value;
+    setLoading(value);
   }, []);
 
   useEffect(() => {
-    loadingRef.current = loading;
-  }, [loading]);
-
-  useEffect(() => {
-    if (!jobId) return;
-    startSseListener(jobId);
     return () => {
       closeStream();
     };
-  }, [jobId]);
-
-  const fetchGreenScore = useCallback(
-    async (productId: string) => {
-      if (loadingRef.current) return;
-      setLoading_(true);
-      try {
-        const data = await api.post(`score/${productId}`);
-        if (data) {
-          setJobId(data);
-        }
-      } catch (err) {
-        try {
-          onErrorRef.current("Produktscore konnte nicht geladen werden.");
-          setLoading_(false);
-        } catch (e) {}
-      }
-    },
-    [api],
-  );
-
-  const fetchProduct = useCallback(
-    async (productId: string) => {
-      if (loadingRef.current) return;
-
-      setLoading_(true);
-
-      try {
-        const data = await api.get(`product/${productId}`);
-        if (data) {
-          setProduct(data);
-          setLoading_(false);
-          return data;
-        }
-      } catch (err) {
-        console.warn(err);
-        try {
-          onErrorRef.current("Produkt konnte nicht geladen werden.");
-          setLoading_(false);
-        } catch (e) {}
-      }
-    },
-    [api],
-  );
+  }, [closeStream]);
 
   const startSseListener = useCallback(
     (jobId: string) => {
@@ -106,23 +58,57 @@ export function useGreenScore(): UseGreenScoreResult {
                 }
               : undefined,
           );
-          setLoading_(false);
+          updateLoading(false);
         },
         () => {
-          setLoading_(false);
-          try {
-            onErrorRef.current("Ein unerwarteter Fehler ist aufgetreten.");
-          } catch (e) {}
+          updateLoading(false);
+          setError("Ein unerwarteter Fehler ist aufgetreten.");
           console.warn("Error in SSE stream");
         },
       );
     },
-    [startStream],
+    [startStream, setProduct, updateLoading],
   );
 
-  const onError = useCallback((handler: (err?: any) => void) => {
-    onErrorRef.current = handler || (() => {});
+  const fetchGreenScore = useCallback(
+    async (productId: string) => {
+      if (loadingRef.current) return;
+      updateLoading(true);
+      setError(undefined);
+      const currentFetchId = ++fetchIdRef.current;
+      try {
+        const jobId = await api.post(`score/${productId}`);
+        if (currentFetchId !== fetchIdRef.current) {
+          return;
+        }
+        if (!jobId || typeof jobId !== "string") {
+          setError("Produktscore konnte nicht geladen werden.");
+          updateLoading(false);
+          return;
+        }
+
+        startSseListener(jobId);
+      } catch (err) {
+        if (currentFetchId !== fetchIdRef.current) {
+          return;
+        }
+        console.warn("Failed to fetch green score:", err);
+        setError("Produktscore konnte nicht geladen werden.");
+        updateLoading(false);
+      }
+    },
+    [api, updateLoading, startSseListener],
+  );
+
+  const clearError = useCallback(() => {
+    setError(undefined);
   }, []);
 
-  return { fetchGreenScore, fetchProduct, loading, onError };
+  const cancelGreenScore = useCallback(() => {
+    fetchIdRef.current += 1;
+    closeStream();
+    updateLoading(false);
+  }, [closeStream, updateLoading]);
+
+  return { loading, error, fetchGreenScore, clearError, cancelGreenScore };
 }
