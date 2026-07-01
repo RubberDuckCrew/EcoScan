@@ -39,8 +39,12 @@ public class ProductAnalysisService {
     public void handleProductAnalysisResponse(final AiDTO<ProductAnalysisResponseDTO> response) {
         final ProductAnalysisResponseDTO result = response.data();
         log.info("Received ProductAnalysis results: {}", result.data());
-        final Product p = productRepository.getProductById(result.productId())
-            .orElseThrow(() -> new RuntimeException("Product not found: " + result.productId()));
+        final Product p = productRepository.getProductById(result.productId()).orElse(null);
+        if (p == null) {
+            log.warn("Dropping analysis result for missing product {}", result.productId());
+            sseService.complete(response.jobId());
+            return;
+        }
         p.setData(result.data());
         productRepository.save(p);
         sseService.send(response.jobId(), "product-analysis-evaluation", p);

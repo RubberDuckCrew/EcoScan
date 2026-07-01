@@ -24,7 +24,20 @@ export default function Scan() {
     }
     setError(undefined);
     setBarcode(trimmed);
-    await analyzeProduct(trimmed);
+    try {
+      if (await analyzeProduct(trimmed)) {
+        router.push({
+          pathname: "/product/[id]",
+          params: { id: trimmed },
+        });
+      } else {
+        setError("Produkt konnte nicht analysiert werden.");
+      }
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Analyse fehlgeschlagen.";
+      setError(msg);
+    }
   };
 
   useEffect(() => {
@@ -33,15 +46,6 @@ export default function Scan() {
       setError(errorMsg);
     }
   }, [consumeError]);
-
-  useEffect(() => {
-    if (loading || !barcode) return;
-
-    router.push({
-      pathname: "/product/[id]",
-      params: { id: barcode },
-    });
-  }, [loading, barcode, router]);
 
   return (
     <PageContainer>
@@ -168,9 +172,8 @@ const styles = StyleSheet.create({
   },
 
   loadingContainer: {
-    position: "absolute",
-    bottom: 24,
-    alignItems: "center",
+    ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
+    alignItems: "center",
   },
 });
