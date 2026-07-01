@@ -1,7 +1,12 @@
 import { Text, ProgressBar, IconButton } from "react-native-paper";
 import { StyleSheet, ViewStyle, TextStyle, View } from "react-native";
 import { theme } from "@/theme";
-import { getScoreVariant, ScoreVariant } from "@/utils/scoreColor";
+import {
+  getScoreVariant,
+  normalizeScore,
+  ScoreVariant,
+  withOpacity,
+} from "@/utils/scoreColor";
 
 export interface ScoreCardProps {
   score: number;
@@ -9,11 +14,8 @@ export interface ScoreCardProps {
 }
 
 export default function ScoreCard({ score, onShare }: ScoreCardProps) {
-  const normalizedScore = Math.max(
-    0,
-    Math.min(100, Math.round(Number(score) || 0)),
-  );
-  const variant = variantStyles[getScoreVariant(normalizedScore)];
+  const normalized = normalizeScore(score);
+  const variant = variantStyles[getScoreVariant(normalized)];
   return (
     <View style={[styles.rootCard, variant.card]}>
       <IconButton
@@ -27,7 +29,7 @@ export default function ScoreCard({ score, onShare }: ScoreCardProps) {
         Green Score
       </Text>
       <Text style={[styles.score, variant.text]} variant={"displayLarge"}>
-        {normalizedScore}
+        {normalized}
       </Text>
       <Text style={[styles.message, variant.text]} variant={"bodyLarge"}>
         {variant.message}
@@ -35,7 +37,7 @@ export default function ScoreCard({ score, onShare }: ScoreCardProps) {
       <View style={styles.progressBarContainer}>
         <ProgressBar
           style={styles.progressBar}
-          progress={normalizedScore / 100}
+          progress={normalized / 100}
           color={variant.progressBar}
         />
       </View>
@@ -75,14 +77,6 @@ export const variantStyles: Record<
     message: "Bitte überdenke deine Wahl.",
   },
 };
-
-function withOpacity(hex: string, opacity: number): string {
-  const clean = hex.replace("#", "");
-  const r = parseInt(clean.slice(0, 2), 16);
-  const g = parseInt(clean.slice(2, 4), 16);
-  const b = parseInt(clean.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-}
 
 const styles = StyleSheet.create({
   score: {

@@ -1,20 +1,19 @@
-import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Card, Text, ProgressBar } from "react-native-paper";
-import { getScoreVariant } from "@/utils/scoreColor";
+import { getScoreVariant, normalizeScore } from "@/utils/scoreColor";
 import { variantStyles } from "@/components/product/ScoreCard";
 
-interface ScoreCardProps {
+interface ScoreCategoryCardProps {
   label: string;
   score: number;
 }
 
-export default function ScoreCategoryCard({ label, score }: ScoreCardProps) {
-  const normalizedScore = Math.max(
-    0,
-    Math.min(100, Math.round(Number(score) || 0)),
-  );
-  const variant = variantStyles[getScoreVariant(normalizedScore)];
+export default function ScoreCategoryCard({
+  label,
+  score,
+}: ScoreCategoryCardProps) {
+  const normalized = normalizeScore(score);
+  const variant = variantStyles[getScoreVariant(normalized)];
 
   return (
     <Card style={styles.card}>
@@ -22,11 +21,11 @@ export default function ScoreCategoryCard({ label, score }: ScoreCardProps) {
         <View style={styles.header}>
           <Text variant="titleMedium">{label}</Text>
           <Text variant="titleMedium" style={variant.text}>
-            {normalizedScore}
+            {normalized}
           </Text>
         </View>
         <ProgressBar
-          progress={normalizedScore / 100}
+          progress={normalized / 100}
           color={variant.progressBar}
           style={styles.progressBar}
         />

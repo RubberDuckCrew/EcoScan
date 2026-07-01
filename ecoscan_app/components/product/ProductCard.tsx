@@ -11,7 +11,12 @@ export interface ProductCardProps {
   barcode: string;
 }
 
-export default function ProductCard(props: ProductCardProps) {
+export default function ProductCard({
+  name,
+  imageUrl,
+  description,
+  barcode,
+}: ProductCardProps) {
   const [imageLoadError, setImageLoadError] = useState(false);
 
   const handleImageError = () => {
@@ -23,7 +28,7 @@ export default function ProductCard(props: ProductCardProps) {
       <View style={styles.imageContainer}>
         {!imageLoadError ? (
           <Image
-            source={{ uri: props.imageUrl }}
+            source={{ uri: imageUrl }}
             style={styles.image}
             resizeMode="cover"
             onError={handleImageError}
@@ -40,20 +45,20 @@ export default function ProductCard(props: ProductCardProps) {
       </View>
       <Surface style={styles.textCard} elevation={0}>
         <Text style={styles.titleText} variant={"headlineMedium"}>
-          {props.name}
+          {name}
         </Text>
         <View style={styles.descriptionContainer}>
           <ScrollView
-            contentContainerStyle={{ paddingRight: 4 }}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={true}
           >
             <Text style={styles.descriptionText} variant={"bodyLarge"}>
-              {props.description}
+              {description}
             </Text>
           </ScrollView>
         </View>
         <Text style={styles.barcodeText} variant={"bodyMedium"}>
-          Barcode: {props.barcode}
+          Barcode: {barcode}
         </Text>
       </Surface>
     </Surface>
@@ -90,6 +95,9 @@ const styles = StyleSheet.create({
   },
   barcodeText: {
     color: theme.colors.muted,
+  },
+  scrollContent: {
+    paddingRight: 4,
   },
   image: {
     width: 128,
