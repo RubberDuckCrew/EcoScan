@@ -21,6 +21,7 @@ export default function Product() {
     loading: scoreLoading,
     error: scoreError,
     fetchGreenScore,
+    cancelGreenScore,
   } = useGreenScore();
 
   const { product, setProduct } = useProduct();
@@ -81,8 +82,9 @@ export default function Product() {
 
     return () => {
       cancelled = true;
+      cancelGreenScore();
     };
-  }, [id, api, setProduct, fetchGreenScore, setError]);
+  }, [id, api, setProduct, fetchGreenScore, setError, cancelGreenScore]);
 
   return (
     <View ref={viewRef} collapsable={false} style={styles.root}>

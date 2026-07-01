@@ -16,6 +16,7 @@ type UseGreenScoreReturn = {
   error: string | undefined;
   fetchGreenScore: (productId: string) => Promise<void>;
   clearError: () => void;
+  cancelGreenScore: () => void;
 };
 
 export function useGreenScore(): UseGreenScoreReturn {
@@ -95,5 +96,10 @@ export function useGreenScore(): UseGreenScoreReturn {
     setError(undefined);
   }, []);
 
-  return { loading, error, fetchGreenScore, clearError };
+  const cancelGreenScore = useCallback(() => {
+    closeStream();
+    updateLoading(false);
+  }, [closeStream, updateLoading]);
+
+  return { loading, error, fetchGreenScore, clearError, cancelGreenScore };
 }
