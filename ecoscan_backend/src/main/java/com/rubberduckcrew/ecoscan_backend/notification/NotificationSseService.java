@@ -1,6 +1,5 @@
 package com.rubberduckcrew.ecoscan_backend.notification;
 
-import com.rubberduckcrew.ecoscan_backend.notification.dto.NotificationDTO;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -9,16 +8,17 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class NotificationSseService {
-
     private static final long SSE_TIMEOUT_MS = 600_000L;
-
+    private final NotificationMapper notificationMapper;
     private final Map<UUID, UserState> connections = new ConcurrentHashMap<>();
 
     public SseEmitter createEmitter(final UUID userId) {
@@ -47,17 +47,17 @@ public class NotificationSseService {
         return emitter;
     }
 
-    public void sendNotification(final UUID userId, final String title, final String message) {
-        final NotificationDTO notification = new NotificationDTO(title, message, Instant.now());
-        log.info("Sending notification to user {}: {}", userId, notification);
-        final UserState state = connections.computeIfAbsent(userId, k -> new UserState());
+    public void sendNotification(final UUID userId, final Notification notification) {
+        final NotificationDTO notificationDTO = notificationMapper.toDTO(notification, Instant.now());
+        log.info("Sending notification to user {}: {}", userId, notificationDTO);
+        final UserState state = connections.computeIfAbsent(userId, _ -> new UserState());
 
         final List<SseEmitter> emitters;
         state.lock.lock();
         try {
             emitters = List.copyOf(state.emitters);
             if (emitters.isEmpty()) {
-                state.buffer.add(notification);
+                state.buffer.add(notificationDTO);
                 return;
             }
         } finally {
@@ -65,7 +65,7 @@ public class NotificationSseService {
         }
 
         for (final SseEmitter emitter : emitters) {
-            doSend(emitter, notification);
+            doSend(emitter, notificationDTO);
         }
     }
 

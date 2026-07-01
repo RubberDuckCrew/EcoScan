@@ -6,6 +6,7 @@ import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsResultDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobUserService;
 import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
+import com.rubberduckcrew.ecoscan_backend.notification.Notification;
 import com.rubberduckcrew.ecoscan_backend.notification.NotificationSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
@@ -51,8 +52,11 @@ public class SavingsService {
         jobUserService.remove(result.jobId());
         notificationSseService.sendNotification(
             userId,
-            "Wöchentliche Ersparnisse",
-            "Deine wöchentlichen Ersparnisse wurden berechnet. Schau sie dir jetzt an!");
+            Notification.builder()
+                .title("Dein Wochen-Ergebnis \uD83C\uDF3F")
+                .message(String.format("Du hast diese Woche %s CO₂ eingespart! Sieh dir jetzt deine gesamte Statistik an.", result.data().co2Saving()))
+                .url("/History")
+                .build());
     }
 
     private UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
