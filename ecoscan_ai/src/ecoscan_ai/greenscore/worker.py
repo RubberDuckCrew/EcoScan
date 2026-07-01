@@ -34,6 +34,5 @@ class GreenScoreWorker(BaseWorker):
 
         return AiDTO[GreenScoreResult](
             jobId=request.jobId,
-            userId=request.userId,
             data=result,
         )

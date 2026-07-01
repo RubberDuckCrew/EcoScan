@@ -4,6 +4,7 @@ import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsResultDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobUserService;
 import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
@@ -26,6 +27,7 @@ public class SavingsService {
     private final SavingsMapper savingsMapper;
     private final RabbitTemplate rabbitTemplate;
     private final SseService sseService;
+    private final JobUserService jobUserService;
 
     public UUID getSavings(final UUID userId) {
         log.info("Getting savings for user {}", userId);
@@ -41,8 +43,10 @@ public class SavingsService {
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
     public void handleSavingsResult(final AiDTO<SavingsResultDTO> result) {
         log.info("Received savings results: {}", result);
-        savingsRepository.save(savingsMapper.toEntity(result.data(), result.userId()));
+        final UUID userId = jobUserService.getUserId(result.jobId()).orElseThrow();
+        savingsRepository.save(savingsMapper.toEntity(result.data(), userId));
         sendSavingsResponse(result.jobId(), result.data());
+        jobUserService.remove(result.jobId());
     }
 
     private UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {
@@ -54,8 +58,8 @@ public class SavingsService {
 
         final AiDTO<SavingsRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
-            userId,
             new SavingsRequestDTO(history.toString()));
+        jobUserService.register(request.jobId(), userId);
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.savings",
             request);

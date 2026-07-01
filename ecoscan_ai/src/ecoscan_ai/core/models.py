@@ -10,7 +10,6 @@ class AiDTO(BaseModel, Generic[T]):
     model_config = ConfigDict(populate_by_name=True)
 
     jobId: str = Field(..., description="UUID correlation ID")
-    userId: str = Field(..., description="UUID of the user")
     data: T = Field(..., description="Payload or result data")
 
     @field_validator("jobId")
