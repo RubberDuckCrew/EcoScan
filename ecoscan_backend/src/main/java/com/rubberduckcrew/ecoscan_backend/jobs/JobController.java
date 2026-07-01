@@ -13,10 +13,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class JobController {
 
-    private final SseService sseService;
+    private final JobSseService jobSseService;
 
     @GetMapping("/stream/{jobId}")
     public SseEmitter streamJobResult(@PathVariable final UUID jobId) {
-        return sseService.createEmitter(jobId);
+        return jobSseService.createEmitter(jobId);
     }
 }

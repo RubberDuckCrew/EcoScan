@@ -4,8 +4,8 @@ import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsResultDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobUserService;
-import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
 import com.rubberduckcrew.ecoscan_backend.notification.Notification;
 import com.rubberduckcrew.ecoscan_backend.notification.NotificationSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
@@ -30,7 +30,7 @@ public class SavingsService {
     private final ProductMapper productMapper;
     private final SavingsMapper savingsMapper;
     private final RabbitTemplate rabbitTemplate;
-    private final SseService sseService;
+    private final JobSseService jobSseService;
     private final JobUserService jobUserService;
     private final NotificationSseService notificationSseService;
 
@@ -90,8 +90,8 @@ public class SavingsService {
 
     private void sendSavingsResponse(final UUID jobId, final SavingsResultDTO result) {
         log.info("Sending savings response for job {}: {}", jobId, result);
-        sseService.send(jobId, "savings-evaluation", result);
-        sseService.complete(jobId);
+        jobSseService.send(jobId, "savings-evaluation", result);
+        jobSseService.complete(jobId);
         jobUserService.remove(jobId);
     }
 }
