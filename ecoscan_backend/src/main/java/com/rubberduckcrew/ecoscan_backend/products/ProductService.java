@@ -75,7 +75,8 @@ public class ProductService {
     }
 
     public ScannedProduct getScannedProduct(final String id) {
-        return scannedProductRepository.getScannedProductById(id);
+        return scannedProductRepository.getScannedProductById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Scanned product with id " + id + " not found"));
     }
 
     public void addScannedProduct(final String id, final GreenScoreResultDTO greenScoreResult) {
