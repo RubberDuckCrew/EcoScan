@@ -48,7 +48,15 @@ public class JobUserService {
     }
 
     public Optional<UUID> getJobId(final UUID userId) {
-        return Optional.ofNullable(userJobMap.get(userId));
+        final UUID jobId = userJobMap.get(userId);
+        if (jobId == null) {
+            return Optional.empty();
+        }
+        if (jobUserCache.getIfPresent(jobId) == null) {
+            userJobMap.remove(userId, jobId);
+            return Optional.empty();
+        }
+        return Optional.of(jobId);
     }
 
     public void remove(final UUID jobId) {
