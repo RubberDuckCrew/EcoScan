@@ -2,6 +2,7 @@ package com.rubberduckcrew.ecoscan_backend.history;
 
 import com.rubberduckcrew.ecoscan_backend.history.dto.HistoryStatsDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
+import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class HistoryService {
     private final HistoryRepository historyRepository;
+    private final SavingsService savingsService;
+    private final ProductService productService;
 
     public Slice<ScanHistory> getUserHistory(final UUID userId, final Pageable pageable) {
         log.info("Getting history for user {} with pageable {}", userId, pageable);
@@ -41,5 +44,17 @@ public class HistoryService {
         return new HistoryStatsDTO(
             historyRepository.averageScore(userId),
             historyRepository.countAllByUserId(userId));
+    }
+
+    public UUID getSavings(final UUID userId) {
+        return savingsService.calculateSavings(userId, getWeekHistory(userId));
+    }
+
+    public UUID saveProductToHistory(final UUID userId, final String ean) {
+        final ScanHistory scanHistory = new ScanHistory();
+        scanHistory.setUserId(userId);
+        scanHistory.setProduct(productService.getScannedProduct(ean));
+        scanHistory.setSavedDate(LocalDateTime.now());
+        return historyRepository.save(scanHistory).getId();
     }
 }

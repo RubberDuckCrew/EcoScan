@@ -14,6 +14,7 @@ import { useProduct } from "@/context/ProductContext";
 import { useShareScreenshot } from "@/hooks/useShareScreenshot";
 import ScoreCategoryCard from "@/components/product/ScoreCategoryCard";
 import { useApiClient } from "@/utils/apiClient";
+import BoughtButton from "@/components/product/BoughtButton";
 
 export default function Product() {
   const { viewRef, captureAndShare } = useShareScreenshot();
@@ -110,6 +111,7 @@ export default function Product() {
                   </View>
                   <View style={styles.buttonsRow}>
                     <AlternativesButton product={product} />
+                    <BoughtButton product={product} />
                   </View>
                   <View style={styles.categoryCardList}>
                     <ScoreCategoryCard
