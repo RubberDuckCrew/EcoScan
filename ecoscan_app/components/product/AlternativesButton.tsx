@@ -17,9 +17,11 @@ export default function AlternativesButton({
     });
   };
 
+  const isPrimary =
+    product && product.score !== undefined && product.score < 50;
   return (
     <Button
-      mode="contained"
+      mode={isPrimary ? "contained" : "outlined"}
       icon="directions-fork"
       disabled={!product}
       onPress={handlePress}
