@@ -64,4 +64,10 @@ public class HistoryController {
         final UUID userId = AuthUtils.getSub();
         return historyService.saveProductToHistory(userId, ean);
     }
+
+    @PostMapping("/{ean}")
+    public UUID addProductToHistory(@PathVariable final String ean) {
+        final UUID userId = AuthUtils.getSub();
+        return historyService.saveProductToHistory(userId, ean);
+    }
 }

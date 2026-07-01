@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class HistoryService {
     private final HistoryRepository historyRepository;
+    private final SavingsService savingsService;
     private final ProductService productService;
 
     public Slice<ScanHistory> getUserHistory(final UUID userId, final Pageable pageable) {
