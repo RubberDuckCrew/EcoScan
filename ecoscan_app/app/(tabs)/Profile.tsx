@@ -1,6 +1,6 @@
 import React from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import { Button, Card, Divider, Icon, Text, } from "react-native-paper";
+import { Button, Card, Divider, Icon, Text } from "react-native-paper";
 import { PageContainer } from "@/components/PageContainer";
 import { useAuth } from "@/context/AuthContext";
 import { useUserInfo } from "@/hooks/useUserInfo";
