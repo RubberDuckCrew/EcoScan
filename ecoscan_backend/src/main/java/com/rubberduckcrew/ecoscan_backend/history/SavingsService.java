@@ -6,6 +6,7 @@ import com.rubberduckcrew.ecoscan_backend.history.dto.SavingsResultDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobUserService;
 import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
+import com.rubberduckcrew.ecoscan_backend.notification.NotificationSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
 import java.util.List;
@@ -28,6 +29,7 @@ public class SavingsService {
     private final RabbitTemplate rabbitTemplate;
     private final SseService sseService;
     private final JobUserService jobUserService;
+    private final NotificationSseService notificationSseService;
 
     public UUID getSavings(final UUID userId) {
         log.info("Getting savings for user {}", userId);
@@ -47,6 +49,10 @@ public class SavingsService {
         savingsRepository.save(savingsMapper.toEntity(result.data(), userId));
         sendSavingsResponse(result.jobId(), result.data());
         jobUserService.remove(result.jobId());
+        notificationSseService.sendNotification(
+            userId,
+            "Wöchentliche Ersparnisse",
+            "Deine wöchentlichen Ersparnisse wurden berechnet. Schau sie dir jetzt an!");
     }
 
     private UUID calculateSavings(final UUID userId, final List<ScanHistory> weekHistory) {

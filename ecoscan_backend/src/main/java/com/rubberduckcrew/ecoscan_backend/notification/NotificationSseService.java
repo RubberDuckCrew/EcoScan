@@ -9,9 +9,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+@Slf4j
 @Service
 public class NotificationSseService {
 
@@ -41,11 +43,13 @@ public class NotificationSseService {
             doSend(emitter, notification);
         }
 
+        log.info("Created SSE emitter for user {}", userId);
         return emitter;
     }
 
     public void sendNotification(final UUID userId, final String title, final String message) {
         final NotificationDTO notification = new NotificationDTO(title, message, Instant.now());
+        log.info("Sending notification to user {}: {}", userId, notification);
         final UserState state = connections.computeIfAbsent(userId, k -> new UserState());
 
         final List<SseEmitter> emitters;
