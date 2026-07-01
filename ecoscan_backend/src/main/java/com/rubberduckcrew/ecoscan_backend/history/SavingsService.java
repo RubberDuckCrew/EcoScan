@@ -71,7 +71,7 @@ public class SavingsService {
                 .build());
     }
 
-    private UUID calculateSavings(final UUID jobId, final List<ScanHistory> weekHistory) {
+    public UUID calculateSavings(final UUID jobId, final List<ScanHistory> weekHistory) {
         log.info("Calculating savings for job {}", jobId);
         final List<ProductDataDTO> history = weekHistory.stream()
             .map(ScanHistory::getProduct)

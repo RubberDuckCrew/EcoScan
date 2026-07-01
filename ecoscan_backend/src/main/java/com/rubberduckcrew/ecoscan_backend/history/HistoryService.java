@@ -29,6 +29,13 @@ public class HistoryService {
         return historyRepository.findAllByUserIdAndSavedDateBetween(userId, lastWeek, now);
     }
 
+    public List<UUID> getActiveUsers() {
+        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime lastWeek = now.minusDays(7);
+        log.info("Getting active users between {} and {}", lastWeek, now);
+        return historyRepository.findUserIdsWithScansBetween(lastWeek, now);
+    }
+
     public HistoryStatsDTO getHistoryStats(final UUID userId) {
         log.info("Getting history stats for user {}", userId);
         return new HistoryStatsDTO(
