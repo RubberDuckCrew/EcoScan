@@ -9,6 +9,7 @@ import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { ErrorProvider } from "@/context/ErrorContext";
+import { NotificationProvider } from "@/context/NotificationProvider";
 import { ProductProvider } from "@/context/ProductContext";
 
 function RootLayoutNav() {
@@ -35,24 +36,30 @@ function RootLayoutNav() {
     }
   }, [isAuthenticated, isLoading, segments, navigationState?.key, router]);
 
-  return (
+  const stack = (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
     </Stack>
   );
+
+  return isAuthenticated && !isLoading ? (
+    <ProductProvider>
+      <NotificationProvider>{stack}</NotificationProvider>
+    </ProductProvider>
+  ) : (
+    stack
+  );
 }
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
+    <PaperProvider theme={theme}>
       <ErrorProvider>
-        <ProductProvider>
-          <PaperProvider theme={theme}>
-            <RootLayoutNav />
-          </PaperProvider>
-        </ProductProvider>
+        <AuthProvider>
+          <RootLayoutNav />
+        </AuthProvider>
       </ErrorProvider>
-    </AuthProvider>
+    </PaperProvider>
   );
 }
