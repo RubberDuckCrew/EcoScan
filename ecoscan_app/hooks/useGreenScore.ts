@@ -33,7 +33,6 @@ export function useGreenScore(): UseGreenScoreReturn {
     setLoading(value);
   }, []);
 
-  // Cleanup SSE on unmount
   useEffect(() => {
     return () => {
       closeStream();
@@ -77,9 +76,12 @@ export function useGreenScore(): UseGreenScoreReturn {
 
       try {
         const jobId = await api.post(`score/${productId}`);
-        if (jobId) {
-          startSseListener(jobId);
+        if (!jobId || typeof jobId !== "string") {
+            setError("Produktscore konnte nicht geladen werden.")
+            updateLoading(false);
+            return;
         }
+          startSseListener(jobId);
       } catch (err) {
         console.warn("Failed to fetch green score:", err);
         setError("Produktscore konnte nicht geladen werden.");
