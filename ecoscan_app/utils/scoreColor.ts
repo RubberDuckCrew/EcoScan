@@ -2,7 +2,6 @@ import { theme } from "@/theme";
 
 export type ScoreVariant = "good" | "warning" | "bad";
 
-/** Clamp and round a raw score to [0, 100]. */
 export function normalizeScore(score: number): number {
   return Math.max(0, Math.min(100, Math.round(Number(score) || 0)));
 }
@@ -21,7 +20,6 @@ export function getScoreColor(score: number): string {
   return theme.colors.primary;
 }
 
-/** Convert a hex color to rgba with the given opacity. */
 export function withOpacity(hex: string, opacity: number): string {
   const clean = hex.replace("#", "");
   const r = parseInt(clean.slice(0, 2), 16);
