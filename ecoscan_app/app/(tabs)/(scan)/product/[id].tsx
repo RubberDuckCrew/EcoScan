@@ -31,7 +31,6 @@ export default function Product() {
 
   const loading = productLoading || scoreLoading;
 
-  // Navigate back on score error
   useEffect(() => {
     if (!scoreError) return;
     setError(scoreError);
@@ -42,7 +41,6 @@ export default function Product() {
     }
   }, [scoreError, setError]);
 
-  // Load product and optionally fetch score
   useEffect(() => {
     const normalizedId = Array.isArray(id) ? id[0] : id;
     if (!normalizedId) return;
@@ -78,7 +76,7 @@ export default function Product() {
       }
     }
 
-    loadProduct();
+    void loadProduct();
 
     return () => {
       cancelled = true;

@@ -23,24 +23,26 @@ export default function ProductCard({
     setImageLoadError(true);
   };
 
+  const isImageValid : boolean = imageUrl.trim() !== "";
+
   return (
     <Surface style={styles.rootCard} elevation={0}>
       <View style={styles.imageContainer}>
-        {!imageLoadError ? (
-          <Image
-            source={{ uri: imageUrl }}
-            style={styles.image}
-            resizeMode="cover"
-            onError={handleImageError}
-          />
-        ) : (
-          <View style={styles.fallbackIcon}>
-            <MaterialIcons
-              name="image-not-supported"
-              size={64}
-              color="#757575"
+        {isImageValid && !imageLoadError ? (
+            <Image
+                source={{ uri: imageUrl }}
+                style={styles.image}
+                resizeMode="cover"
+                onError={handleImageError}
             />
-          </View>
+        ) : (
+            <View style={styles.fallbackIcon}>
+              <MaterialIcons
+                  name="image-not-supported"
+                  size={72}
+                  color="#757575"
+              />
+            </View>
         )}
       </View>
       <Surface style={styles.textCard} elevation={0}>
