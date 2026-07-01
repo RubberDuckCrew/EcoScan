@@ -11,6 +11,7 @@ import com.rubberduckcrew.ecoscan_backend.notification.NotificationSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,8 @@ public class SavingsService {
             userId.get(),
             Notification.builder()
                 .title("Dein Wochen-Ergebnis \uD83C\uDF3F")
-                .message(String.format("Du hast diese Woche %,.1f kg CO₂ eingespart! Sieh dir jetzt deine gesamte Statistik an.", result.data().co2Saving()))
+                .message(String.format(Locale.GERMANY, "Du hast diese Woche %,.1f kg CO₂ eingespart! Sieh dir jetzt deine gesamte Statistik an.",
+                    result.data().co2Saving()))
                 .url("/History")
                 .build());
     }
