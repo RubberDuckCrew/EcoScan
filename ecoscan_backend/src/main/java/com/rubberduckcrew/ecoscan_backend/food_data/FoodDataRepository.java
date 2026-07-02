@@ -42,7 +42,6 @@ public class FoodDataRepository {
         LIMIT 10
         """;
         List<Map<String, Object>> test = foodDataTemplate.queryForList(sql, "%" + category + "%");
-        System.out.println("Kauderwelsch" + test);
         return test;
     }
 }
