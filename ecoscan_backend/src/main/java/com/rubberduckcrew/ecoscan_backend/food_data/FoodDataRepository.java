@@ -1,10 +1,9 @@
 package com.rubberduckcrew.ecoscan_backend.food_data;
 
 import com.rubberduckcrew.ecoscan_backend.configuration.FoodDataTemplate;
-
+import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import java.util.List;
 import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -15,13 +14,13 @@ import org.springframework.web.server.ResponseStatusException;
 public class FoodDataRepository {
     private final FoodDataTemplate foodDataTemplate;
 
-    public Map<String, Object> getProduct(final String id) {
+    public Product getProduct(final String id) {
         final String sql = """
                 SELECT
                     code,
                     product_name[1].text AS product_name,
                     categories
-                FROM read_parquet('data/food/food.parquet')
+                FROM food
                 WHERE code = ?
             """;
 
@@ -31,16 +30,35 @@ public class FoodDataRepository {
                 "Product " + id + " not found");
         }
 
-        return results.getFirst();
+        return toProduct(results.getFirst());
     }
 
-    public List<Map<String, Object>> getProductsByCategory(final String category) {
+    public Product toProduct(final Map<String, Object> json) {
+        final Product product = new Product();
+        product.setId((String) json.get("code"));
+        product.setName((String) json.get("product_name"));
+        String categories = (String) json.get("categories");
+        if (categories == null) {
+            categories = "";
+        }
+        product.setCategories(categories);
+        product.setDescription(categories);
+        //TODO fix dummy values
+        product.setImageUrl("");
+        product.setData("");
+        return product;
+    }
+
+    public List<Product> getProductsByCategory(final String category) {
         final String sql = """
             SELECT code, product_name[1].text AS product_name, categories
             FROM food
             WHERE categories ILIKE ?
             LIMIT 10
             """;
-        return foodDataTemplate.queryForList(sql, "%" + category + "%");
+        return foodDataTemplate.queryForList(sql, "%" + category + "%")
+            .stream()
+            .map(this::toProduct)
+            .toList();
     }
 }

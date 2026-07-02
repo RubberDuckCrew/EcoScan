@@ -7,7 +7,6 @@ import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +33,7 @@ public class ProductService {
         final Product product = productRepository.getProductById(id).orElseGet(() -> getProductFromOpenFoodFacts(id));
         if (product.getData() == null || product.getData().isEmpty()) {
             try {
-                final UUID jobId = productAnalysisService.analyzeProduct(product);
-                log.info("Started AI-Analyzer for product with id {} and jobId {}", id, jobId);
-                return jobId;
+                return productAnalysisService.analyzeProduct(product);
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to start AI-Analyzer for product with id " + id, e);
@@ -48,25 +45,8 @@ public class ProductService {
     }
 
     public Product getProductFromOpenFoodFacts(final String id) {
-        final Product product = toProduct(foodDataRepository.getProduct(id));
+        final Product product = foodDataRepository.getProduct(id);
         productRepository.save(product);
-        return product;
-    }
-
-    public Product toProduct(final Map<String, Object> json) {
-        final Product product = new Product();
-        //TODO remove leading 0s
-        product.setId((String) json.get("code"));
-        product.setName((String) json.get("product_name"));
-        String categories = (String) json.get("categories");
-        if (categories == null || categories.isEmpty()) {
-            categories = "";
-        }
-        product.setCategories(categories);
-        product.setDescription(categories);
-        //TODO fix dummy values
-        product.setImageUrl("");
-        product.setData("");
         return product;
     }
 
@@ -94,7 +74,6 @@ public class ProductService {
     public List<ProductDTO> getProductsByCategory(final String category) {
         return foodDataRepository.getProductsByCategory(category)
             .stream()
-            .map(this::toProduct)
             .map(productMapper::toDTO)
             .toList();
     }

@@ -3,6 +3,7 @@ package com.rubberduckcrew.ecoscan_backend.products;
 import com.rubberduckcrew.ecoscan_backend.alternatives.HandleAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisResponseDTO;
@@ -25,8 +26,14 @@ public class ProductAnalysisService {
     private final ProductRepository productRepository;
     private final JobAlternativeService jobAlternativeService;
     private final HandleAlternativeService handleAlternativesService;
+    private final JobEanService jobEanService;
 
     public UUID analyzeProduct(final Product product) {
+        final Optional<UUID> existingJobId = jobEanService.getJobId(product.getId());
+        if (existingJobId.isPresent()) {
+            log.info("A job is already running for product {} with jobId {}", product.getId(), existingJobId.get());
+            return existingJobId.get();
+        }
         log.info("Analyzing product {}", product.getId());
         final AiDTO<ProductAnalysisRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
@@ -37,6 +44,7 @@ public class ProductAnalysisService {
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.product-analysis",
             request);
+        jobEanService.register(request.jobId(), product.getId());
         return request.jobId();
     }
 
@@ -45,20 +53,21 @@ public class ProductAnalysisService {
         final ProductAnalysisResponseDTO result = response.data();
         log.info("Received ProductAnalysis results: {}", result.data());
         final Product p = productRepository.getProductById(result.productId()).orElse(null);
-        if (p == null) {
-            log.warn("Dropping analysis result for missing product {}", result.productId());
+        try {
+            if (p == null) {
+                log.warn("Dropping analysis result for missing product {}", result.productId());
+            } else {
+                p.setData(result.data());
+                productRepository.save(p);
+                jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
+                final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
+                if (alternativesJobId.isPresent()) {
+                    handleAlternativesService.handleAlternativeProduct(p);
+                }
+            }
+        } finally {
+            jobEanService.remove(response.jobId());
             jobSseService.complete(response.jobId());
-            return;
         }
-        p.setData(result.data());
-        productRepository.save(p);
-
-        final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
-        if (alternativesJobId.isPresent()) {
-            handleAlternativesService.handleAlternativeProduct(p);
-            return;
-        }
-        jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
-        jobSseService.complete(response.jobId());
     }
 }

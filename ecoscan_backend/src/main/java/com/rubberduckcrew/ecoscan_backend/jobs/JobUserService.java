@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class JobUserService {
-    private static final Duration JOB_TTL = Duration.ofMinutes(10);
+    private static final Duration JOB_TTL = Duration.ofMinutes(30);
 
     private final Cache<UUID, UUID> jobUserCache;
     private final Map<UUID, UUID> userJobMap = new ConcurrentHashMap<>();
