@@ -1,17 +1,9 @@
 # TODO: Remove after integrating into real crew
 
-import os
-
 # noinspection PyPackageRequirements
 from crewai import Agent, Task, Crew
 
 from ecoscan_ai.tools.test_tool import TestTool
-
-os.environ["KEYCLOAK_URL"] = "http://localhost:8100"
-os.environ["KEYCLOAK_REALM"] = "local_realm"
-os.environ["CLIENT_ID"] = "ai-service"
-os.environ["CLIENT_SECRET"] = "ai-service-client-secret"
-os.environ["BACKEND_URL"] = "http://localhost:8080"
 
 test_tool = TestTool()
 
