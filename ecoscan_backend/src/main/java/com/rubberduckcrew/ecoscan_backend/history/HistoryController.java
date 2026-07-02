@@ -59,6 +59,7 @@ public class HistoryController {
     }
 
     @PostMapping("/{ean}")
+    @PreAuthorize(Authorities.USER)
     public UUID addProductToHistory(@PathVariable final String ean) {
         final UUID userId = AuthUtils.getSub();
         return historyService.saveProductToHistory(userId, ean);
