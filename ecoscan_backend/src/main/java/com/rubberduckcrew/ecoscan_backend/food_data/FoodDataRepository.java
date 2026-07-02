@@ -35,7 +35,7 @@ public class FoodDataRepository {
 
     public Product toProduct(final Map<String, Object> json) {
         final Product product = new Product();
-        product.setId(((String) json.get("code")));
+        product.setId((String) json.get("code"));
         product.setName((String) json.get("product_name"));
         String categories = (String) json.get("categories");
         if (categories == null) {
@@ -45,7 +45,7 @@ public class FoodDataRepository {
         product.setDescription(categories);
         //TODO fix dummy values
         product.setImageUrl("");
-		product.setData("");
+        product.setData("");
         return product;
     }
 
