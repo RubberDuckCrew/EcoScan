@@ -8,6 +8,7 @@ changes:
       id: local_realm
       loginTheme: ecoscan-theme
       displayName: EcoScan
+      registrationAllowed: true
 
   - addClientScope:
       realm: local_realm
