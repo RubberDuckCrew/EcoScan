@@ -1,11 +1,9 @@
 import { PageContainer } from "@/components/PageContainer";
-import { Text } from "react-native-paper";
 import ProductCard from "@/components/product/ProductCard";
 import ScoreCard from "@/components/product/ScoreCard";
 import { useGreenScore } from "@/hooks/useGreenScore";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { ScrollView, StyleSheet, View } from "react-native";
 import ReasonCard from "@/components/product/ReasonCard";
 import AlternativesButton from "@/components/product/AlternativesButton";
@@ -14,6 +12,8 @@ import { useProduct } from "@/context/ProductContext";
 import { useShareScreenshot } from "@/hooks/useShareScreenshot";
 import ScoreCategoryCard from "@/components/product/ScoreCategoryCard";
 import { useApiClient } from "@/utils/apiClient";
+import ScoreDetailsSkeleton from "@/components/product/ScoreDetailsSkeleton";
+import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import BoughtButton from "@/components/product/BoughtButton";
 
 export default function Product() {
@@ -30,8 +30,6 @@ export default function Product() {
   const { id } = useLocalSearchParams();
   const api = useApiClient();
   const [productLoading, setProductLoading] = useState(false);
-
-  const loading = productLoading || scoreLoading;
 
   useEffect(() => {
     if (!scoreError) return;
@@ -93,15 +91,22 @@ export default function Product() {
         <PageContainer>
           {product && (
             <>
-              <ProductCard
-                name={product.name || "Unbekanntes Produkt"}
-                barcode={product.id || "Kein Barcode"}
-                description={
-                  product.description || "Keine Beschreibung verfügbar."
-                }
-                imageUrl={product.imageUrl || ""}
-              />
-              {product.score !== undefined && (
+              {productLoading || !product ? (
+                <ProductCardSkeleton />
+              ) : (
+                <ProductCard
+                  name={product.name || "Unbekanntes Produkt"}
+                  barcode={product.id || "Kein Barcode"}
+                  description={
+                    product.description || "Keine Beschreibung verfügbar."
+                  }
+                  imageUrl={product.imageUrl || ""}
+                />
+              )}
+
+              {scoreLoading || product.score === undefined ? (
+                <ScoreDetailsSkeleton />
+              ) : (
                 <>
                   <View style={styles.scoreCard}>
                     <ScoreCard
@@ -138,38 +143,24 @@ export default function Product() {
               )}
             </>
           )}
-          {loading && (
-            <View style={styles.loadingIndicator}>
-              <LoadingIndicator />
-              <Text style={styles.loadingIndicatorText}>
-                Produkt wird analysiert...
-              </Text>
-            </View>
-          )}
         </PageContainer>
       </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  skeletonContainer: {
+    paddingVertical: 8,
   },
   categoryCardList: {
     gap: 12,
   },
   reasonCard: {
     paddingVertical: 16,
-  },
-  loadingIndicator: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  loadingIndicatorText: {
-    textAlign: "center",
-    marginTop: 10,
   },
   scoreCard: {
     paddingTop: 16,
