@@ -1,6 +1,5 @@
 package com.rubberduckcrew.ecoscan_backend.products;
 
-import com.rubberduckcrew.ecoscan_backend.alternatives.AlternativesService;
 import com.rubberduckcrew.ecoscan_backend.alternatives.HandleAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;

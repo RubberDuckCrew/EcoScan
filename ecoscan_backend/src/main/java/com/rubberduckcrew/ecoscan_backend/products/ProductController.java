@@ -3,6 +3,7 @@ package com.rubberduckcrew.ecoscan_backend.products;
 import com.rubberduckcrew.ecoscan_backend.configuration.security.Authorities;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDTO;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductResponse;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -49,7 +48,7 @@ public class ProductController {
 
     @PreAuthorize(Authorities.AI)
     @GetMapping("/by-category/{category}")
-    public List<ProductDTO> getProductsByCategory(@PathVariable String category) {
+    public List<ProductDTO> getProductsByCategory(@PathVariable final String category) {
         return productService.getProductsByCategory(category);
     }
 }

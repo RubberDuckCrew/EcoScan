@@ -1,11 +1,10 @@
 package com.rubberduckcrew.ecoscan_backend.jobs;
 
-import org.springframework.stereotype.Service;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JobAlternativeService {

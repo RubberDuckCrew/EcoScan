@@ -13,7 +13,6 @@ class AlternativesCrew:
     def alternatives_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['alternatives_researcher'],
-            # llm=llm,
             tools=[SearchProductsByCategoryTool()],
             verbose=True
         )
@@ -22,7 +21,6 @@ class AlternativesCrew:
     def coordinates_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['coordinates_researcher'],
-            # llm=llm,
             tools=[DuckDuckGoSearchTool()],
             verbose=True
         )

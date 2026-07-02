@@ -8,16 +8,13 @@ import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
-import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisResponseDTO;
-import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +27,11 @@ public class AlternativesService {
     private final SseService sseService;
     private final FoodDataRepository foodDataRepository;
 
-    public UUID findAlternatives(final String id, String userCoordinates) {
+    public UUID findAlternatives(final String id, final String userCoordinates) {
         //TODO category aus Frontend
         final AiDTO<AlternativesRequestDTO> request = new AiDTO<>(
-                UUID.randomUUID(),
-                new AlternativesRequestDTO("Kaugummi", userCoordinates));
+            UUID.randomUUID(),
+            new AlternativesRequestDTO("Kaugummi", userCoordinates));
 
         rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives", request);
         return request.jobId();
@@ -45,9 +42,9 @@ public class AlternativesService {
         final UUID jobIdAlternatives = result.jobId();
         log.info("Alternatives result for job {}", jobIdAlternatives);
 
-//        sseService.send(jobId, "product-alternatives", result.data());
-//        sseService.complete(jobId);
-//        jobEanService.remove(jobId);
+        //        sseService.send(jobId, "product-alternatives", result.data());
+        //        sseService.complete(jobId);
+        //        jobEanService.remove(jobId);
 
         result.data().alternatives().forEach(alternative -> {
             final String ean = alternative.ean();

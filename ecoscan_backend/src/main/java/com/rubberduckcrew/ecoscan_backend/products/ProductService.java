@@ -91,12 +91,12 @@ public class ProductService {
         scannedProductRepository.save(scannedProduct);
     }
 
-    public List<ProductDTO> getProductsByCategory(String category) {
+    public List<ProductDTO> getProductsByCategory(final String category) {
         return foodDataRepository.getProductsByCategory(category)
-                .stream()
-                .map(this::toProduct)
-                .map(productMapper::toDTO)
-                .toList();
+            .stream()
+            .map(this::toProduct)
+            .map(productMapper::toDTO)
+            .toList();
     }
 
 }

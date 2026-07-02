@@ -34,14 +34,13 @@ public class FoodDataRepository {
         return results.getFirst();
     }
 
-    public List<Map<String, Object>> getProductsByCategory(String category) {
+    public List<Map<String, Object>> getProductsByCategory(final String category) {
         final String sql = """
-        SELECT code, product_name[1].text AS product_name, categories
-        FROM food
-        WHERE categories ILIKE ?
-        LIMIT 10
-        """;
-        List<Map<String, Object>> test = foodDataTemplate.queryForList(sql, "%" + category + "%");
-        return test;
+            SELECT code, product_name[1].text AS product_name, categories
+            FROM food
+            WHERE categories ILIKE ?
+            LIMIT 10
+            """;
+        return foodDataTemplate.queryForList(sql, "%" + category + "%");
     }
 }

@@ -43,12 +43,12 @@ function RootLayoutNav() {
       <Stack.Screen
         name="alternatives/[product]"
         options={{
-        headerShown: true,
-        title: "EcoScan",
-        headerStyle: { backgroundColor: theme.colors.secondary },
-        headerTitleStyle: { color: "black", fontWeight: "bold" },
-      }}
-        />
+          headerShown: true,
+          title: "EcoScan",
+          headerStyle: { backgroundColor: theme.colors.secondary },
+          headerTitleStyle: { color: "black", fontWeight: "bold" },
+        }}
+      />
     </Stack>
   );
 }
