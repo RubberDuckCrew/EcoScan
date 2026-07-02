@@ -18,6 +18,7 @@ dev = [
 
 [project.scripts]
 ecoscan_ai = "ecoscan_ai.main:workers"
+test = "ecoscan_ai.tools.test:test" # TODO: Remove after integrating into real crew
 
 [tool.poe.tasks]
 format = "ruff format . --check"
