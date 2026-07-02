@@ -30,5 +30,5 @@ logging:
     org.springframework.cache: TRACE
     org.springframework.web: DEBUG
 
-ecoscan.savings.cron: 0 */5 * * * *
+ecoscan.savings.cron: 0 0 * * * *
 food-data.url: "jdbc:duckdb:data/food/food.parquet"
