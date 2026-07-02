@@ -1,0 +1,22 @@
+info:
+  name: Alternatives
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{backend}}/alternatives/:productId?userCoordinates=43.1452,45.1236"
+  params:
+    - name: userCoordinates
+      value: 43.1452,45.1236
+      type: query
+    - name: productId
+      value: "4009900538664"
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

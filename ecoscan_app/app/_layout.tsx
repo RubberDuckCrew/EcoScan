@@ -23,9 +23,10 @@ function RootLayoutNav() {
     const inAuthGroup = segments.some((s) => s === "(auth)");
     const inTabsGroup = segments.some((s) => s === "(tabs)");
     const inProductGroup = segments.some((s) => s === "product");
+    const inAlternativesGroup = segments.some((s) => s === "alternatives");
 
     if (isAuthenticated) {
-      if (!inTabsGroup && !inProductGroup) {
+      if (!inTabsGroup && !inProductGroup && !inAlternativesGroup) {
         router.replace("/(tabs)/(scan)");
       }
     } else {
@@ -39,6 +40,15 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen
+        name="alternatives/[product]"
+        options={{
+          headerShown: true,
+          title: "EcoScan",
+          headerStyle: { backgroundColor: theme.colors.secondary },
+          headerTitleStyle: { color: "black", fontWeight: "bold" },
+        }}
+      />
     </Stack>
   );
 }
