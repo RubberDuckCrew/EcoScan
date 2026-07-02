@@ -42,7 +42,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen
-        name="alternatives/[product]"
+        name="alternatives/AlternativesScreen"
         options={{
           headerShown: true,
           title: "EcoScan",

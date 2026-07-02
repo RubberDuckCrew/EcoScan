@@ -7,17 +7,11 @@ import { useAlternatives } from "@/hooks/useAlternatives";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 
-export default function Product() {
+export default function AlternativesScreen() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
   const { alternatives, loading, fetchAlternatives } = useAlternatives();
-
-  useEffect(() => {
-    if (product?.id) {
-      fetchAlternatives(product.id, "");
-    }
-  }, [product?.id]);
 
   useEffect(() => {
     async function getCurrentLocation() {
