@@ -22,7 +22,8 @@ public class ScheduledSavingsService {
         log.info("Running scheduled savings job for {} active users", activeUsers.size());
         activeUsers.forEach(userId -> {
             try {
-                savingsService.calculateSavings(jobUserService.register(userId), historyService.getWeekHistory(userId));
+                final UUID jobId = jobUserService.register(userId);
+                savingsService.calculateSavings(jobId, userId);
             } catch (Exception e) {
                 log.error("Error calculating savings for user {}: {}", userId, e.getMessage());
             }

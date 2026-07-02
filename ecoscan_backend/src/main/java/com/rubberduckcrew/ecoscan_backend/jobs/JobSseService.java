@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
@@ -13,9 +15,37 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class JobSseService extends SseService<UUID, JobSseService.JobState> {
     private static final long DEFAULT_TIMEOUT_MS = 600_000L;
 
-    public SseEmitter createEmitter(final UUID jobId) {
-        final SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT_MS);
+    public void register(final UUID jobId, final UUID userId) {
         final JobState state = store.computeIfAbsent(jobId, _ -> new JobState());
+        withLock(state, () -> {
+            state.ownerId = userId;
+            return null;
+        });
+    }
+
+    public boolean hasJob(final UUID jobId) {
+        return store.containsKey(jobId);
+    }
+
+    public boolean isOwner(final UUID jobId, final UUID userId) {
+        final JobState state = store.get(jobId);
+        return state != null && userId.equals(state.ownerId);
+    }
+
+    public SseEmitter createEmitter(final UUID jobId, final UUID ownerId) {
+        final JobState state = store.get(jobId);
+        if (state == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found");
+        }
+
+        withLock(state, () -> {
+            if (state.ownerId == null || !state.ownerId.equals(ownerId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            }
+            return null;
+        });
+
+        final SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT_MS);
 
         final List<BufferedItem> pending = withLock(state, () -> {
             state.emitter = emitter;
@@ -97,5 +127,6 @@ public class JobSseService extends SseService<UUID, JobSseService.JobState> {
         private final List<BufferedItem> buffer = new ArrayList<>();
         private SseEmitter emitter;
         private boolean completed = false;
+        private UUID ownerId;
     }
 }

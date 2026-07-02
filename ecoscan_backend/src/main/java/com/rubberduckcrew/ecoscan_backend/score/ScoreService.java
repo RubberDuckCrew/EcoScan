@@ -48,13 +48,13 @@ public class ScoreService {
         jobSseService.complete(result.jobId());
     }
 
-    public UUID scoreProduct(final String id) {
-
+    public UUID scoreProduct(final String id, final UUID userId) {
         final Product product = productService.getProduct(id);
 
         final AiDTO<ScoreRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
             new ScoreRequestDTO(product.getData()));
+        jobSseService.register(request.jobId(), userId);
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.score",
             request);

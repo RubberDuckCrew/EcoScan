@@ -42,13 +42,14 @@ public class SavingsService {
             return existingJob.get();
         }
         final UUID jobId = jobUserService.register(userId);
+        jobSseService.register(jobId, userId);
         return savingsRepository.findById(userId)
             .map(savings -> {
                 log.info("Savings already calculated for user {}", userId);
                 sendSavingsResponse(jobId, savingsMapper.toDTO(savings));
                 return jobId;
             })
-            .orElseGet(() -> calculateSavings(jobId, historyService.getWeekHistory(userId)));
+            .orElseGet(() -> calculateSavings(jobId, userId));
     }
 
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.savings"))
@@ -71,9 +72,9 @@ public class SavingsService {
                 .build());
     }
 
-    public UUID calculateSavings(final UUID jobId, final List<ScanHistory> weekHistory) {
+    public UUID calculateSavings(final UUID jobId, final UUID userId) {
         log.info("Calculating savings for job {}", jobId);
-        final List<ProductDataDTO> history = weekHistory.stream()
+        final List<ProductDataDTO> history = historyService.getWeekHistory(userId).stream()
             .map(ScanHistory::getProduct)
             .map(productMapper::toDataDTO)
             .toList();

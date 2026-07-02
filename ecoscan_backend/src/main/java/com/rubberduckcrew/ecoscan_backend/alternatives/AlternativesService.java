@@ -53,7 +53,7 @@ public class AlternativesService {
                 return;
             }
             try {
-                final UUID jobIdAnalyzeProduct = productService.analyzeProduct(ean);
+                final UUID jobIdAnalyzeProduct = productService.analyzeProduct(ean, null);
                 jobAlternativeService.register(jobIdAnalyzeProduct, jobIdAlternatives);
             } catch (Exception e) {
                 log.warn("Failed to analyze alternative product with EAN {}, skipping", ean, e);

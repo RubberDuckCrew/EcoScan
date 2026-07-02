@@ -1,6 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.products;
 
 import com.rubberduckcrew.ecoscan_backend.food_data.FoodDataRepository;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDTO;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
@@ -25,16 +26,18 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final FoodDataRepository foodDataRepository;
     private final ProductAnalysisService productAnalysisService;
+    private final JobSseService jobSseService;
 
     public Product getProduct(final String id) {
         return productRepository.getProductById(id).orElseGet(() -> getProductFromOpenFoodFacts(id));
     }
 
-    public UUID analyzeProduct(final String id) {
+    public UUID analyzeProduct(final String id, final UUID userId) {
         final Product product = productRepository.getProductById(id).orElseGet(() -> getProductFromOpenFoodFacts(id));
         if (product.getData() == null || product.getData().isEmpty()) {
             try {
                 final UUID jobId = productAnalysisService.analyzeProduct(product);
+                jobSseService.register(jobId, userId);
                 log.info("Started AI-Analyzer for product with id {} and jobId {}", id, jobId);
                 return jobId;
             } catch (Exception e) {
