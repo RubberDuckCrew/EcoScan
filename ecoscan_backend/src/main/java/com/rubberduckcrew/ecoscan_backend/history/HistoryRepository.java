@@ -21,4 +21,9 @@ public interface HistoryRepository extends PagingAndSortingRepository<ScanHistor
 
     @Query("SELECT COALESCE(AVG(p.score), 0) FROM ScanHistory sh JOIN sh.product p WHERE sh.userId = :userId")
     int averageScore(@Param("userId") UUID userId);
+
+    @Query("SELECT DISTINCT sh.userId FROM ScanHistory sh WHERE sh.savedDate BETWEEN :startDate AND :endDate")
+    List<UUID> findUserIdsWithScansBetween(
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate);
 }

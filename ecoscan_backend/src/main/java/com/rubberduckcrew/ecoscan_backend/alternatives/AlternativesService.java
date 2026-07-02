@@ -6,7 +6,7 @@ import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.food_data.FoodDataRepository;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
-import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class AlternativesService {
     private final JobEanService jobEanService;
     private final JobAlternativeService jobAlternativeService;
     private final RabbitTemplate rabbitTemplate;
-    private final SseService sseService;
+    private final JobSseService jobSseService;
     private final FoodDataRepository foodDataRepository;
 
     public UUID findAlternatives(final String id, final String userCoordinates) {

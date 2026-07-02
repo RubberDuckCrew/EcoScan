@@ -3,11 +3,10 @@ package com.rubberduckcrew.ecoscan_backend.products;
 import com.rubberduckcrew.ecoscan_backend.alternatives.HandleAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
-import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisResponseDTO;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
-
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ProductAnalysisService {
     private final RabbitTemplate rabbitTemplate;
-    private final SseService sseService;
+    private final JobSseService jobSseService;
     private final ProductRepository productRepository;
     private final JobAlternativeService jobAlternativeService;
     private final HandleAlternativeService handleAlternativesService;
@@ -48,7 +47,7 @@ public class ProductAnalysisService {
         final Product p = productRepository.getProductById(result.productId()).orElse(null);
         if (p == null) {
             log.warn("Dropping analysis result for missing product {}", result.productId());
-            sseService.complete(response.jobId());
+            jobSseService.complete(response.jobId());
             return;
         }
         p.setData(result.data());
@@ -59,7 +58,7 @@ public class ProductAnalysisService {
             handleAlternativesService.handleAlternativeProduct(p);
             return;
         }
-        sseService.send(response.jobId(), "product-analysis-evaluation", p);
-        sseService.complete(response.jobId());
+        jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
+        jobSseService.complete(response.jobId());
     }
 }

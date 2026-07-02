@@ -26,7 +26,7 @@ export function useHistorySavings() {
   }, []);
 
   const fetchHistorySavings = useCallback(async () => {
-    if (loading || jobId) return;
+    if (loading) return;
 
     setLoading(true);
 
@@ -39,7 +39,7 @@ export function useHistorySavings() {
       console.error("useHistorySavings fetch error", err);
       setLoading(false);
     }
-  }, [api]);
+  }, [api, loading]);
 
   const startSseListener = useCallback(
     (jobId: string) => {

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class HistoryController {
     private final HistoryService historyService;
+    private final SavingsService savingsService;
     private final HistoryMapper historyMapper;
 
     @GetMapping("list")
@@ -53,6 +54,6 @@ public class HistoryController {
     @PreAuthorize(Authorities.USER)
     public UUID getSavings() {
         final UUID userId = AuthUtils.getSub();
-        return historyService.getSavings(userId);
+        return savingsService.getSavings(userId);
     }
 }
