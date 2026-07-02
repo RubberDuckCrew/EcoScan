@@ -1,7 +1,8 @@
 research_alternatives_task:
   description: >
-    Analyze the provided product category ({category}).
-    Use the "Search products by category" tool to search our internal
+    Analyze the provided product category ({categories}).
+    Use the "Search by category tool" tool with this EXACT format:
+    {{"category": "your_category_here"}} to search our internal
     product database for alternative products in the same or a closely
     related category. Do not use any external web search for this task.
   expected_output: >

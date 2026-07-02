@@ -1,26 +1,20 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
 
 from ecoscan_ai.alternatives.models import AlternativesRequest, AlternativesResult
-from ecoscan_ai.llm import llm
-from ecoscan_ai.api.schemas.alternatives import AlternativesOutput
-from ecoscan_ai.tools.database_search import search_products_by_category
-
-from ecoscan_ai.tools import duckduckgo_search
+from ecoscan_ai.tools.dddg_search_tool import DuckDuckGoSearchTool
+from ecoscan_ai.tools.search_by_category_tool import SearchProductsByCategoryTool
 
 
 @CrewBase
 class AlternativesCrew:
-    agents: list[BaseAgent]
-    tasks: list[Task]
 
     @agent
     def alternatives_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['alternatives_researcher'],
-            llm=llm,
-            tools=[search_products_by_category],
+            # llm=llm,
+            tools=[SearchProductsByCategoryTool()],
             verbose=True
         )
 
@@ -28,8 +22,8 @@ class AlternativesCrew:
     def coordinates_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['coordinates_researcher'],
-            llm=llm,
-            tools=[duckduckgo_search],
+            # llm=llm,
+            tools=[DuckDuckGoSearchTool()],
             verbose=True
         )
 
@@ -43,7 +37,7 @@ class AlternativesCrew:
     def find_coordinates_task(self) -> Task:
         return Task(
             config=self.tasks_config['find_coordinates_task'],
-            output_json=AlternativesOutput
+            output_pydantic=AlternativesResult
         )
 
     @crew
@@ -56,6 +50,6 @@ class AlternativesCrew:
         )
 
     def run(self, request: AlternativesRequest) -> AlternativesResult:
-        result = self.crew().kickoff(inputs={"categories": request.productContext})
-        pydantic_output: GreenScoreResult = result.pydantic  # type: ignore[assignment]
+        result = self.crew().kickoff(inputs={"categories": request.categories, "user_coordinates": request.userCoordinates})
+        pydantic_output: AlternativesResult = result.pydantic  # type: ignore[assignment]
         return pydantic_output
