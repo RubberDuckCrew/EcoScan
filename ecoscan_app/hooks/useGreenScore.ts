@@ -28,6 +28,7 @@ export function useGreenScore(): UseGreenScoreReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const loadingRef = useRef(false);
+  const fetchIdRef = useRef(0);
 
   const updateLoading = useCallback((value: boolean) => {
     loadingRef.current = value;
@@ -74,16 +75,23 @@ export function useGreenScore(): UseGreenScoreReturn {
       if (loadingRef.current) return;
       updateLoading(true);
       setError(undefined);
-
+      const currentFetchId = ++fetchIdRef.current;
       try {
         const jobId = await api.post(`score/${productId}`);
+        if (currentFetchId !== fetchIdRef.current) {
+          return;
+        }
         if (!jobId || typeof jobId !== "string") {
           setError("Produktscore konnte nicht geladen werden.");
           updateLoading(false);
           return;
         }
+
         startSseListener(jobId);
       } catch (err) {
+        if (currentFetchId !== fetchIdRef.current) {
+          return;
+        }
         console.warn("Failed to fetch green score:", err);
         setError("Produktscore konnte nicht geladen werden.");
         updateLoading(false);
@@ -97,6 +105,7 @@ export function useGreenScore(): UseGreenScoreReturn {
   }, []);
 
   const cancelGreenScore = useCallback(() => {
+    fetchIdRef.current += 1;
     closeStream();
     updateLoading(false);
   }, [closeStream, updateLoading]);
