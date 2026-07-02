@@ -1,6 +1,6 @@
 import { Surface, Text } from "react-native-paper";
 import { Image, StyleSheet, View, ScrollView } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { theme } from "@/theme";
 
@@ -11,19 +11,30 @@ export interface ProductCardProps {
   barcode: string;
 }
 
-export default function ProductCard(props: ProductCardProps) {
+export default function ProductCard({
+  name,
+  imageUrl,
+  description,
+  barcode,
+}: ProductCardProps) {
   const [imageLoadError, setImageLoadError] = useState(false);
 
   const handleImageError = () => {
     setImageLoadError(true);
   };
 
+  useEffect(() => {
+    setImageLoadError(false);
+  }, [imageUrl]);
+
+  const isImageValid: boolean = imageUrl.trim() !== "";
+
   return (
     <Surface style={styles.rootCard} elevation={0}>
       <View style={styles.imageContainer}>
-        {!imageLoadError ? (
+        {isImageValid && !imageLoadError ? (
           <Image
-            source={{ uri: props.imageUrl }}
+            source={{ uri: imageUrl }}
             style={styles.image}
             resizeMode="cover"
             onError={handleImageError}
@@ -32,28 +43,28 @@ export default function ProductCard(props: ProductCardProps) {
           <View style={styles.fallbackIcon}>
             <MaterialIcons
               name="image-not-supported"
-              size={64}
+              size={72}
               color="#757575"
             />
           </View>
         )}
       </View>
       <Surface style={styles.textCard} elevation={0}>
-        <Text style={styles.titleText} variant={"headlineMedium"}>
-          {props.name}
+        <Text style={styles.titleText} variant={"headlineSmall"}>
+          {name}
         </Text>
         <View style={styles.descriptionContainer}>
           <ScrollView
-            contentContainerStyle={{ paddingRight: 4 }}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={true}
           >
             <Text style={styles.descriptionText} variant={"bodyLarge"}>
-              {props.description}
+              {description}
             </Text>
           </ScrollView>
         </View>
         <Text style={styles.barcodeText} variant={"bodyMedium"}>
-          Barcode: {props.barcode}
+          Barcode: {barcode}
         </Text>
       </Surface>
     </Surface>
@@ -79,6 +90,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontWeight: "bold",
+    lineHeight: 26,
   },
   descriptionContainer: {
     maxHeight: 70,
@@ -90,6 +102,9 @@ const styles = StyleSheet.create({
   },
   barcodeText: {
     color: theme.colors.muted,
+  },
+  scrollContent: {
+    paddingRight: 4,
   },
   image: {
     width: 128,
