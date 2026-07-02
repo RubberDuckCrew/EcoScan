@@ -1,6 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.history;
 
 import com.rubberduckcrew.ecoscan_backend.common.SliceDTO;
+import com.rubberduckcrew.ecoscan_backend.configuration.security.Authorities;
 import com.rubberduckcrew.ecoscan_backend.history.dto.HistoryStatsDTO;
 import com.rubberduckcrew.ecoscan_backend.history.dto.ScanHistoryDTO;
 import com.rubberduckcrew.ecoscan_backend.history.entity.ScanHistory;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +31,7 @@ public class HistoryController {
 
     @GetMapping("list")
     @Validated
+    @PreAuthorize(Authorities.USER)
     public SliceDTO<ScanHistoryDTO> getHistory(@RequestParam(defaultValue = "0") @Min(0) final int page) {
         final UUID userId = AuthUtils.getSub();
         final Pageable pageable = PageRequest.of(page, 10, Sort.by("savedDate").descending());
@@ -40,13 +43,14 @@ public class HistoryController {
     }
 
     @GetMapping("stats")
+    @PreAuthorize(Authorities.USER)
     public HistoryStatsDTO getHistoryStats() {
         final UUID userId = AuthUtils.getSub();
         return historyService.getHistoryStats(userId);
     }
 
     @PostMapping("savings")
-    @Validated
+    @PreAuthorize(Authorities.USER)
     public UUID getSavings() {
         final UUID userId = AuthUtils.getSub();
         return historyService.getSavings(userId);
