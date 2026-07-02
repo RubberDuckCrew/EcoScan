@@ -45,6 +45,7 @@ public class ProductAnalysisService {
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.product-analysis",
             request);
+        jobEanService.register(request.jobId(), product.getId());
         return request.jobId();
     }
 
@@ -53,19 +54,21 @@ public class ProductAnalysisService {
         final ProductAnalysisResponseDTO result = response.data();
         log.info("Received ProductAnalysis results: {}", result.data());
         final Product p = productRepository.getProductById(result.productId()).orElse(null);
-        if (p == null) {
+        try{
+		if (p == null) {
             log.warn("Dropping analysis result for missing product {}", result.productId());
         } else {
             p.setData(result.data());
             productRepository.save(p);
             jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
         }
+			final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
+			if (alternativesJobId.isPresent()) {
+				handleAlternativesService.handleAlternativeProduct(p);
+			}
+		} finally {
         jobEanService.remove(response.jobId());
-		final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
-		if (alternativesJobId.isPresent()) {
-			handleAlternativesService.handleAlternativeProduct(p);
-			return;
-		}
         jobSseService.complete(response.jobId());
+		}
     }
 }

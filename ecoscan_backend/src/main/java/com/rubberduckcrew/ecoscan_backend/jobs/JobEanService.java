@@ -27,7 +27,7 @@ public class JobEanService {
     public void remove(final UUID jobId) {
         final String ean = jobEanMap.remove(jobId);
         if (ean != null) {
-            eanJobMap.remove(ean);
+            eanJobMap.remove(ean, jobId);
         }
     }
 }
