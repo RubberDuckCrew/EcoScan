@@ -37,7 +37,7 @@ services:
       retries: 3
       start_period: 30s
 
-  ai-system:
+  ai-service:
     image: ghcr.io/rubberduckcrew/ecoscan/ai:main
     build:
       context: ecoscan_ai
@@ -46,6 +46,7 @@ services:
         condition: service_healthy
     networks:
       - mq-net
+      - auth-net
     env_file:
       - ecoscan_ai/.env
     environment:
@@ -53,6 +54,11 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin
+      KEYCLOAK_URL: http://keycloak:8100
+      KEYCLOAK_REALM: local_realm
+      CLIENT_ID: ai-service
+      CLIENT_SECRET: ai-service-client-secret
+      BACKEND_URL: http://backend:8080
 
   rabbitmq:
     image: rabbitmq:4.3.2-management@sha256:76412b1ed2865b88ed01b4a504f72e888842f2089a7527743d325ce7c9d3a43b
@@ -100,6 +106,8 @@ services:
       - KC_HEALTH_ENABLED=true
       - KC_HTTP_PORT=8100
       - KC_HTTP_RELATIVE_PATH=/auth
+    volumes:
+      - ./stack/keycloak/themes:/opt/keycloak/themes/
     healthcheck:
       <<: *healthcheck
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then exit 0;else exit 1;fi;"]
@@ -119,6 +127,7 @@ services:
       WAIT_FOR_KEYCLOAK: 'true'
       FAIL_ON_UNDEFINED_VARIABLES: 'true'
       KEYCLOAK_CHANGELOG: /migration/keycloak-changelog.yml
+      AI_SERVICE_CLIENT_SECRET: ai-service-client-secret
     volumes:
       - './stack/keycloak/migration:/migration'
     security_opt: *security_settings

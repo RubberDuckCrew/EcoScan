@@ -1,0 +1,32 @@
+info:
+  name: Alternatives Response
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{rabbitmq}}/api/exchanges/%2f/amq.default/publish"
+  body:
+    type: json
+    data: |
+      {
+        "properties": {
+          "content_type": "application/json",
+          "delivery_mode": 2
+        },
+        "routing_key": "ecoscan.ai.results.savings",
+        "payload": "{\"jobId\":\"{{jobId}}\",\"data\":{\"alternatives\":[{\"ean\":\"4009900538664\",\"latitude\":43.1452,\"longitude\":45.1236}]}}",
+        "payload_encoding": "string"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: jobId
+      value: 878d215e-a57d-4a0e-baec-18a83d4d4973
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

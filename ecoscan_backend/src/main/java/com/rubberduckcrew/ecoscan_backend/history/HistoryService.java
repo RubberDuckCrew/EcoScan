@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class HistoryService {
     private final HistoryRepository historyRepository;
-    private final SavingsService savingsService;
 
     public Slice<ScanHistory> getUserHistory(final UUID userId, final Pageable pageable) {
         log.info("Getting history for user {} with pageable {}", userId, pageable);
@@ -30,14 +29,17 @@ public class HistoryService {
         return historyRepository.findAllByUserIdAndSavedDateBetween(userId, lastWeek, now);
     }
 
+    public List<UUID> getActiveUsers() {
+        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime lastWeek = now.minusDays(7);
+        log.info("Getting active users between {} and {}", lastWeek, now);
+        return historyRepository.findUserIdsWithScansBetween(lastWeek, now);
+    }
+
     public HistoryStatsDTO getHistoryStats(final UUID userId) {
         log.info("Getting history stats for user {}", userId);
         return new HistoryStatsDTO(
             historyRepository.averageScore(userId),
             historyRepository.countAllByUserId(userId));
-    }
-
-    public UUID getSavings(final UUID userId) {
-        return savingsService.calculateSavings(userId, getWeekHistory(userId));
     }
 }

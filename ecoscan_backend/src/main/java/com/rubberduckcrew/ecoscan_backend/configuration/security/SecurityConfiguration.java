@@ -1,4 +1,4 @@
-package com.rubberduckcrew.ecoscan_backend.configuration;
+package com.rubberduckcrew.ecoscan_backend.configuration.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,32 +16,18 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
+    private final KeycloakRolesAuthoritiesConverter keycloakRolesAuthoritiesConverter;
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) {
         http
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers(
-                    // allow access to /actuator/info
                     PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/info"),
-                    // allow access to /actuator/health for OpenShift Health Check
                     PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/health"),
-                    // allow access to /actuator/health/liveness for OpenShift Liveness Check
                     PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/health/liveness"),
-                    // allow access to /actuator/health/readiness for OpenShift Readiness Check
                     PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/health/readiness"),
-                    // allow access to SBOM overview
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/sbom"),
-                    // allow access to opean-api endpoints
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/v3/api-docs"),
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/v3/api-docs.yaml"),
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/v3/api-docs/**"),
-                    // allow access to swagger-ui
-                    PathPatternRequestMatcher.withDefaults().matcher("/swagger-ui/**"),
-                    // allow access to SBOM application data
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/sbom/application"),
-                    // allow access to /actuator/metrics for Prometheus monitoring in OpenShift
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/metrics"))
+                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/actuator/sbom"))
                 .permitAll())
             .authorizeHttpRequests((requests) -> requests
                 .anyRequest()
@@ -49,6 +35,7 @@ public class SecurityConfiguration {
             .oauth2ResourceServer(oAuth2ResourceServerConfigurer -> oAuth2ResourceServerConfigurer
                 .jwt(jwtConfigurer -> {
                     final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+                    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(keycloakRolesAuthoritiesConverter);
                     jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter);
                 }));
 

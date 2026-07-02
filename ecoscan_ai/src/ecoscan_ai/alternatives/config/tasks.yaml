@@ -1,0 +1,21 @@
+research_alternatives_task:
+  description: >
+    Analyze the provided product category ({categories}).
+    Use the "Search by category tool" tool with this EXACT format:
+    {{"category": "your_category_here"}} to search our internal
+    product database for alternative products in the same or a closely
+    related category. Do not use any external web search for this task.
+  expected_output: >
+    A structured list of EAN numbers for all found alternative products
+    in the same category.
+  agent: alternatives_researcher
+
+find_coordinates_task:
+  description: >
+    Take the alternative products discovered in the previous task (research_alternatives_task). 
+    For each alternative product, use the search tools to look up for one physical store or supermarket, that sells the product,
+    within a 5 km radius of the user's location ({user_coordinates}). 
+    Find the exact geographic latitude and longitude coordinates for each alternative product.
+  expected_output: >
+    A list of each ean number with their latitude and longitude of the place.
+  agent: coordinates_researcher

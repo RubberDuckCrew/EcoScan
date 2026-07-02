@@ -2,7 +2,7 @@ package com.rubberduckcrew.ecoscan_backend.score;
 
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
-import com.rubberduckcrew.ecoscan_backend.jobs.SseService;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
@@ -23,7 +23,7 @@ public class ScoreService {
     private final ProductService productService;
     private final JobEanService jobEanService;
     private final RabbitTemplate rabbitTemplate;
-    private final SseService sseService;
+    private final JobSseService jobSseService;
 
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.score"))
     public void handleSavingsResult(final AiDTO<GreenScoreResultDTO> result) {
@@ -32,7 +32,7 @@ public class ScoreService {
         if (score == null) {
             log.error("Job result from {} has null overallScore", jobId);
             jobEanService.remove(jobId);
-            sseService.complete(jobId);
+            jobSseService.complete(jobId);
             return;
         }
         log.info("Job ID: {}, Score: {}", jobId, score);
@@ -44,8 +44,8 @@ public class ScoreService {
             productService.addScannedProduct(id, result.data());
         }
         jobEanService.remove(jobId);
-        sseService.send(result.jobId(), "product-evaluation", result.data());
-        sseService.complete(result.jobId());
+        jobSseService.send(result.jobId(), "product-evaluation", result.data());
+        jobSseService.complete(result.jobId());
     }
 
     public UUID scoreProduct(final String id) {

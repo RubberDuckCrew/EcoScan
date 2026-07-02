@@ -15,10 +15,17 @@ http:
           "delivery_mode": 2
         },
         "routing_key": "ecoscan.ai.results.savings",
-        "payload": "{\"jobId\": \"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\", \"data\": {\"co2Saving\": 142.75, \"carRideEquivalent\": 35}}",
+        "payload": "{\"jobId\": \"{{savingsJobId}}\", \"userId\": \"{{userId}}\", \"data\": {\"co2Saving\": 142.75, \"carRideEquivalent\": 35}}",
         "payload_encoding": "string"
       }
   auth: inherit
+
+runtime:
+  variables:
+    - name: savingsJobId
+      value: a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d
+    - name: userId
+      value: 00000001-0000-0000-0000-000000000001
 
 settings:
   encodeUrl: true

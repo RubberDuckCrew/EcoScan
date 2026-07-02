@@ -69,6 +69,8 @@ services:
       - KC_HTTP_RELATIVE_PATH=/auth
     ports:
       - "8100:8100"
+    volumes:
+      - ./keycloak/themes:/opt/keycloak/themes/
     networks:
       - keycloak
     healthcheck:
@@ -87,6 +89,7 @@ services:
       WAIT_FOR_KEYCLOAK: 'true'
       FAIL_ON_UNDEFINED_VARIABLES: 'true'
       KEYCLOAK_CHANGELOG: /migration/keycloak-changelog.yml
+      AI_SERVICE_CLIENT_SECRET: ai-service-client-secret
     volumes:
       - './keycloak/migration:/migration'
     networks:
