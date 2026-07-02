@@ -58,22 +58,22 @@ export default function Product() {
                 description={product?.description ?? ""}
                 image={product?.imageUrl ?? ""}
                 score={product?.score ?? 0} />
-            <FlatList
-                style={{marginTop: 16, paddingHorizontal: 2}}
-                data={alternatives.sort((a, b) => b.score - a.alternativeScore)}
-                renderItem={({item}) =>
-                    <AlternativeCard
-                        title={item.title}
-                        image={item.image}
-                        scanScore={item.scanScore}
-                        alternativeScore={item.alternativeScore}
-                        targetLatitude={item.targetLatitude}
-                        targetLongitude={item.targetLongitude}
-                        userLatitude={userLatitude}
-                        userLongitude={userLongitude}
-                    />
-                }
-            />
+            {/*<FlatList*/}
+            {/*    style={{marginTop: 16, paddingHorizontal: 2}}*/}
+            {/*    data={alternatives.sort((a, b) => b.score - a.alternativeScore)}*/}
+            {/*    renderItem={({item}) =>*/}
+            {/*        <AlternativeCard*/}
+            {/*            title={item.title}*/}
+            {/*            image={item.image}*/}
+            {/*            scanScore={item.scanScore}*/}
+            {/*            alternativeScore={item.alternativeScore}*/}
+            {/*            targetLatitude={item.targetLatitude}*/}
+            {/*            targetLongitude={item.targetLongitude}*/}
+            {/*            userLatitude={userLatitude}*/}
+            {/*            userLongitude={userLongitude}*/}
+            {/*        />*/}
+            {/*    }*/}
+            {/*/>*/}
         </Surface>
     );
 }
