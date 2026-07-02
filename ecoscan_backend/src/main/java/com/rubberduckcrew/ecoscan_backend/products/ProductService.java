@@ -34,9 +34,7 @@ public class ProductService {
         final Product product = productRepository.getProductById(id).orElseGet(() -> getProductFromOpenFoodFacts(id));
         if (product.getData() == null || product.getData().isEmpty()) {
             try {
-                final UUID jobId = productAnalysisService.analyzeProduct(product);
-                log.info("Started AI-Analyzer for product with id {} and jobId {}", id, jobId);
-                return jobId;
+                return productAnalysisService.analyzeProduct(product);
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to start AI-Analyzer for product with id " + id, e);
