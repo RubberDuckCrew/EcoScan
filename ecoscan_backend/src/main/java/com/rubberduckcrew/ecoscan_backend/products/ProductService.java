@@ -74,7 +74,6 @@ public class ProductService {
     public List<ProductDTO> getProductsByCategory(final String category) {
         return foodDataRepository.getProductsByCategory(category)
             .stream()
-            .map(this::toProduct)
             .map(productMapper::toDTO)
             .toList();
     }

@@ -2,14 +2,13 @@ package com.rubberduckcrew.ecoscan_backend.products;
 
 import com.rubberduckcrew.ecoscan_backend.alternatives.HandleAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
-import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisResponseDTO;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import java.util.Optional;
-
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,21 +53,21 @@ public class ProductAnalysisService {
         final ProductAnalysisResponseDTO result = response.data();
         log.info("Received ProductAnalysis results: {}", result.data());
         final Product p = productRepository.getProductById(result.productId()).orElse(null);
-        try{
-		if (p == null) {
-            log.warn("Dropping analysis result for missing product {}", result.productId());
-        } else {
-            p.setData(result.data());
-            productRepository.save(p);
-            jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
+        try {
+            if (p == null) {
+                log.warn("Dropping analysis result for missing product {}", result.productId());
+            } else {
+                p.setData(result.data());
+                productRepository.save(p);
+                jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
+                final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
+                if (alternativesJobId.isPresent()) {
+                    handleAlternativesService.handleAlternativeProduct(p);
+                }
+            }
+        } finally {
+            jobEanService.remove(response.jobId());
+            jobSseService.complete(response.jobId());
         }
-			final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
-			if (alternativesJobId.isPresent()) {
-				handleAlternativesService.handleAlternativeProduct(p);
-			}
-		} finally {
-        jobEanService.remove(response.jobId());
-        jobSseService.complete(response.jobId());
-		}
     }
 }
