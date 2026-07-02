@@ -4,8 +4,10 @@ from ddgs import DDGS
 from crewai.tools import BaseTool
 from pydantic import BaseModel
 
+
 class DuckDuckGoInput(BaseModel):
     query: str
+
 
 class DuckDuckGoSearchTool(BaseTool):
     name: str = "DuckDuckGo Search"
@@ -16,6 +18,5 @@ class DuckDuckGoSearchTool(BaseTool):
         print(f"Performing DuckDuckGo search for query: {query}")
         results = DDGS().text(query, max_results=5)
         return "\n\n".join(
-            f"Title: {r['title']}\n{r['href']}\n{r['body']}"
-            for r in results
+            f"Title: {r['title']}\n{r['href']}\n{r['body']}" for r in results
         )

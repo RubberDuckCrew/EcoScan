@@ -5,6 +5,7 @@ class AlternativesRequest(BaseModel):
     categories: str
     userCoordinates: str
 
+
 class AlternativeProduct(BaseModel):
     ean: str
     latitude: float

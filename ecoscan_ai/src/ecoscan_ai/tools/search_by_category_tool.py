@@ -4,8 +4,10 @@ from typing import Type
 
 from ecoscan_ai.tools.backend_tool import BackendTool
 
+
 class CategoryInput(BaseModel):
     category: str
+
 
 class SearchProductsByCategoryTool(BackendTool):
     name: str = "Search products by category"

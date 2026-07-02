@@ -8,34 +8,33 @@ from ecoscan_ai.tools.search_by_category_tool import SearchProductsByCategoryToo
 
 @CrewBase
 class AlternativesCrew:
-
     @agent
     def alternatives_researcher(self) -> Agent:
         return Agent(
-            config=self.agents_config['alternatives_researcher'],
+            config=self.agents_config["alternatives_researcher"],
             tools=[SearchProductsByCategoryTool()],
-            verbose=True
+            verbose=True,
         )
 
     @agent
     def coordinates_researcher(self) -> Agent:
         return Agent(
-            config=self.agents_config['coordinates_researcher'],
+            config=self.agents_config["coordinates_researcher"],
             tools=[DuckDuckGoSearchTool()],
-            verbose=True
+            verbose=True,
         )
 
     @task
     def research_alternatives_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_alternatives_task'],
+            config=self.tasks_config["research_alternatives_task"],
         )
 
     @task
     def find_coordinates_task(self) -> Task:
         return Task(
-            config=self.tasks_config['find_coordinates_task'],
-            output_pydantic=AlternativesResult
+            config=self.tasks_config["find_coordinates_task"],
+            output_pydantic=AlternativesResult,
         )
 
     @crew
@@ -48,6 +47,11 @@ class AlternativesCrew:
         )
 
     def run(self, request: AlternativesRequest) -> AlternativesResult:
-        result = self.crew().kickoff(inputs={"categories": request.categories, "user_coordinates": request.userCoordinates})
+        result = self.crew().kickoff(
+            inputs={
+                "categories": request.categories,
+                "user_coordinates": request.userCoordinates,
+            }
+        )
         pydantic_output: AlternativesResult = result.pydantic  # type: ignore[assignment]
         return pydantic_output
