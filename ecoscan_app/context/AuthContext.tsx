@@ -33,6 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshToken,
     saveTokens,
     clearTokens,
+    accessToken,
   });
 
   const isLoading = isStorageLoading || isDiscoveryLoading;

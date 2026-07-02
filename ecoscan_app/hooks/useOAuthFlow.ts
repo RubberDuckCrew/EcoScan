@@ -11,6 +11,7 @@ interface UseOAuthFlowProps {
   refreshToken: string | null;
   saveTokens: (tokens: AuthSession.TokenResponse) => Promise<void>;
   clearTokens: () => Promise<void>;
+  accessToken: string | null;
 }
 
 export const useOAuthFlow = ({
@@ -18,6 +19,7 @@ export const useOAuthFlow = ({
   refreshToken,
   saveTokens,
   clearTokens,
+  accessToken,
 }: UseOAuthFlowProps) => {
   const [discovery, setDiscovery] =
     useState<AuthSession.DiscoveryDocument | null>(null);
@@ -99,6 +101,32 @@ export const useOAuthFlow = ({
       await clearTokens();
     }
   }, [idToken, discovery, clearTokens]);
+
+  useEffect(() => {
+    const token = accessToken || idToken;
+    if (!token || !refreshToken) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const expiresIn = (payload.exp * 1000 - Date.now()) / 1000;
+
+      if (expiresIn <= 0) {
+        refresh();
+        return;
+      }
+
+      const timeout = setTimeout(
+        () => {
+          refresh();
+        },
+        Math.max(expiresIn - 60, 1000) * 1000,
+      );
+
+      return () => clearTimeout(timeout);
+    } catch (e) {
+      console.error("Failed to parse token expiration", e);
+    }
+  }, [accessToken, idToken, refreshToken, refresh]);
 
   return {
     login,
