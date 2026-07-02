@@ -3,6 +3,7 @@ package com.rubberduckcrew.ecoscan_backend.products;
 import com.rubberduckcrew.ecoscan_backend.configuration.security.Authorities;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDTO;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductResponse;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,5 +44,11 @@ public class ProductController {
     @PreAuthorize(Authorities.USER)
     public UUID analyzeProduct(@PathVariable final String id) {
         return productService.analyzeProduct(id);
+    }
+
+    @PreAuthorize(Authorities.AI)
+    @GetMapping("/by-category/{category}")
+    public List<ProductDTO> getProductsByCategory(@PathVariable final String category) {
+        return productService.getProductsByCategory(category);
     }
 }
