@@ -1,10 +1,12 @@
 :root {
   --keycloak-bg-logo-url: url("../img/background.png");
   --keycloak-card-top-color: #009A0A;
+  --pf-v5-global--link--Color: #a6ffac;
+  --pf-v5-global--link--Color--hover: #a6ffac;
 }
 
-#kc-login {
-  background: var(--keycloak-card-top-color);
+.pf-m-primary {
+  background: var(--keycloak-card-top-color) !important;
   border-radius: 0.5rem;
 }
 
@@ -19,8 +21,8 @@
   padding: 1rem;
 }
 
-.pf-v5-c-form-control, #password-show-password {
-  background: transparent;
+.pf-v5-c-form-control, .pf-m-control {
+  background: transparent !important;
   border: 0.1rem solid white;
   border-radius: 0.5rem;
 }
