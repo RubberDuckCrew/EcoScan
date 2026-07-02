@@ -2,6 +2,7 @@ package com.rubberduckcrew.ecoscan_backend.score;
 
 import com.rubberduckcrew.ecoscan_backend.configuration.security.Authorities;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
+import com.rubberduckcrew.ecoscan_backend.utils.AuthUtils;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,8 @@ public class ScoreController {
     @PostMapping("/{id}")
     @PreAuthorize(Authorities.USER)
     public ResponseEntity<UUID> scoreProduct(@PathVariable final String id) {
-        final UUID jobId = scoreService.scoreProduct(id);
+        final UUID userId = AuthUtils.getSub();
+        final UUID jobId = scoreService.scoreProduct(id, userId);
         jobEanService.register(jobId, id);
         return ResponseEntity.ok(jobId);
     }

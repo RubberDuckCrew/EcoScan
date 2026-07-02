@@ -1,13 +1,16 @@
 package com.rubberduckcrew.ecoscan_backend.jobs;
 
 import com.rubberduckcrew.ecoscan_backend.configuration.security.Authorities;
+import com.rubberduckcrew.ecoscan_backend.utils.AuthUtils;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
@@ -20,6 +23,13 @@ public class JobController {
     @GetMapping("/stream/{jobId}")
     @PreAuthorize(Authorities.USER)
     public SseEmitter streamJobResult(@PathVariable final UUID jobId) {
-        return jobSseService.createEmitter(jobId);
+        if (!jobSseService.hasJob(jobId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found");
+        }
+        final UUID userId = AuthUtils.getSub();
+        if (!jobSseService.isOwner(jobId, userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+        return jobSseService.createEmitter(jobId, userId);
     }
 }
