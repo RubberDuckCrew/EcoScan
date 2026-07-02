@@ -54,9 +54,7 @@ function RootLayoutNav() {
   );
 
   return isAuthenticated && !isLoading ? (
-    <ProductProvider>
-      <NotificationProvider>{stack}</NotificationProvider>
-    </ProductProvider>
+    <NotificationProvider>{stack}</NotificationProvider>
   ) : (
     stack
   );
@@ -66,9 +64,11 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>
       <ErrorProvider>
-        <AuthProvider>
-          <RootLayoutNav />
-        </AuthProvider>
+        <ProductProvider>
+          <AuthProvider>
+            <RootLayoutNav />
+          </AuthProvider>
+        </ProductProvider>
       </ErrorProvider>
     </PaperProvider>
   );
