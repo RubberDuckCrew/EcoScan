@@ -22,10 +22,11 @@ public class AlternativesController {
 
     @PostMapping("/{id}")
     public ResponseEntity<UUID> findAlternatives(
-        @PathVariable final String id,
+            @PathVariable final String id,
+        @NotNull @RequestParam final String categories,
         @NotNull @RequestParam final String userCoordinates) {
-        final UUID jobId = alternativesService.findAlternatives(id, userCoordinates);
-        jobEanService.register(jobId, id);
+        final UUID jobId = alternativesService.findAlternatives(categories, userCoordinates);
+        jobEanService.register(jobId, categories);
         return ResponseEntity.ok(jobId);
     }
 }

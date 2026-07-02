@@ -27,11 +27,10 @@ public class AlternativesService {
     private final JobSseService jobSseService;
     private final FoodDataRepository foodDataRepository;
 
-    public UUID findAlternatives(final String id, final String userCoordinates) {
-        //TODO category aus Frontend
+    public UUID findAlternatives(final String categories, final String userCoordinates) {
         final AiDTO<AlternativesRequestDTO> request = new AiDTO<>(
             UUID.randomUUID(),
-            new AlternativesRequestDTO("Kaugummi", userCoordinates));
+            new AlternativesRequestDTO(categories, userCoordinates));
 
         rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives", request);
         return request.jobId();
