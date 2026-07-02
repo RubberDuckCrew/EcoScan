@@ -38,8 +38,6 @@ request:
   variables:
     - name: backend
       value: http://localhost:8080/api
-    - name: ai
-      value: http://localhost:8000
     - name: rabbitmq
       value: http://localhost:15672
 bundled: false
