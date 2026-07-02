@@ -47,6 +47,7 @@ public class ProductController {
         return productService.analyzeProduct(id);
     }
 
+    @PreAuthorize(Authorities.AI)
     @GetMapping("/by-category/{category}")
     public List<ProductDTO> getProductsByCategory(@PathVariable String category) {
         return productService.getProductsByCategory(category);

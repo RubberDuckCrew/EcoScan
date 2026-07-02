@@ -36,11 +36,13 @@ public class FoodDataRepository {
 
     public List<Map<String, Object>> getProductsByCategory(String category) {
         final String sql = """
-        SELECT code, product_name, categories
-        FROM read_parquet('data/food/food.parquet')
-        WHERE categories LIKE ?
-        LIMIT 20
+        SELECT code, product_name[1].text AS product_name, categories
+        FROM food
+        WHERE categories ILIKE ?
+        LIMIT 10
         """;
-        return foodDataTemplate.queryForList(sql, "%" + category + "%");
+        List<Map<String, Object>> test = foodDataTemplate.queryForList(sql, "%" + category + "%");
+        System.out.println("Kauderwelsch" + test);
+        return test;
     }
 }
