@@ -5,11 +5,17 @@ changes:
   - addRole:
       name: ecoscan-user
       description: Default user role
-      clientRole: true
-      clientId: local
-      composite: false
+      clientRole: false
 
   - addRole:
       name: ecoscan-ai
-      clientRole: false
       description: Allows CrewAI agents read-only access to defined backend endpoints
+      clientRole: false
+
+  - updateRole:
+      name: default-roles-local_realm
+      description: role_default-roles
+      composite: true
+      clientRole: false
+      compositeChildRoles:
+        - name: ecoscan-user
