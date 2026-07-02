@@ -8,6 +8,11 @@ changes:
       id: local_realm
       loginTheme: ecoscan-theme
       displayName: EcoScan
+      registrationAllowed: true
+      internationalizationEnabled: true
+      supportedLocales:
+        - de
+      defaultLocale: de
 
   - addClientScope:
       realm: local_realm
