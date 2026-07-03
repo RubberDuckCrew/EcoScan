@@ -1,0 +1,2 @@
+ALTER TABLE product
+    ALTER COLUMN categories TYPE VARCHAR(2048);
