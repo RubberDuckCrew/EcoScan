@@ -8,14 +8,12 @@ export interface ProductCardProps {
   name: string;
   imageUrl: string;
   description: string;
-  barcode: string;
 }
 
 export default function ProductCard({
   name,
   imageUrl,
   description,
-  barcode,
 }: ProductCardProps) {
   const [imageLoadError, setImageLoadError] = useState(false);
 
@@ -64,9 +62,6 @@ export default function ProductCard({
             </Text>
           </ScrollView>
         </View>
-        <Text style={styles.barcodeText} variant={"bodyMedium"}>
-          Barcode: {barcode}
-        </Text>
       </Surface>
     </Surface>
   );
@@ -75,7 +70,7 @@ export default function ProductCard({
 const styles = StyleSheet.create({
   rootCard: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    height: 128,
   },
   imageContainer: {
     width: 128,
@@ -94,8 +89,7 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   descriptionContainer: {
-    maxHeight: 70,
-    flexShrink: 1,
+    flex: 1,
   },
   descriptionText: {
     color: theme.colors.muted,
@@ -106,6 +100,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingRight: 4,
+    paddingBottom: 4,
   },
   image: {
     width: 128,
