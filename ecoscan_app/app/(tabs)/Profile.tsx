@@ -6,7 +6,7 @@ import { theme } from "@/theme";
 import { OidcUserInfo } from "@/types/userInfo";
 import Constants from "expo-constants";
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import {
   Avatar,
   Button,
@@ -27,7 +27,7 @@ function getInitials(userInfo: OidcUserInfo | null): string {
 
 export default function Profile() {
   const { logout } = useAuth();
-  const { userInfo, loading, error } = useUserInfo();
+  const { userInfo, loading, error, refetch } = useUserInfo();
   const c = theme.colors;
 
   const givenName = userInfo?.given_name;
@@ -43,17 +43,27 @@ export default function Profile() {
   if (loading) {
     return (
       <PageContainer>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={refetch} />
+          }
+        >
           <LoadingIndicator />
         </ScrollView>
       </PageContainer>
     );
   }
 
-  if (error) {
-    return (
-      <PageContainer>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+  return (
+    <PageContainer style={{ padding: 0 }}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={refetch} />
+        }
+      >
+        {error ? (
           <View style={styles.centerContent}>
             <Icon source="alert-circle-outline" size={56} color={c.error} />
             <Text
@@ -68,67 +78,79 @@ export default function Profile() {
             >
               Bitte versuche es später erneut.
             </Text>
+            <Button
+              mode="contained"
+              onPress={refetch}
+              style={{ marginTop: 24 }}
+              icon="refresh"
+            >
+              Erneut versuchen
+            </Button>
           </View>
-        </ScrollView>
-      </PageContainer>
-    );
-  }
-
-  return (
-    <PageContainer style={{ padding: 0 }}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Surface style={styles.headerCard}>
-          <Avatar.Text
-            size={84}
-            label={initials}
-            color="#FFFFFF"
-            style={{ backgroundColor: c.primary }}
-          />
-          <Text variant="headlineSmall" style={styles.name}>
-            {displayName || "Unbekannt"}
-          </Text>
-          {email && (
-            <View style={styles.emailRow}>
-              <Icon source="email-outline" size={16} color={c.muted} />
-              <Text variant="bodyLarge" style={styles.email}>
-                {email}
+        ) : (
+          <>
+            <Surface style={styles.headerCard}>
+              <Avatar.Text
+                size={84}
+                label={initials}
+                color="#FFFFFF"
+                style={{ backgroundColor: c.primary }}
+              />
+              <Text variant="headlineSmall" style={styles.name}>
+                {displayName || "Unbekannt"}
               </Text>
-            </View>
-          )}
-        </Surface>
+              {email && (
+                <View style={styles.emailRow}>
+                  <Icon source="email-outline" size={16} color={c.muted} />
+                  <Text variant="bodyLarge" style={styles.email}>
+                    {email}
+                  </Text>
+                </View>
+              )}
+            </Surface>
 
-        <Card style={styles.card}>
-          <Card.Title
-            title="Konto"
-            left={(props) => <Icon {...props} source="badge-account-outline" />}
-          />
-          <Divider style={styles.divider} />
-          <Card.Content style={styles.cardContent}>
-            <Row icon="account-outline" label="Vorname" value={givenName} />
-            <Row icon="account-outline" label="Nachname" value={familyName} />
-            <Row icon="email-outline" label="E-Mail" value={email} />
-            <Row
-              icon="at"
-              label="Benutzername"
-              value={userInfo?.preferred_username}
-            />
-          </Card.Content>
-        </Card>
+            <Card style={styles.card}>
+              <Card.Title
+                title="Konto"
+                left={(props) => (
+                  <Icon {...props} source="badge-account-outline" />
+                )}
+              />
+              <Divider style={styles.divider} />
+              <Card.Content style={styles.cardContent}>
+                <Row icon="account-outline" label="Vorname" value={givenName} />
+                <Row
+                  icon="account-outline"
+                  label="Nachname"
+                  value={familyName}
+                />
+                <Row icon="email-outline" label="E-Mail" value={email} />
+                <Row
+                  icon="at"
+                  label="Benutzername"
+                  value={userInfo?.preferred_username}
+                />
+              </Card.Content>
+            </Card>
 
-        <Card style={styles.card}>
-          <Card.Title
-            title="App"
-            left={(props) => <Icon {...props} source="information-outline" />}
-          />
-          <Divider style={styles.divider} />
-          <Card.Content style={styles.cardContent}>
-            <Row
-              icon="cellphone"
-              label="Version"
-              value={`EcoScan v${appVersion}`}
-            />
-          </Card.Content>
-        </Card>
+            <Card style={styles.card}>
+              <Card.Title
+                title="App"
+                left={(props) => (
+                  <Icon {...props} source="information-outline" />
+                )}
+              />
+              <Divider style={styles.divider} />
+              <Card.Content style={styles.cardContent}>
+                <Row
+                  icon="cellphone"
+                  label="Version"
+                  value={`EcoScan v${appVersion}`}
+                />
+              </Card.Content>
+            </Card>
+          </>
+        )}
 
         <Button
           mode="contained"
