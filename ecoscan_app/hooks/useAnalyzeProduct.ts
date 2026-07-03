@@ -27,6 +27,8 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
 
   const handleStreamError = useCallback(
     (err?: any) => {
+      closeStream();
+      setJobId(undefined);
       setLoading(false);
       setError(
         "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
@@ -44,6 +46,8 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
     (result: Product) => {
       setProduct(() => result);
       setLoading(false);
+      closeStream();
+      setJobId(undefined);
       if (completionRef.current) {
         completionRef.current.resolve(true);
         completionRef.current = null;
