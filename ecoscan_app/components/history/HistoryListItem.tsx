@@ -39,7 +39,7 @@ export default function HistoryListItem({ item }: Props) {
           <Text variant="titleMedium" style={styles.name} numberOfLines={2}>
             {item.name}
           </Text>
-          <Text variant="bodySmall" style={styles.date}>
+          <Text variant="bodyMedium" style={styles.date}>
             {formatRelativeDate(item.savedDate)}
           </Text>
         </View>
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
   name: {
     fontWeight: "700",
     marginBottom: 4,
+    lineHeight: 18,
   },
   date: {
     color: theme.colors.muted,

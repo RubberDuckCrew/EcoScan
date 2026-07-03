@@ -36,16 +36,19 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
                 Diese Woche gespart
               </Text>
               <View style={styles.co2}>
-                <Text variant="displayLarge" style={styles.text}>
+                <Text
+                  variant="displayLarge"
+                  style={[styles.text, styles.title]}
+                >
                   {savings && savings.co2Saving
                     ? savings.co2Saving.toFixed(1).replace(".", ",")
                     : "-"}
                 </Text>
-                <Text variant="titleLarge" style={styles.text}>
+                <Text variant="bodyLarge" style={styles.text}>
                   kg CO₂
                 </Text>
               </View>
-              <Text variant="titleMedium" style={styles.text}>
+              <Text variant="bodyLarge" style={styles.text}>
                 Das entspricht{" "}
                 {savings && savings.carRideEquivalent
                   ? savings.carRideEquivalent.toFixed(0)
