@@ -3,6 +3,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { useAuth } from "@/context/AuthContext";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { theme } from "@/theme";
+import { OidcUserInfo } from "@/types/userInfo";
 import Constants from "expo-constants";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -16,7 +17,7 @@ import {
   Text,
 } from "react-native-paper";
 
-function getInitials(userInfo: any): string {
+function getInitials(userInfo: OidcUserInfo | null): string {
   const given = userInfo?.given_name || "";
   const family = userInfo?.family_name || "";
   if (given && family) return `${given[0]}${family[0]}`.toUpperCase();

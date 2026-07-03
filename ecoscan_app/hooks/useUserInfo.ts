@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import * as AuthSession from "expo-auth-session";
+import { OidcUserInfo } from "@/types/userInfo";
 import { AUTH_CONFIG } from "@/utils/authConfig";
+import * as AuthSession from "expo-auth-session";
+import { useEffect, useState } from "react";
 
 export const useUserInfo = () => {
   const { accessToken, refresh } = useAuth();
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<OidcUserInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
