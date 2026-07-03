@@ -35,7 +35,7 @@ class ProductAnalysisWorker(BaseWorker):
             self.FEATURE_NAME,
             request.jobId,
             len(request.data.productName)
-            + len(request.data.productDescription)
+            + len(request.data.productCategories)
             + len(request.data.productId),
         )
 

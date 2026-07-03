@@ -39,7 +39,7 @@ public class ProductAnalysisService {
             UUID.randomUUID(),
             new ProductAnalysisRequestDTO(
                 product.getName(),
-                product.getDescription(),
+                product.getCategories(),
                 product.getId()));
         rabbitTemplate.convertAndSend(
             "ecoscan.ai.tasks.product-analysis",
@@ -51,19 +51,25 @@ public class ProductAnalysisService {
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.product-analysis"))
     public void handleProductAnalysisResponse(final AiDTO<ProductAnalysisResponseDTO> response) {
         final ProductAnalysisResponseDTO result = response.data();
-        log.info("Received ProductAnalysis results: {}", result.data());
-        final Product p = productRepository.getProductById(result.productId()).orElse(null);
+        log.info("Received ProductAnalysis results: {}", result.toString());
         try {
+            final String productId = jobEanService.getEan(response.jobId()).orElse(null);
+            if (productId == null) {
+                log.warn("Dropping analysis result for missing product in job {}", response.jobId());
+                return;
+            }
+            final Product p = productRepository.getProductById(productId).orElse(null);
             if (p == null) {
-                log.warn("Dropping analysis result for missing product {}", result.productId());
-            } else {
-                p.setData(result.data());
-                productRepository.save(p);
-                jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
-                final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
-                if (alternativesJobId.isPresent()) {
-                    handleAlternativesService.handleAlternativeProduct(p);
-                }
+                log.warn("Dropping analysis result for missing product {}", productId);
+                return;
+            }
+            p.setDescription(result.description());
+            p.setData(result.data());
+            productRepository.save(p);
+            jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
+            final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
+            if (alternativesJobId.isPresent()) {
+                handleAlternativesService.handleAlternativeProduct(p);
             }
         } finally {
             jobEanService.remove(response.jobId());

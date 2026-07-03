@@ -10,8 +10,18 @@ from ecoscan_ai.product_analysis.models import (
 @CrewBase
 class ProductAnalysisCrew:
     @agent
+    def description_generator(self) -> Agent:
+        return Agent(config=self.agents_config["description_generator"], verbose=True)  # type: ignore[index]
+
+    @agent
     def product_analyzer(self) -> Agent:
         return Agent(config=self.agents_config["product_analyzer"], verbose=True)  # type: ignore[index]
+
+    @task
+    def description_task(self) -> Task:
+        return Task(
+            config=self.tasks_config["description_task"],
+        )  # type: ignore[index]
 
     @task
     def analysis_task(self) -> Task:
@@ -34,7 +44,7 @@ class ProductAnalysisCrew:
         result = self.crew().kickoff(
             inputs={
                 "productName": request.productName,
-                "productDescription": request.productDescription,
+                "productCategories": request.productCategories,
                 "productId": request.productId,
             }
         )
