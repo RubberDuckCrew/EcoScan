@@ -3,6 +3,7 @@ from crewai.project import CrewBase, agent, crew, task
 
 from ecoscan_ai.alternatives.models import AlternativesRequest, AlternativesResult
 from ecoscan_ai.tools.dddg_search_tool import DuckDuckGoSearchTool
+from ecoscan_ai.tools.find_nearby_stores_tool import FindNearbyStoresTool
 from ecoscan_ai.tools.search_by_category_tool import SearchProductsByCategoryTool
 
 
@@ -20,7 +21,7 @@ class AlternativesCrew:
     def coordinates_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config["coordinates_researcher"],
-            tools=[DuckDuckGoSearchTool()],
+            tools=[FindNearbyStoresTool()],
             verbose=True,
         )
 

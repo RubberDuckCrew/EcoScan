@@ -9,6 +9,8 @@ dependencies = [
     "crewai[tools]==1.15.1",
     "litellm==1.90.2",
     "pika==1.4.1",
+    "crewai-tools>=1.15.1",
+    "geopy>=2.4.1",
 ]
 
 [dependency-groups]
