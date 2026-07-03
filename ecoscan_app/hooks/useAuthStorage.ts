@@ -3,87 +3,50 @@ import * as SecureStore from "expo-secure-store";
 import * as AuthSession from "expo-auth-session";
 
 const SECURE_STORE_KEYS = {
-  ACCESS_TOKEN: "auth_access_token",
-  ID_TOKEN: "auth_id_token",
-  REFRESH_TOKEN: "auth_refresh_token",
+  TOKEN_CONFIG: "auth_token_config",
 };
 
 export const useAuthStorage = () => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [idToken, setIdToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [tokenConfig, setTokenConfig] = useState<AuthSession.TokenResponseConfig | null>(null);
   const [isStorageLoading, setIsStorageLoading] = useState(true);
 
   const loadTokens = useCallback(async () => {
     try {
-      const [storedAccess, storedId, storedRefresh] = await Promise.all([
-        SecureStore.getItemAsync(SECURE_STORE_KEYS.ACCESS_TOKEN),
-        SecureStore.getItemAsync(SECURE_STORE_KEYS.ID_TOKEN),
-        SecureStore.getItemAsync(SECURE_STORE_KEYS.REFRESH_TOKEN),
-      ]);
+      const storedConfigString = await SecureStore.getItemAsync(SECURE_STORE_KEYS.TOKEN_CONFIG);
 
-      setAccessToken(storedAccess);
-      setIdToken(storedId);
-      setRefreshToken(storedRefresh);
+      if (storedConfigString) {
+        setTokenConfig(JSON.parse(storedConfigString));
+      }
     } catch (e) {
       console.error("Failed to load tokens from SecureStore:", e);
+      await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.TOKEN_CONFIG);
     } finally {
       setIsStorageLoading(false);
     }
   }, []);
 
-  const saveTokens = useCallback(
-    async (tokenResult: AuthSession.TokenResponse) => {
-      try {
-        const ops = [];
-        if (tokenResult.accessToken) {
-          ops.push(
-            SecureStore.setItemAsync(
-              SECURE_STORE_KEYS.ACCESS_TOKEN,
-              tokenResult.accessToken,
-            ),
-          );
-        }
-        if (tokenResult.idToken) {
-          ops.push(
-            SecureStore.setItemAsync(
-              SECURE_STORE_KEYS.ID_TOKEN,
-              tokenResult.idToken,
-            ),
-          );
-        }
-        if (tokenResult.refreshToken) {
-          ops.push(
-            SecureStore.setItemAsync(
-              SECURE_STORE_KEYS.REFRESH_TOKEN,
-              tokenResult.refreshToken,
-            ),
-          );
-        }
-        await Promise.all(ops);
-        if (tokenResult.accessToken) setAccessToken(tokenResult.accessToken);
-        if (tokenResult.idToken) setIdToken(tokenResult.idToken);
-        if (tokenResult.refreshToken) setRefreshToken(tokenResult.refreshToken);
-      } catch (e) {
-        console.error("Failed to save tokens to SecureStore:", e);
-      }
-    },
-    [],
-  );
+  const saveTokens = useCallback(async (tokenResult: AuthSession.TokenResponse) => {
+    try {
+      const configToSave = tokenResult.getRequestConfig();
+
+      await SecureStore.setItemAsync(
+          SECURE_STORE_KEYS.TOKEN_CONFIG,
+          JSON.stringify(configToSave)
+      );
+
+      setTokenConfig(configToSave);
+    } catch (e) {
+      console.error("Failed to save tokens to SecureStore:", e);
+    }
+  }, []);
 
   const clearTokens = useCallback(async () => {
     try {
-      await Promise.all([
-        SecureStore.deleteItemAsync(SECURE_STORE_KEYS.ACCESS_TOKEN),
-        SecureStore.deleteItemAsync(SECURE_STORE_KEYS.ID_TOKEN),
-        SecureStore.deleteItemAsync(SECURE_STORE_KEYS.REFRESH_TOKEN),
-      ]);
+      await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.TOKEN_CONFIG);
     } catch (e) {
       console.error("Failed to clear tokens from SecureStore:", e);
     } finally {
-      setAccessToken(null);
-      setIdToken(null);
-      setRefreshToken(null);
+      setTokenConfig(null);
     }
   }, []);
 
@@ -92,9 +55,7 @@ export const useAuthStorage = () => {
   }, [loadTokens]);
 
   return {
-    accessToken,
-    idToken,
-    refreshToken,
+    tokenConfig,
     isStorageLoading,
     saveTokens,
     clearTokens,
