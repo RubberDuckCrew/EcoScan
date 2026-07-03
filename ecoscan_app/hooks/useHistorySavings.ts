@@ -48,10 +48,12 @@ export function useHistorySavings() {
         (result) => {
           setSavings(result);
           setLoading(false);
+          closeStream()
         },
         () => {
           setLoading(false);
-          console.error("Error in SSE stream");
+          console.warn("Error in history SSE stream");
+          closeStream()
         },
       );
     },
