@@ -1,18 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 import { Image, StyleSheet, View } from "react-native";
 import { Card, Icon, Text } from "react-native-paper";
 import type { HistoryItem } from "@/types/history/item";
 import { formatRelativeDate } from "@/utils/formatDate";
 import { getScoreColor } from "@/utils/scoreColor";
 import { theme } from "@/theme";
+import { useError } from "@/context/ErrorContext";
 
 type Props = {
   item: HistoryItem;
 };
 
 export default function HistoryListItem({ item }: Props) {
+  const router = useRouter();
+  const { consumeError } = useError();
+  const [error, setError] = useState<string | undefined>();
+
+  const routeToProduct = async (code: string) => {
+    try {
+      router.push({
+        pathname: "/(tabs)/(history)/product/[id]",
+        params: { id: code },
+      });
+    } catch (err) {
+      setError("Produkt konnte nicht aufgerufen werden.");
+    }
+  };
+
+  useEffect(() => {
+    const errorMsg = consumeError();
+    if (errorMsg) {
+      setError(errorMsg);
+    }
+  }, [consumeError]);
+
   return (
-    <Card style={styles.card}>
+    <Card style={styles.card} onPress={() => routeToProduct(item.productId)}>
       <View style={styles.content}>
         <Image source={{ uri: item.imageUrl }} style={styles.image} />
         <View style={styles.text}>
