@@ -33,6 +33,7 @@ export default function Profile() {
   const familyName = userInfo?.family_name;
   const displayName =
     [givenName, familyName].filter(Boolean).join(" ") ||
+    userInfo?.name ||
     userInfo?.preferred_username;
   const email = userInfo?.email;
   const initials = getInitials(userInfo);
@@ -64,7 +65,7 @@ export default function Profile() {
               variant="bodyLarge"
               style={{ color: c.muted, marginTop: 8, textAlign: "center" }}
             >
-              {error}
+              Bitte versuche es später erneut.
             </Text>
           </View>
         </ScrollView>
