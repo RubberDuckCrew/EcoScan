@@ -96,7 +96,6 @@ export default function Product() {
               ) : (
                 <ProductCard
                   name={product.name || "Unbekanntes Produkt"}
-                  barcode={product.id || "Kein Barcode"}
                   description={
                     product.description || "Keine Beschreibung verfügbar."
                   }
