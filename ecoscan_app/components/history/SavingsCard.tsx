@@ -1,9 +1,9 @@
-import { Card, Icon, Text } from "react-native-paper";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import { theme } from "@/theme";
-import { useHistorySavings } from "@/hooks/useHistorySavings";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
+import { useHistorySavings } from "@/hooks/useHistorySavings";
+import { theme } from "@/theme";
 import { forwardRef, useImperativeHandle } from "react";
+import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Card, Icon, Text } from "react-native-paper";
 
 type SavingsCardProps = {
   style?: StyleProp<ViewStyle>;
@@ -31,7 +31,7 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
               <LoadingIndicator color={theme.colors.background} />
             </View>
           ) : (
-            <View>
+            <View style={styles.textContainer}>
               <Text variant="titleLarge" style={[styles.text, styles.title]}>
                 Diese Woche gespart
               </Text>
@@ -75,6 +75,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 8,
   },
+  textContainer: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",
@@ -90,5 +93,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "baseline",
     gap: 8,
+    flexWrap: "wrap",
   },
 });
