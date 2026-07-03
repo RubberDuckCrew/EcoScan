@@ -26,7 +26,8 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: admin
       SPRING_RABBITMQ_PASSWORD: admin
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8100/auth/realms/local_realm
+      ECOSCAN_SECURITY_JWK_SET_URI: "http://keycloak:8100/auth/realms/local_realm/protocol/openid-connect/certs"
+      ECOSCAN_SECURITY_ISSUER_URI: "${KEYCLOAK_HOSTNAME}/auth/realms/local_realm"
       FOOD_DATA_URL: "jdbc:duckdb:data/food/food.parquet"
       ECOSCAN_SAVINGS_CRON: 0 */10 * * * *
     volumes:
@@ -107,6 +108,7 @@ services:
       - KC_HEALTH_ENABLED=true
       - KC_HTTP_PORT=8100
       - KC_HTTP_RELATIVE_PATH=/auth
+      - KC_HOSTNAME=${KEYCLOAK_HOSTNAME}/auth
     volumes:
       - ./stack/keycloak/themes:/opt/keycloak/themes/
     healthcheck:
