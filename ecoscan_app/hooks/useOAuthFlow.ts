@@ -13,19 +13,19 @@ interface UseOAuthFlowProps {
 }
 
 export const useOAuthFlow = ({
-                               tokenConfig,
-                               saveTokens,
-                               clearTokens,
-                             }: UseOAuthFlowProps) => {
+  tokenConfig,
+  saveTokens,
+  clearTokens,
+}: UseOAuthFlowProps) => {
   const [discovery, setDiscovery] =
-      useState<AuthSession.DiscoveryDocument | null>(null);
+    useState<AuthSession.DiscoveryDocument | null>(null);
   const [isDiscoveryLoading, setIsDiscoveryLoading] = useState(true);
 
   useEffect(() => {
     AuthSession.fetchDiscoveryAsync(AUTH_CONFIG.issuer)
-    .then(setDiscovery)
-    .catch((e) => console.error("Discovery failed", e))
-    .finally(() => setIsDiscoveryLoading(false));
+      .then(setDiscovery)
+      .catch((e) => console.error("Discovery failed", e))
+      .finally(() => setIsDiscoveryLoading(false));
   }, []);
 
   const login = useCallback(async () => {
@@ -48,13 +48,13 @@ export const useOAuthFlow = ({
 
       if (result.type === "success") {
         const tokenResult = await AuthSession.exchangeCodeAsync(
-            {
-              code: result.params.code,
-              clientId: AUTH_CONFIG.clientId,
-              redirectUri,
-              extraParams: { code_verifier: authRequest.codeVerifier || "" },
-            },
-            discovery,
+          {
+            code: result.params.code,
+            clientId: AUTH_CONFIG.clientId,
+            redirectUri,
+            extraParams: { code_verifier: authRequest.codeVerifier || "" },
+          },
+          discovery,
         );
         await saveTokens(tokenResult);
       }
@@ -72,8 +72,8 @@ export const useOAuthFlow = ({
     if (tokenInstance.shouldRefresh()) {
       try {
         const refreshedToken = await tokenInstance.refreshAsync(
-            { clientId: AUTH_CONFIG.clientId },
-            discovery
+          { clientId: AUTH_CONFIG.clientId },
+          discovery,
         );
         await saveTokens(refreshedToken);
         console.info("Refreshed access token successfully");
@@ -98,9 +98,9 @@ export const useOAuthFlow = ({
 
     try {
       const logoutUrl = `${discovery.endSessionEndpoint}?client_id=${
-          AUTH_CONFIG.clientId
+        AUTH_CONFIG.clientId
       }${idToken ? `&id_token_hint=${idToken}` : ""}&post_logout_redirect_uri=${encodeURIComponent(
-          redirectUri,
+        redirectUri,
       )}`;
       await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
     } catch (e) {

@@ -20,23 +20,15 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const {
-    tokenConfig,
-    isStorageLoading,
-    saveTokens,
-    clearTokens,
-  } = useAuthStorage();
+  const { tokenConfig, isStorageLoading, saveTokens, clearTokens } =
+    useAuthStorage();
 
-  const {
-    login,
-    logout,
-    getValidAccessToken,
-    isDiscoveryLoading
-  } = useOAuthFlow({
-    tokenConfig,
-    saveTokens,
-    clearTokens,
-  });
+  const { login, logout, getValidAccessToken, isDiscoveryLoading } =
+    useOAuthFlow({
+      tokenConfig,
+      saveTokens,
+      clearTokens,
+    });
 
   const isLoading = isStorageLoading || isDiscoveryLoading;
 
@@ -47,26 +39,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAuthenticated = !!accessToken;
 
   const value = useMemo(
-      () => ({
-        accessToken,
-        idToken,
-        refreshToken,
-        isLoading,
-        isAuthenticated,
-        login,
-        logout,
-        getValidAccessToken,
-      }),
-      [
-        accessToken,
-        idToken,
-        refreshToken,
-        isLoading,
-        isAuthenticated,
-        login,
-        logout,
-        getValidAccessToken,
-      ],
+    () => ({
+      accessToken,
+      idToken,
+      refreshToken,
+      isLoading,
+      isAuthenticated,
+      login,
+      logout,
+      getValidAccessToken,
+    }),
+    [
+      accessToken,
+      idToken,
+      refreshToken,
+      isLoading,
+      isAuthenticated,
+      login,
+      logout,
+      getValidAccessToken,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

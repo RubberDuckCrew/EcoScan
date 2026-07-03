@@ -7,12 +7,15 @@ const SECURE_STORE_KEYS = {
 };
 
 export const useAuthStorage = () => {
-  const [tokenConfig, setTokenConfig] = useState<AuthSession.TokenResponseConfig | null>(null);
+  const [tokenConfig, setTokenConfig] =
+    useState<AuthSession.TokenResponseConfig | null>(null);
   const [isStorageLoading, setIsStorageLoading] = useState(true);
 
   const loadTokens = useCallback(async () => {
     try {
-      const storedConfigString = await SecureStore.getItemAsync(SECURE_STORE_KEYS.TOKEN_CONFIG);
+      const storedConfigString = await SecureStore.getItemAsync(
+        SECURE_STORE_KEYS.TOKEN_CONFIG,
+      );
 
       if (storedConfigString) {
         setTokenConfig(JSON.parse(storedConfigString));
@@ -25,20 +28,23 @@ export const useAuthStorage = () => {
     }
   }, []);
 
-  const saveTokens = useCallback(async (tokenResult: AuthSession.TokenResponse) => {
-    try {
-      const configToSave = tokenResult.getRequestConfig();
+  const saveTokens = useCallback(
+    async (tokenResult: AuthSession.TokenResponse) => {
+      try {
+        const configToSave = tokenResult.getRequestConfig();
 
-      await SecureStore.setItemAsync(
+        await SecureStore.setItemAsync(
           SECURE_STORE_KEYS.TOKEN_CONFIG,
-          JSON.stringify(configToSave)
-      );
+          JSON.stringify(configToSave),
+        );
 
-      setTokenConfig(configToSave);
-    } catch (e) {
-      console.error("Failed to save tokens to SecureStore:", e);
-    }
-  }, []);
+        setTokenConfig(configToSave);
+      } catch (e) {
+        console.error("Failed to save tokens to SecureStore:", e);
+      }
+    },
+    [],
+  );
 
   const clearTokens = useCallback(async () => {
     try {
