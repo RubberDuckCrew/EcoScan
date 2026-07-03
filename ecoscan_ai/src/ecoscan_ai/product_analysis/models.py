@@ -3,10 +3,10 @@ from pydantic import BaseModel
 
 class ProductAnalysisRequest(BaseModel):
     productName: str
-    productDescription: str
+    productCategories: str
     productId: str
 
 
 class ProductAnalysisResult(BaseModel):
-    productId: str
+    description: str
     data: str
