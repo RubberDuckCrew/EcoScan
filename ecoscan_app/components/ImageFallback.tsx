@@ -31,6 +31,7 @@ export default function ImageFallback({
     <View style={style}>
       {isImageValid && !imageLoadError ? (
         <Image
+          key={imageUrl}
           source={{ uri: imageUrl }}
           style={[styles.image, imageStyle]}
           resizeMode="cover"
