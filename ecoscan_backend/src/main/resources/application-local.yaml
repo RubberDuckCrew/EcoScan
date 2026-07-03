@@ -20,7 +20,6 @@ spring:
       - classpath:db/migration/schema
       - classpath:db/migration/testdata
     ignoreMigrationPatterns: repeatable:missing
-  security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:8100/auth/realms/local_realm
 
 logging:
   include-application-group: false
@@ -30,5 +29,9 @@ logging:
     org.springframework.cache: TRACE
     org.springframework.web: DEBUG
 
-ecoscan.savings.cron: 0 0 * * * *
+ecoscan:
+  savings.cron: 0 0 * * * *
+  security:
+    jwk-set-uri: http://localhost:8100/auth/realms/local_realm/protocol/openid-connect/certs
+    issuer-uri: http://localhost:8100/auth/realms/local_realm
 food-data.url: "jdbc:duckdb:data/food/food.parquet"
