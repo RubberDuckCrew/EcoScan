@@ -13,7 +13,7 @@ type TabConfig = {
 const tabs = {
   "(scan)": { title: "Scannen", icon: "barcode-scan", headerShown: false },
   History: {
-    title: "Historie",
+    title: "Meine Käufe",
     icon: "format-list-bulleted",
     headerShown: true,
   },

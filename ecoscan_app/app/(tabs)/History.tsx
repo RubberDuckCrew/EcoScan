@@ -19,7 +19,7 @@ export default function History() {
     <PageContainer style={{ padding: 0 }}>
       <View style={styles.wrapper}>
         <Text variant="headlineLarge" style={[styles.title]}>
-          Historie
+          Meine Käufe
         </Text>
         <HistoryList
           onRefresh={refresh}
@@ -31,7 +31,7 @@ export default function History() {
               </View>
               <View style={styles.section}>
                 <Text variant="headlineSmall" style={styles.heading}>
-                  Scanverlauf
+                  Gekaufte Produkte
                 </Text>
               </View>
             </View>
