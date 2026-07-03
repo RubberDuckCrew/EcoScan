@@ -1,11 +1,12 @@
-import React from "react";
-import { useRouter } from "expo-router";
-import { Image, StyleSheet, View } from "react-native";
-import { Card, Icon, Text } from "react-native-paper";
+import ImageFallback from "@/components/ImageFallback";
+import { theme } from "@/theme";
 import type { HistoryItem } from "@/types/history/item";
 import { formatRelativeDate } from "@/utils/formatDate";
 import { getScoreColor } from "@/utils/scoreColor";
-import { theme } from "@/theme";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { Card, Icon, Text } from "react-native-paper";
 
 type Props = {
   item: HistoryItem;
@@ -28,7 +29,12 @@ export default function HistoryListItem({ item }: Props) {
   return (
     <Card style={styles.card} onPress={() => routeToProduct(item.productId)}>
       <View style={styles.content}>
-        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        <ImageFallback
+          imageUrl={item.imageUrl}
+          style={styles.imageContainer}
+          imageStyle={styles.image}
+          fallbackStyle={styles.image}
+        />
         <View style={styles.text}>
           <Text variant="titleMedium" style={styles.name} numberOfLines={2}>
             {item.name}
@@ -63,9 +69,12 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingRight: 16,
   },
-  image: {
+  imageContainer: {
     width: 100,
     height: 100,
+  },
+  image: {
+    backgroundColor: theme.colors.background,
     borderRadius: 8,
   },
   text: {
