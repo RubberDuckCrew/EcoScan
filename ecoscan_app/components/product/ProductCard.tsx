@@ -55,6 +55,7 @@ export default function ProductCard({
         </Text>
         <View style={styles.descriptionContainer}>
           <ScrollView
+            nestedScrollEnabled={true}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={true}
           >
