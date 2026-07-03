@@ -10,6 +10,7 @@ import com.rubberduckcrew.ecoscan_backend.notification.Notification;
 import com.rubberduckcrew.ecoscan_backend.notification.NotificationSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductMapper;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDataDTO;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -79,6 +80,12 @@ public class SavingsService {
             .map(productMapper::toDataDTO)
             .toList();
 
+        if (history.isEmpty()) {
+            log.info("History is empty for user {}", userId);
+            sendSavingsResponse(jobId, new SavingsResultDTO(BigDecimal.ZERO, 0));
+            return jobId;
+        }
+
         final AiDTO<SavingsRequestDTO> request = new AiDTO<>(
             jobId,
             new SavingsRequestDTO(history.toString()));
@@ -86,7 +93,7 @@ public class SavingsService {
             "ecoscan.ai.tasks.savings",
             request);
 
-        return request.jobId();
+        return jobId;
     }
 
     private void sendSavingsResponse(final UUID jobId, final SavingsResultDTO result) {
