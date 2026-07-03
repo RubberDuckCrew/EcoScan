@@ -65,16 +65,19 @@ export const useOAuthFlow = ({
   }, [discovery, saveTokens]);
 
   const getValidAccessToken = useCallback(async (): Promise<string | null> => {
-    if (!tokenConfig || !discovery) return null;
+    if (!tokenConfig) return null;
 
     const tokenInstance = new AuthSession.TokenResponse(tokenConfig);
 
     if (tokenInstance.shouldRefresh()) {
+      if (!discovery) return null;
       try {
         const refreshedToken = await tokenInstance.refreshAsync(
           { clientId: AUTH_CONFIG.clientId },
           discovery,
         );
+        refreshedToken.refreshToken =
+          refreshedToken.refreshToken ?? tokenInstance.refreshToken;
         await saveTokens(refreshedToken);
         console.info("Refreshed access token successfully");
         return refreshedToken.accessToken;
