@@ -59,15 +59,17 @@ export function useGreenScore(): UseGreenScoreReturn {
               : undefined,
           );
           updateLoading(false);
+          closeStream();
         },
         () => {
           updateLoading(false);
           setError("Ein unerwarteter Fehler ist aufgetreten.");
           console.warn("Error in SSE stream");
+          closeStream();
         },
       );
     },
-    [startStream, setProduct, updateLoading],
+    [startStream, closeStream, setProduct, updateLoading],
   );
 
   const fetchGreenScore = useCallback(
