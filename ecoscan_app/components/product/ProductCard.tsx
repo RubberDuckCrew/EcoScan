@@ -8,12 +8,14 @@ export interface ProductCardProps {
   name: string;
   imageUrl: string;
   description: string;
+  ean: string;
 }
 
 export default function ProductCard({
   name,
   imageUrl,
   description,
+  ean,
 }: ProductCardProps) {
   const [imageLoadError, setImageLoadError] = useState(false);
 
@@ -29,90 +31,109 @@ export default function ProductCard({
 
   return (
     <Surface style={styles.rootCard} elevation={0}>
-      <View style={styles.imageContainer}>
-        {isImageValid && !imageLoadError ? (
-          <Image
-            source={{ uri: imageUrl }}
-            style={styles.image}
-            resizeMode="cover"
-            onError={handleImageError}
-          />
-        ) : (
-          <View style={styles.fallbackIcon}>
-            <MaterialIcons
-              name="image-not-supported"
-              size={72}
-              color="#757575"
+      <View style={styles.headerRow}>
+        <View style={styles.imageContainer}>
+          {isImageValid && !imageLoadError ? (
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.image}
+              resizeMode="cover"
+              onError={handleImageError}
             />
-          </View>
-        )}
-      </View>
-      <Surface style={styles.textCard} elevation={0}>
-        <Text style={styles.titleText} variant={"headlineSmall"}>
-          {name}
-        </Text>
-        <View style={styles.descriptionContainer}>
-          <ScrollView
-            nestedScrollEnabled={true}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={true}
-          >
-            <Text style={styles.descriptionText} variant={"bodyLarge"}>
-              {description}
-            </Text>
-          </ScrollView>
+          ) : (
+            <View style={styles.fallbackIcon}>
+              <MaterialIcons
+                name="image-not-supported"
+                size={64}
+                color="#757575"
+              />
+            </View>
+          )}
         </View>
-      </Surface>
+
+        <View style={styles.headerTextContainer}>
+          <Text
+            style={styles.titleText}
+            variant={"headlineSmall"}
+            numberOfLines={3}
+          >
+            {name}
+          </Text>
+          <Text style={styles.eanText} variant={"bodySmall"}>
+            EAN: {ean}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.descriptionContainer}>
+        <ScrollView
+          nestedScrollEnabled={true}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={true}
+        >
+          <Text style={styles.descriptionText} variant={"bodyMedium"}>
+            {description}
+          </Text>
+        </ScrollView>
+      </View>
     </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   rootCard: {
+    flexDirection: "column",
+    borderRadius: 12,
+    padding: 12,
+    gap: 12,
+  },
+  headerRow: {
     flexDirection: "row",
-    height: 128,
+    gap: 12,
   },
   imageContainer: {
-    width: 128,
-    height: 128,
-    borderRadius: 20,
+    width: 100,
+    height: 100,
+    borderRadius: 12,
     overflow: "hidden",
     backgroundColor: theme.colors.background,
+    flexShrink: 0,
   },
-  textCard: {
-    flexDirection: "column",
-    marginLeft: 16,
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+  },
+  fallbackIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colors.background,
+  },
+  headerTextContainer: {
     flex: 1,
+    justifyContent: "center",
+    gap: 4,
   },
   titleText: {
     fontWeight: "bold",
-    lineHeight: 26,
+    color: theme.colors.onSurface,
+  },
+  eanText: {
+    color: theme.colors.muted,
+    fontSize: 12,
   },
   descriptionContainer: {
     flex: 1,
+    maxHeight: 80,
   },
   descriptionText: {
     color: theme.colors.muted,
     lineHeight: 20,
   },
-  barcodeText: {
-    color: theme.colors.muted,
-  },
   scrollContent: {
     paddingRight: 4,
     paddingBottom: 4,
-  },
-  image: {
-    width: 128,
-    height: 128,
-    borderRadius: 20,
-  },
-  fallbackIcon: {
-    width: 128,
-    height: 128,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: theme.colors.background,
   },
 });
