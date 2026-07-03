@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/react": "19.1.10",
-    "@typescript-eslint/parser": "8.62.0",
+    "@typescript-eslint/parser": "8.62.1",
     "eslint": "9.39.4",
     "eslint-config-expo": "10.0.0",
     "eslint-config-prettier": "10.1.8",
