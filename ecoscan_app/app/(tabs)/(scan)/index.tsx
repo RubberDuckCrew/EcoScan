@@ -27,7 +27,7 @@ export default function Scan() {
     try {
       if (await analyzeProduct(trimmed)) {
         router.push({
-          pathname: "/product/[id]",
+          pathname: "/(tabs)/(scan)/product/[id]",
           params: { id: trimmed },
         });
       } else {

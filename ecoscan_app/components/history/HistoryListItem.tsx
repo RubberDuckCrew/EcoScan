@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "expo-router";
 import { Image, StyleSheet, View } from "react-native";
 import { Card, Icon, Text } from "react-native-paper";
 import type { HistoryItem } from "@/types/history/item";
@@ -11,8 +12,21 @@ type Props = {
 };
 
 export default function HistoryListItem({ item }: Props) {
+  const router = useRouter();
+
+  const routeToProduct = async (code: string) => {
+    try {
+      router.push({
+        pathname: "/(tabs)/(history)/product/[id]",
+        params: { id: code },
+      });
+    } catch {
+      console.warn(`Could not route to product ${code}`);
+    }
+  };
+
   return (
-    <Card style={styles.card}>
+    <Card style={styles.card} onPress={() => routeToProduct(item.productId)}>
       <View style={styles.content}>
         <Image source={{ uri: item.imageUrl }} style={styles.image} />
         <View style={styles.text}>

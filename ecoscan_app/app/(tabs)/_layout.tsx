@@ -12,10 +12,10 @@ type TabConfig = {
 
 const tabs = {
   "(scan)": { title: "Scannen", icon: "barcode-scan", headerShown: false },
-  History: {
+  "(history)": {
     title: "Meine Käufe",
     icon: "format-list-bulleted",
-    headerShown: true,
+    headerShown: false,
   },
   Profile: { title: "Profil", icon: "account", headerShown: true },
 } satisfies Record<string, TabConfig>;
