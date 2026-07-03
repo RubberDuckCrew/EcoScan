@@ -13,6 +13,7 @@ changes:
       supportedLocales:
         - de
       defaultLocale: de
+      accessTokenLifespan: 600
 
   - addClientScope:
       realm: local_realm
