@@ -61,9 +61,9 @@ export const variantStyles: Record<
   warning: {
     card: {
       borderColor: theme.colors.warning,
-      backgroundColor: withOpacity(theme.colors.warning, 0.34),
+      backgroundColor: withOpacity(theme.colors.warning, 0.15),
     },
-    text: { color: theme.colors.warning },
+    text: { color: theme.colors.darkWarning },
     progressBar: theme.colors.warning,
     message: "Noch Luft nach oben.",
   },

@@ -15,6 +15,7 @@ export const theme = {
     warning: "#f1c40f",
     error: "#b3261e",
     outline: "#D1D5DC",
+    darkWarning: "#ffa500",
   },
 };
 
