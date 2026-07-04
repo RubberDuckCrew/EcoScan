@@ -106,6 +106,7 @@ export default function ProductScreen({
                     product.description || "Keine Beschreibung verfügbar."
                   }
                   imageUrl={product.imageUrl || ""}
+                  ean={product.id || "Unbekannt"}
                 />
               )}
 
