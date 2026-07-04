@@ -1,9 +1,9 @@
-import { Card, Icon, Text } from "react-native-paper";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import { theme } from "@/theme";
-import { useHistorySavings } from "@/hooks/useHistorySavings";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
+import { useHistorySavings } from "@/hooks/useHistorySavings";
+import { theme } from "@/theme";
 import { forwardRef, useImperativeHandle } from "react";
+import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Card, Icon, Text } from "react-native-paper";
 
 type SavingsCardProps = {
   style?: StyleProp<ViewStyle>;
@@ -37,7 +37,7 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
               </Text>
               <View style={styles.co2}>
                 <Text variant="displayLarge" style={styles.text}>
-                  {savings && savings.co2Saving
+                  {savings && savings.co2Saving != undefined
                     ? savings.co2Saving.toFixed(1).replace(".", ",")
                     : "-"}
                 </Text>
@@ -47,7 +47,7 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
               </View>
               <Text variant="titleMedium" style={styles.text}>
                 Das entspricht{" "}
-                {savings && savings.carRideEquivalent
+                {savings && savings.carRideEquivalent != undefined
                   ? savings.carRideEquivalent.toFixed(0)
                   : "-"}{" "}
                 km Autofahrt.
