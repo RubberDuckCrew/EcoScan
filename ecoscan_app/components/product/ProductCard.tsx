@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   rootCard: {
     flexDirection: "column",
     borderRadius: 12,
-    padding: 12,
+    paddingHorizontal: 12,
     gap: 12,
   },
   headerRow: {
