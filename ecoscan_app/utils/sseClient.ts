@@ -5,9 +5,9 @@ import EventSource from "react-native-sse";
 
 export type SseClient<T> = {
   startStream: (
-      endpoint: string,
-      onMessage: (data: T) => void,
-      onError: (error: any) => void,
+    endpoint: string,
+    onMessage: (data: T) => void,
+    onError: (error: any) => void,
   ) => void;
   closeStream: () => void;
 };
@@ -44,130 +44,130 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
   }, []);
 
   const connectToStream = useCallback(
-      (
-          endpoint: string,
-          onMessage: (data: T) => void,
-          onError: (error: any) => void,
-      ) => {
-        if (isClosingRef.current) {
-          return;
-        }
+    (
+      endpoint: string,
+      onMessage: (data: T) => void,
+      onError: (error: any) => void,
+    ) => {
+      if (isClosingRef.current) {
+        return;
+      }
 
-        const accessToken = getAccessToken();
-        if (!accessToken) {
-          console.warn("[SSE] No access token available");
-          onError({ message: "No access token available" });
-          return;
-        }
+      const accessToken = getAccessToken();
+      if (!accessToken) {
+        console.warn("[SSE] No access token available");
+        onError({ message: "No access token available" });
+        return;
+      }
 
-        try {
-          const url = `${ENV.backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+      try {
+        const url = `${ENV.backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
-          console.log(`[SSE] Connecting to ${url}`);
+        console.log(`[SSE] Connecting to ${url}`);
 
-          const eventSource = new EventSource<string>(url, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+        const eventSource = new EventSource<string>(url, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
-          eventSourceRef.current = eventSource;
-          reconnectAttemptsRef.current = 0;
+        eventSourceRef.current = eventSource;
+        reconnectAttemptsRef.current = 0;
 
-          eventSource.addEventListener(eventName, (event: any) => {
-            try {
-              const parsedData = JSON.parse(event.data) as T;
-              onMessage(parsedData);
-            } catch (err) {
-              console.error("[SSE] Error parsing data:", err);
-            }
-          });
-
-          eventSource.addEventListener("error", (err: any) => {
-            console.log("[SSE] Error event received:", err);
-
-            if (isClosingRef.current) {
-              return;
-            }
-
-            eventSourceRef.current = null;
-
-            const shouldReconnect =
-                reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS &&
-                !isClosingRef.current;
-
-            if (shouldReconnect) {
-              scheduleReconnect(endpoint, onMessage, onError);
-            } else {
-              console.error("[SSE] Max reconnection attempts reached");
-              onError({
-                message: "Verbindung konnte nicht wiederhergestellt werden",
-                status: "max_retries_exceeded",
-              });
-            }
-          });
-
-          eventSource.addEventListener("open", () => {
-            console.log("[SSE] Connection established");
-          });
-        } catch (err) {
-          console.error("[SSE] Failed to create EventSource:", err);
-          if (!isClosingRef.current) {
-            onError(err);
+        eventSource.addEventListener(eventName, (event: any) => {
+          try {
+            const parsedData = JSON.parse(event.data) as T;
+            onMessage(parsedData);
+          } catch (err) {
+            console.error("[SSE] Error parsing data:", err);
           }
-        }
-      },
-      [getAccessToken, eventName]
-  );
+        });
 
-  const scheduleReconnect = useCallback(
-      (
-          endpoint: string,
-          onMessage: (data: T) => void,
-          onError: (error: any) => void,
-      ) => {
-        if (isClosingRef.current) {
-          return;
-        }
+        eventSource.addEventListener("error", (err: any) => {
+          console.log("[SSE] Error event received:", err);
 
-        const delay =
-            INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current);
-        reconnectAttemptsRef.current += 1;
-
-        console.log(
-            `[SSE] Scheduling reconnect attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS} in ${delay}ms`
-        );
-
-        reconnectTimeoutRef.current = setTimeout(async () => {
           if (isClosingRef.current) {
             return;
           }
 
-          try {
-            console.log("[SSE] Refreshing token before reconnect...");
-            await refresh();
-          } catch (err) {
-            console.warn("[SSE] Token refresh failed during reconnect:", err);
-          }
+          eventSourceRef.current = null;
 
-          connectToStream(endpoint, onMessage, onError);
-        }, delay);
-      },
-      [refresh]
+          const shouldReconnect =
+            reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS &&
+            !isClosingRef.current;
+
+          if (shouldReconnect) {
+            scheduleReconnect(endpoint, onMessage, onError);
+          } else {
+            console.error("[SSE] Max reconnection attempts reached");
+            onError({
+              message: "Verbindung konnte nicht wiederhergestellt werden",
+              status: "max_retries_exceeded",
+            });
+          }
+        });
+
+        eventSource.addEventListener("open", () => {
+          console.log("[SSE] Connection established");
+        });
+      } catch (err) {
+        console.error("[SSE] Failed to create EventSource:", err);
+        if (!isClosingRef.current) {
+          onError(err);
+        }
+      }
+    },
+    [getAccessToken, eventName],
+  );
+
+  const scheduleReconnect = useCallback(
+    (
+      endpoint: string,
+      onMessage: (data: T) => void,
+      onError: (error: any) => void,
+    ) => {
+      if (isClosingRef.current) {
+        return;
+      }
+
+      const delay =
+        INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current);
+      reconnectAttemptsRef.current += 1;
+
+      console.log(
+        `[SSE] Scheduling reconnect attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS} in ${delay}ms`,
+      );
+
+      reconnectTimeoutRef.current = setTimeout(async () => {
+        if (isClosingRef.current) {
+          return;
+        }
+
+        try {
+          console.log("[SSE] Refreshing token before reconnect...");
+          await refresh();
+        } catch (err) {
+          console.warn("[SSE] Token refresh failed during reconnect:", err);
+        }
+
+        connectToStream(endpoint, onMessage, onError);
+      }, delay);
+    },
+    [refresh],
   );
 
   const startStream = useCallback(
-      (
-          endpoint: string,
-          onMessage: (data: T) => void,
-          onError: (error: any) => void,
-      ) => {
-        closeStream();
-        isClosingRef.current = false;
-        currentStreamRef.current = { endpoint, onMessage, onError };
-        connectToStream(endpoint, onMessage, onError);
-      },
-      [connectToStream, closeStream]
+    (
+      endpoint: string,
+      onMessage: (data: T) => void,
+      onError: (error: any) => void,
+    ) => {
+      closeStream();
+      isClosingRef.current = false;
+      currentStreamRef.current = { endpoint, onMessage, onError };
+      connectToStream(endpoint, onMessage, onError);
+    },
+    [connectToStream, closeStream],
   );
 
   useEffect(() => {

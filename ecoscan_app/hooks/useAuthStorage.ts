@@ -33,11 +33,12 @@ export const useAuthStorage = () => {
 
   const loadTokens = useCallback(async () => {
     try {
-      const [storedAccessToken, storedRefreshToken, storedIdToken] = await Promise.all([
-        SecureStore.getItemAsync(SECURE_STORE_KEYS.ACCESS_TOKEN),
-        SecureStore.getItemAsync(SECURE_STORE_KEYS.REFRESH_TOKEN),
-        SecureStore.getItemAsync(SECURE_STORE_KEYS.ID_TOKEN),
-      ]);
+      const [storedAccessToken, storedRefreshToken, storedIdToken] =
+        await Promise.all([
+          SecureStore.getItemAsync(SECURE_STORE_KEYS.ACCESS_TOKEN),
+          SecureStore.getItemAsync(SECURE_STORE_KEYS.REFRESH_TOKEN),
+          SecureStore.getItemAsync(SECURE_STORE_KEYS.ID_TOKEN),
+        ]);
 
       setAccessToken(storedAccessToken || null);
       setRefreshToken(storedRefreshToken || null);
@@ -51,31 +52,46 @@ export const useAuthStorage = () => {
   }, [clearTokens]);
 
   const saveTokens = useCallback(
-      async (tokenResult: AuthSession.TokenResponse) => {
-        try {
-          const promises = [];
+    async (tokenResult: AuthSession.TokenResponse) => {
+      try {
+        const promises = [];
 
-          if (tokenResult.accessToken) {
-            promises.push(SecureStore.setItemAsync(SECURE_STORE_KEYS.ACCESS_TOKEN, tokenResult.accessToken));
-            setAccessToken(tokenResult.accessToken);
-          }
-
-          if (tokenResult.refreshToken) {
-            promises.push(SecureStore.setItemAsync(SECURE_STORE_KEYS.REFRESH_TOKEN, tokenResult.refreshToken));
-            setRefreshToken(tokenResult.refreshToken);
-          }
-
-          if (tokenResult.idToken) {
-            promises.push(SecureStore.setItemAsync(SECURE_STORE_KEYS.ID_TOKEN, tokenResult.idToken));
-            setIdToken(tokenResult.idToken);
-          }
-
-          await Promise.all(promises);
-        } catch (e) {
-          console.error("Failed to save tokens to SecureStore:", e);
+        if (tokenResult.accessToken) {
+          promises.push(
+            SecureStore.setItemAsync(
+              SECURE_STORE_KEYS.ACCESS_TOKEN,
+              tokenResult.accessToken,
+            ),
+          );
+          setAccessToken(tokenResult.accessToken);
         }
-      },
-      [],
+
+        if (tokenResult.refreshToken) {
+          promises.push(
+            SecureStore.setItemAsync(
+              SECURE_STORE_KEYS.REFRESH_TOKEN,
+              tokenResult.refreshToken,
+            ),
+          );
+          setRefreshToken(tokenResult.refreshToken);
+        }
+
+        if (tokenResult.idToken) {
+          promises.push(
+            SecureStore.setItemAsync(
+              SECURE_STORE_KEYS.ID_TOKEN,
+              tokenResult.idToken,
+            ),
+          );
+          setIdToken(tokenResult.idToken);
+        }
+
+        await Promise.all(promises);
+      } catch (e) {
+        console.error("Failed to save tokens to SecureStore:", e);
+      }
+    },
+    [],
   );
 
   useEffect(() => {

@@ -64,33 +64,38 @@ export const useOAuthFlow = ({
     }
   }, [discovery, saveTokens]);
 
-  const refresh = useCallback(async (refreshToken: string) => {
-    if (!discovery) {
-      throw new Error("Cannot refresh: Auth-Service (Discovery) nicht bereit");
-    }
+  const refresh = useCallback(
+    async (refreshToken: string) => {
+      if (!discovery) {
+        throw new Error(
+          "Cannot refresh: Auth-Service (Discovery) nicht bereit",
+        );
+      }
 
-    const tokenInstance = new AuthSession.TokenResponse({
-      accessToken: "",
-      refreshToken,
-    });
+      const tokenInstance = new AuthSession.TokenResponse({
+        accessToken: "",
+        refreshToken,
+      });
 
-    try {
-      const refreshedToken = await tokenInstance.refreshAsync(
+      try {
+        const refreshedToken = await tokenInstance.refreshAsync(
           { clientId: AUTH_CONFIG.clientId },
           discovery,
-      );
+        );
 
-      refreshedToken.refreshToken =
+        refreshedToken.refreshToken =
           refreshedToken.refreshToken ?? refreshToken;
 
-      await saveTokens(refreshedToken);
-      console.info("[OAuthFlow] Token refresh successful");
-      return refreshedToken;
-    } catch (e) {
-      console.error("[OAuthFlow] Token refresh failed", e);
-      throw e;
-    }
-  }, [discovery, saveTokens]);
+        await saveTokens(refreshedToken);
+        console.info("[OAuthFlow] Token refresh successful");
+        return refreshedToken;
+      } catch (e) {
+        console.error("[OAuthFlow] Token refresh failed", e);
+        throw e;
+      }
+    },
+    [discovery, saveTokens],
+  );
 
   const getValidAccessToken = useCallback(async (): Promise<string | null> => {
     if (!tokenConfig) return null;
