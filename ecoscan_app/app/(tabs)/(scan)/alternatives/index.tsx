@@ -4,7 +4,7 @@ import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import * as Location from "expo-location";
 
 import { Linking } from "react-native";
@@ -14,6 +14,8 @@ export default function Index() {
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
   const { alternatives, loading, fetchAlternatives } = useAlternatives();
+
+  const hasFetched = useRef(false);
 
   const handleClick = useCallback((latitude: number, longitude: number) => {
       const url = `https://maps.google.com/?q=48.150139,11.559488`;
@@ -40,11 +42,13 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (product?.id && userLatitude !== -1 && userLongitude !== -1) {
-      //TODO change naming from description to categories
+    if (product?.id && userLatitude !== -1 && userLongitude !== -1 && !hasFetched.current) {
+      hasFetched.current = true;
       fetchAlternatives(product.id, product.description, `${userLatitude},${userLongitude}`);
     }
   }, [product?.id, userLatitude, userLongitude]);
+
+  console.log("Alternatives", alternatives);
 
   return (
     <Surface style={styles.pageStyle}>
@@ -66,22 +70,23 @@ export default function Index() {
         image={product?.imageUrl ?? ""}
         score={product?.score ?? 0}
       />
-      {/*<FlatList*/}
-      {/*    style={{marginTop: 16, paddingHorizontal: 2}}*/}
-      {/*    data={alternatives.sort((a, b) => b.score - a.alternativeScore)}*/}
-      {/*    renderItem={({item}) =>*/}
-      {/*        <AlternativeCard*/}
-      {/*            title={item.title}*/}
-      {/*            image={item.image}*/}
-      {/*            scanScore={item.scanScore}*/}
-      {/*            alternativeScore={item.alternativeScore}*/}
-      {/*            targetLatitude={item.targetLatitude}*/}
-      {/*            targetLongitude={item.targetLongitude}*/}
-      {/*            userLatitude={userLatitude}*/}
-      {/*            userLongitude={userLongitude}*/}
-      {/*        />*/}
-      {/*    }*/}
-      {/*/>*/}
+      <FlatList
+          style={{marginTop: 16, paddingHorizontal: 2}}
+          //TODO Liste sortieren?
+          data={alternatives}
+          renderItem={({item}) =>
+              <AlternativeCard
+                  title={item.name}
+                  image={item.imageUrl ? { uri: item.imageUrl } : null }
+                  scanScore={product?.score ?? 0}
+                  alternativeScore={item.score ?? 0}
+                  targetLatitude={0}
+                  targetLongitude={0}
+                  userLatitude={userLatitude}
+                  userLongitude={userLongitude}
+              />
+          }
+      />
     </Surface>
   );
 }

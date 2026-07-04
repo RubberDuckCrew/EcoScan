@@ -1,9 +1,9 @@
 import { Image, StyleSheet, View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { Card, Text, Avatar } from "react-native-paper";
 import { useEffect, useMemo, useState } from "react";
 
 type AlternativeCardProps = {
-  title: string;
+  name: string;
   image: any;
   scanScore: number;
   alternativeScore: number;
@@ -13,7 +13,7 @@ type AlternativeCardProps = {
   userLongitude: number;
 };
 export default function AlternativeCard({
-  title,
+  name,
   image,
   scanScore,
   alternativeScore,
@@ -46,10 +46,16 @@ export default function AlternativeCard({
   return (
     <Card style={styles.card}>
       <View style={styles.content}>
-        <Image source={image} style={styles.image} />
+        <View style={styles.imageContainer}>
+          {image ? (
+              <Avatar.Image size={64} source={{ uri: image }} />
+          ) : (
+              <Avatar.Icon size={64} icon="image-off" />
+          )}
+        </View>
         <View>
           <Text variant="titleMedium" style={{ fontWeight: "600" }}>
-            {title}
+            {name}
           </Text>
           <Text
             variant="bodyMedium"
