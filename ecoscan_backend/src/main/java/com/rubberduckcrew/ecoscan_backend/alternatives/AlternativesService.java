@@ -10,6 +10,7 @@ import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.score.ScoreService;
@@ -38,6 +39,7 @@ public class AlternativesService {
 
         final UUID jobId = UUID.randomUUID();
         jobSseService.register(jobId,userId);
+        log.info("Registered job {} for user {}", jobId, userId);
 
         final AiDTO<AlternativesRequestDTO> request = new AiDTO<>(
             jobId,
@@ -52,9 +54,7 @@ public class AlternativesService {
         final UUID jobIdAlternatives = result.jobId();
         log.info("Alternatives result for job {}", jobIdAlternatives);
 
-        //        sseService.send(jobId, "product-alternatives", result.data());
-        //        sseService.complete(jobId);
-        //        jobEanService.remove(jobId);
+        final AtomicInteger successCount = new AtomicInteger(0);
 
         result.data().alternatives().forEach(alternative -> {
             final String ean = alternative.ean();
@@ -63,21 +63,32 @@ public class AlternativesService {
                 return;
             }
             try {
-                //TODO id wird null, wenn Product schon analysiert
-                final UUID jobIdAnalyzeProduct = productService.analyzeProduct(ean, null);
+                final UUID owner = jobSseService.getOwner(jobIdAlternatives);
+                final UUID jobIdAnalyzeProduct = productService.analyzeProduct(ean, owner);
                 if (jobIdAnalyzeProduct == null) {
-
                     //GreenScore
-                    final UUID scoreJobId = scoreService.scoreProduct(ean, null);
+                    final UUID scoreJobId = scoreService.scoreProduct(ean, owner);
+                    jobEanService.register(scoreJobId, ean);
                     jobAlternativeService.register(scoreJobId, jobIdAlternatives);
                 }
                 else {
                     jobAlternativeService.register(jobIdAnalyzeProduct, jobIdAlternatives);
                 }
+                successCount.incrementAndGet();
             } catch (Exception e) {
                 log.warn("Failed to analyze alternative product with EAN {}, skipping", ean, e);
+                final boolean completed = jobAlternativeService.incrementAlternativesCounter(jobIdAlternatives);
+                if (completed) {
+                    jobSseService.complete(jobIdAlternatives);
+                }
             }
         });
+
+        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, successCount.get());
         log.info("Result after analyzing product: "+ result.data().alternatives());
+
+        if (successCount.get() == 0) {
+            jobSseService.complete(jobIdAlternatives);
+        }
     }
 }

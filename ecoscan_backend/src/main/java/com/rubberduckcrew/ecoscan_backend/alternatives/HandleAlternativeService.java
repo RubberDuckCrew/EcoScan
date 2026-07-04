@@ -28,10 +28,9 @@ public class HandleAlternativeService {
         if (alternativesJobId == null) return;
 
         //GreenScore
-        final UUID scoreJobId = scoreService.scoreProduct(alternativeProduct.getId(), null);
+        final UUID scoreJobId = scoreService.scoreProduct(alternativeProduct.getId(), alternativesJobId);
         jobEanService.register(scoreJobId, alternativeProduct.getId());
         jobAlternativeService.register(scoreJobId, alternativesJobId);
-
         jobAlternativeService.remove(jobIdAnalyzeProduct);
     }
 
@@ -41,7 +40,6 @@ public class HandleAlternativeService {
         jobSseService.send(alternativesJobId, "product-alternatives", scoredAlternative);
         final boolean completed = jobAlternativeService.incrementAlternativesCounter(alternativesJobId);
         if(completed) {
-            jobSseService.send(alternativesJobId, "product-alternatives-completed", "done");
             jobSseService.complete(alternativesJobId);
         }
     }

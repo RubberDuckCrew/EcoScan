@@ -39,12 +39,15 @@ public class JobAlternativeService {
 
         int value = counter.incrementAndGet();
 
-        if (value == 5) {
+        if (value >= 5) {
             jobAlternativesCounter.remove(jobIdAlternative, counter);
-
             return true;
         }
 
         return false;
+    }
+
+    public void registerAlternativesJob(final UUID jobIdAlternative, final int expectedCount) {
+        jobAlternativesCounter.put(jobIdAlternative, new AtomicInteger(expectedCount));
     }
 }

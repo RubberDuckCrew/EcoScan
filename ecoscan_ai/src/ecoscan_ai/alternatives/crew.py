@@ -23,12 +23,14 @@ class AlternativesCrew:
             config=self.agents_config["coordinates_researcher"],
             tools=[FindNearbyStoresTool()],
             verbose=True,
+            max_rpm = 20,
         )
 
     @task
     def research_alternatives_task(self) -> Task:
         return Task(
             config=self.tasks_config["research_alternatives_task"],
+            agent=self.alternatives_researcher(),
         )
 
     @task
@@ -36,6 +38,7 @@ class AlternativesCrew:
         return Task(
             config=self.tasks_config["find_coordinates_task"],
             output_pydantic=AlternativesResult,
+            agent=self.coordinates_researcher(),
         )
 
     @crew

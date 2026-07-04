@@ -22,9 +22,10 @@ research_alternatives_task:
 
 find_coordinates_task:
   description: >
-    Use the "Find nearby stores" tool with the user coordinates 
+    Use the "Find nearby stores" tool with the user coordinates
     latitude and longitude from {user_coordinates} (format: "lat,lon").
     Find supermarkets near the user, where the alternative product discovered in the previous task (research_alternatives_task) can be bought, and assign one to each alternative EAN.
+    Only try once
   expected_output: >
     A list of each ean number with latitude and longitude of a nearby store.
   agent: coordinates_researcher

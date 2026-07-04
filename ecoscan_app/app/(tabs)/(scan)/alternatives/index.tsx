@@ -22,6 +22,8 @@ export default function Index() {
       Linking.openURL(url);
   });
 
+  console.log("Product aus Kontext: ", product);
+
   useEffect(() => {
     async function getCurrentLocation() {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -44,7 +46,8 @@ export default function Index() {
   useEffect(() => {
     if (product?.id && userLatitude !== -1 && userLongitude !== -1 && !hasFetched.current) {
       hasFetched.current = true;
-      fetchAlternatives(product.id, product.description, `${userLatitude},${userLongitude}`);
+      console.log(product.categories);
+      fetchAlternatives(product.id, product.categories, `${userLatitude},${userLongitude}`);
     }
   }, [product?.id, userLatitude, userLongitude]);
 

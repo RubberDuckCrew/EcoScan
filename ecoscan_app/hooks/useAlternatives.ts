@@ -1,7 +1,6 @@
 import { useApiClient } from "@/utils/apiClient";
 import { useSseClient } from "@/utils/sseClient";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useGreenScore } from "@/hooks/useGreenScore";
 import { Product } from "@/types/product";
 
 type UseAlternativesResult = {
@@ -9,70 +8,51 @@ type UseAlternativesResult = {
   loading: boolean;
   fetchAlternatives: (
     productId: string,
+    categories: string,
     userCoordinates: string,
   ) => Promise<void>;
   onError: (handler: (err?: any) => void) => void;
 };
 
-type Alternative = Product;
-
-type productJobId = Product | string;
-
-type AlternativesSseResult = {
-  ean: string;
+type Alternative = Product & {
   latitude: number;
   longitude: number;
 };
+
 export function useAlternatives(): UseAlternativesResult {
   const api = useApiClient();
-  const { startStream, closeStream } = useSseClient<AlternativesSseResult[]>(
+  const { startStream, closeStream } = useSseClient<Alternative>(
     "product-alternatives",
   );
+  const { startStream: startCompletedStream, closeStream: closeCompletedStream } = useSseClient<boolean>(
+      "product-alternatives-completed",
+  );
+
   const [loading, setLoading] = useState<boolean>(false);
   const [alternatives, setAlternatives] = useState<Alternative[]>([]);
 
   const loadingRef = useRef(false);
   const onErrorRef = useRef<(err?: any) => void>(() => {});
 
+  const cleanupStreams = useCallback(() => {
+    closeStream();
+    closeCompletedStream();
+    setLoading(false);
+    loadingRef.current = false;
+  }, [closeStream, closeCompletedStream]);
+
   useEffect(() => {
     loadingRef.current = loading;
   }, [loading]);
 
-  // useEffect(() => {
-  //     if (!jobId) return;
-  //     startSseListenerAgents(jobId);
-  //     return () => {
-  //         closeStream();
-  //     };
-  // }, [jobId]);
-
-  // const fetchProductRaw = useCallback((ean: string) => {
-  //     async (ean: string): Promise<Product | null> => {
-  //         try {
-  //             return await api.get(`product/${ean}`);
-  //         } catch (e) {
-  //             console.error("Error fetching alternative product", ean, e);
-  //             return null;
-  //         }
-  //     },
-  //     [api],
-  // },[]);
-
-  //TODO von markus
-  const startSseListenerProduct = useCallback(() => {}, []);
-
   const startSseListenerAgents = useCallback(
     (jobId: string) => {
+      //TODO wann stream schließen?
       startStream(
         `jobs/stream/${jobId}`,
-        (result: AlternativesSseResult[]) => {
-          console.info("result: ", result);
-          result.map(async ({ ean }) => {
-            //Product oder JobId
-            // const product = await fetchProductRaw(ean);
-            //TODO Listener dafür aufrufen, wenn jobId
-            startSseListenerProduct();
-          });
+        (result: Product) => {
+          console.info("Alternative received: ", result);
+          setAlternatives((prev => [...prev, result]));
         },
         () => {
           //TODO als int
@@ -85,11 +65,11 @@ export function useAlternatives(): UseAlternativesResult {
         },
       );
     },
-    [startStream],
+    [startStream, ],
   );
 
   const fetchAlternatives = useCallback(
-    async (productId: string, userCoordinates: string) => {
+    async (productId: string, categories: string, userCoordinates: string) => {
       if (loadingRef.current) return;
 
       setLoading(true);
@@ -98,8 +78,9 @@ export function useAlternatives(): UseAlternativesResult {
 
       try {
         const jobId = await api.post(
-          `alternatives/${productId}?userCoordinates=${encodeURIComponent(userCoordinates)}`,
-        );
+            `alternatives/${productId}?categories=${encodeURIComponent(categories)}&userCoordinates=${encodeURIComponent(userCoordinates)}`);
+        console.log("jobId raw:", jobId, "type:", typeof jobId, "length:", jobId?.length);
+        console.log("SSE URL:", `jobs/stream/${jobId}`)
         if (jobId) {
           startSseListenerAgents(jobId);
         }
@@ -111,24 +92,6 @@ export function useAlternatives(): UseAlternativesResult {
 
         setLoading(false);
         loadingRef.current = false;
-      }
-    },
-    [api],
-  );
-
-  const fetchGreenScore = useCallback(
-    async (productId: string) => {
-      if (loadingRef.current) return;
-      setLoading(true);
-      try {
-        const data = await api.post(`score/${productId}`);
-        if (data) {
-        }
-      } catch (err) {
-        try {
-          onErrorRef.current("Produktscore konnte nicht geladen werden.");
-          setLoading(false);
-        } catch (e) {}
       }
     },
     [api],

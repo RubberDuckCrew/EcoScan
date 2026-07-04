@@ -30,6 +30,7 @@ public class AlternativesController {
         log.info("userId: {}", userId);
         final UUID jobId = alternativesService.findAlternatives(categories, userCoordinates, userId);
         jobEanService.register(jobId, id);
+        log.info("Returning jobId to frontend: {}", jobId);
         return ResponseEntity.ok(jobId);
     }
 }

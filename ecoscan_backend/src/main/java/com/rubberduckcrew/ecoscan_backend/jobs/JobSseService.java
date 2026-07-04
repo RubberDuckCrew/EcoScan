@@ -13,7 +13,15 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Service
 @Slf4j
 public class JobSseService extends SseService<UUID, JobSseService.JobState> {
-    private static final long DEFAULT_TIMEOUT_MS = 600_000L;
+    private static final long DEFAULT_TIMEOUT_MS = 600_000_000L;
+
+    public UUID getOwner(final UUID jobId) {
+        final JobState state = store.get(jobId);
+        if (state == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found");
+        }
+        return state.ownerId;
+    }
 
     public void register(final UUID jobId, final UUID userId) {
         final JobState state = store.computeIfAbsent(jobId, _ -> new JobState());
