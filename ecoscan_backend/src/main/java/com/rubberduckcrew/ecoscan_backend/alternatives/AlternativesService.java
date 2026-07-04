@@ -7,8 +7,12 @@ import com.rubberduckcrew.ecoscan_backend.food_data.FoodDataRepository;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
+import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import java.util.UUID;
+
+import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
+import com.rubberduckcrew.ecoscan_backend.score.ScoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -26,14 +30,21 @@ public class AlternativesService {
     private final RabbitTemplate rabbitTemplate;
     private final JobSseService jobSseService;
     private final FoodDataRepository foodDataRepository;
+    private final ProductRepository productRepository;
+    private final ScoreService scoreService;
 
-    public UUID findAlternatives(final String categories, final String userCoordinates) {
+    public UUID findAlternatives(final String categories, final String userCoordinates, final UUID userId) {
+        log.info("findAlternatives");
+
+        final UUID jobId = UUID.randomUUID();
+        jobSseService.register(jobId,userId);
+
         final AiDTO<AlternativesRequestDTO> request = new AiDTO<>(
-            UUID.randomUUID(),
+            jobId,
             new AlternativesRequestDTO(categories, userCoordinates));
 
         rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives", request);
-        return request.jobId();
+        return jobId;
     }
 
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.alternatives"))
@@ -52,11 +63,21 @@ public class AlternativesService {
                 return;
             }
             try {
+                //TODO id wird null, wenn Product schon analysiert
                 final UUID jobIdAnalyzeProduct = productService.analyzeProduct(ean, null);
-                jobAlternativeService.register(jobIdAnalyzeProduct, jobIdAlternatives);
+                if (jobIdAnalyzeProduct == null) {
+
+                    //GreenScore
+                    final UUID scoreJobId = scoreService.scoreProduct(ean, null);
+                    jobAlternativeService.register(scoreJobId, jobIdAlternatives);
+                }
+                else {
+                    jobAlternativeService.register(jobIdAnalyzeProduct, jobIdAlternatives);
+                }
             } catch (Exception e) {
                 log.warn("Failed to analyze alternative product with EAN {}, skipping", ean, e);
             }
         });
+        log.info("Result after analyzing product: "+ result.data().alternatives());
     }
 }

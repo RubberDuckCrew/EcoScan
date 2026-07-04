@@ -1,6 +1,7 @@
 package com.rubberduckcrew.ecoscan_backend.alternatives;
 
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
+import com.rubberduckcrew.ecoscan_backend.utils.AuthUtils;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,10 @@ public class AlternativesController {
             @PathVariable final String id,
         @NotNull @RequestParam final String categories,
         @NotNull @RequestParam final String userCoordinates) {
-        final UUID jobId = alternativesService.findAlternatives(categories, userCoordinates);
-        jobEanService.register(jobId, categories);
+        final UUID userId = AuthUtils.getSub();
+        log.info("userId: {}", userId);
+        final UUID jobId = alternativesService.findAlternatives(categories, userCoordinates, userId);
+        jobEanService.register(jobId, id);
         return ResponseEntity.ok(jobId);
     }
 }
