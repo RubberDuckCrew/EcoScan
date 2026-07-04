@@ -66,10 +66,19 @@ export const useOAuthFlow = ({
 
   const refresh = useCallback(
     async (refreshToken: string) => {
-      if (!discovery) {
-        throw new Error(
-          "Cannot refresh: Auth-Service (Discovery) nicht bereit",
-        );
+      let currentDiscovery = discovery;
+
+      if (!currentDiscovery) {
+        try {
+          console.log("[OAuthFlow] Discovery missing. Loading on-the-fly ...");
+          currentDiscovery = await AuthSession.fetchDiscoveryAsync(
+            AUTH_CONFIG.issuer,
+          );
+        } catch (e) {
+          throw new Error(
+            "Cannot refresh: Auth-Service (Discovery) is not available",
+          );
+        }
       }
 
       const tokenInstance = new AuthSession.TokenResponse({
@@ -80,7 +89,7 @@ export const useOAuthFlow = ({
       try {
         const refreshedToken = await tokenInstance.refreshAsync(
           { clientId: AUTH_CONFIG.clientId },
-          discovery,
+          currentDiscovery,
         );
 
         refreshedToken.refreshToken =
