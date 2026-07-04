@@ -67,8 +67,12 @@ export const useApiClient = () => {
           method: "PUT",
           body: JSON.stringify(body),
         }),
-      delete: (endpoint: string, options?: RequestInit) =>
-        request(endpoint, { ...options, method: "DELETE" }),
+      delete: (endpoint: string, body?: any, options?: RequestInit) =>
+        request(endpoint, {
+          ...options,
+          method: "DELETE",
+          body: body ? JSON.stringify(body) : undefined,
+        }),
     }),
     [request],
   );
