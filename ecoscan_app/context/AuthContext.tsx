@@ -101,14 +101,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [saveTokensToStorage],
   );
 
+  const tokenConfig: AuthSession.TokenResponseConfig | null =
+    accessTokenRef.current
+      ? {
+          accessToken: accessTokenRef.current,
+          idToken: idTokenRef.current ?? undefined,
+          refreshToken: refreshTokenRef.current ?? undefined,
+        }
+      : null;
+
   const {
     login: oauthLogin,
     logout: oauthLogout,
     refresh: refreshOAuth,
     isDiscoveryLoading,
+    getValidAccessToken,
   } = useOAuthFlow({
     saveTokens,
     clearTokens: handleClearTokens,
+    tokenConfig,
   });
 
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
