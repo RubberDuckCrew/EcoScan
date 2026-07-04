@@ -116,6 +116,7 @@ public class JobSseService extends SseService<UUID, JobSseService.JobState> {
     }
 
     private void cleanup(final UUID jobId, final JobState state) {
+        log.info("Cleaning up SSE emitter for job {}", jobId);
         withLock(state, () -> {
             state.completed = true;
             return null;

@@ -54,19 +54,22 @@ public class AlternativesService {
         final UUID jobIdAlternatives = result.jobId();
         log.info("Alternatives result for job {}", jobIdAlternatives);
 
-        final AtomicInteger successCount = new AtomicInteger(0);
+        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, result.data().alternatives().size());
 
         result.data().alternatives().forEach(alternative -> {
             final String ean = alternative.ean();
             if (ean == null) {
                 log.warn("Alternative has no EAN, skipping");
+                final boolean completed = jobAlternativeService.incrementAlternativesCounter(jobIdAlternatives);
+                if (completed) {
+                    jobSseService.complete(jobIdAlternatives);
+                }
                 return;
             }
             try {
                 final UUID owner = jobSseService.getOwner(jobIdAlternatives);
                 final UUID jobIdAnalyzeProduct = productService.analyzeProduct(ean, owner);
                 if (jobIdAnalyzeProduct == null) {
-                    //GreenScore
                     final UUID scoreJobId = scoreService.scoreProduct(ean, owner);
                     jobEanService.register(scoreJobId, ean);
                     jobAlternativeService.register(scoreJobId, jobIdAlternatives);
@@ -74,7 +77,6 @@ public class AlternativesService {
                 else {
                     jobAlternativeService.register(jobIdAnalyzeProduct, jobIdAlternatives);
                 }
-                successCount.incrementAndGet();
             } catch (Exception e) {
                 log.warn("Failed to analyze alternative product with EAN {}, skipping", ean, e);
                 final boolean completed = jobAlternativeService.incrementAlternativesCounter(jobIdAlternatives);
@@ -84,11 +86,6 @@ public class AlternativesService {
             }
         });
 
-        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, successCount.get());
-        log.info("Result after analyzing product: "+ result.data().alternatives());
-
-        if (successCount.get() == 0) {
-            jobSseService.complete(jobIdAlternatives);
-        }
+        log.info("Result after analyzing product: {}", result.data().alternatives());
     }
 }

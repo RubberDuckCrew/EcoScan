@@ -6,9 +6,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Service
+@Slf4j @Service
 public class JobAlternativeService {
     private final Map<UUID, UUID> jobAlternativeMap = new ConcurrentHashMap<>(); //Key: JobId von analyzeProduct oder greenScore, Value: jobId von findAlternatives
     private final Map<UUID, AtomicInteger> jobAlternativesCounter = new ConcurrentHashMap<>(); //Key: JobId von findAlternatives, Value: Anzahl ans Frontend gesendeter Alternativen
@@ -48,6 +49,6 @@ public class JobAlternativeService {
     }
 
     public void registerAlternativesJob(final UUID jobIdAlternative, final int expectedCount) {
-        jobAlternativesCounter.put(jobIdAlternative, new AtomicInteger(expectedCount));
+        jobAlternativesCounter.put(jobIdAlternative, new AtomicInteger(0));
     }
 }
