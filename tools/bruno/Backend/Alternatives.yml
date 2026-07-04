@@ -5,10 +5,13 @@ info:
 
 http:
   method: POST
-  url: "{{backend}}/alternatives/:productId?userCoordinates=43.1452,45.1236"
+  url: "{{backend}}/alternatives/:productId?userCoordinates=48.150139,11.559488&categories=Kaugummi"
   params:
     - name: userCoordinates
-      value: 43.1452,45.1236
+      value: 48.150139,11.559488
+      type: query
+    - name: categories
+      value: Kaugummi
       type: query
     - name: productId
       value: "4009900538664"
