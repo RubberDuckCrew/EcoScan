@@ -1,17 +1,24 @@
 import { FlatList, StyleSheet } from "react-native";
-import { Surface, Text } from "react-native-paper";
+import { Surface, Text, Button } from "react-native-paper";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import * as Location from "expo-location";
 
-export default function AlternativesScreen() {
+import { Linking } from "react-native";
+
+export default function Index() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
   const { alternatives, loading, fetchAlternatives } = useAlternatives();
+
+  const handleClick = useCallback((latitude: number, longitude: number) => {
+      const url = `https://maps.google.com/?q=48.150139,11.559488`;
+      Linking.openURL(url);
+  });
 
   useEffect(() => {
     async function getCurrentLocation() {
@@ -34,7 +41,8 @@ export default function AlternativesScreen() {
 
   useEffect(() => {
     if (product?.id && userLatitude !== -1 && userLongitude !== -1) {
-      fetchAlternatives(product.id, `${userLatitude},${userLongitude}`);
+      //TODO change naming from description to categories
+      fetchAlternatives(product.id, product.description, `${userLatitude},${userLongitude}`);
     }
   }, [product?.id, userLatitude, userLongitude]);
 
@@ -46,6 +54,12 @@ export default function AlternativesScreen() {
       <Text variant={"bodyLarge"} style={styles.subHeadline}>
         In deiner Nähe verfügbar
       </Text>
+      <Button
+          mode={"contained"}
+        onPress={handleClick}
+        >
+        Alternativen
+    </Button>
       <ProductCard
         title={product?.name ?? ""}
         description={product?.description ?? ""}

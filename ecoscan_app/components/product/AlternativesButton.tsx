@@ -13,7 +13,7 @@ export default function AlternativesButton({
 
   const handlePress = () => {
     router.push({
-      pathname: "/alternatives/AlternativesScreen",
+      pathname: "/(tabs)/(scan)/alternatives",
     });
   };
 
