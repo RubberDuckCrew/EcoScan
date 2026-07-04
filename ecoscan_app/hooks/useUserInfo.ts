@@ -5,7 +5,7 @@ import * as AuthSession from "expo-auth-session";
 import { useEffect, useState } from "react";
 
 export const useUserInfo = () => {
-  const { getAccessToken, refresh } = useAuth();
+  const { getAccessToken, refresh, isAuthenticated } = useAuth();
   const [userInfo, setUserInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export const useUserInfo = () => {
     };
 
     loadAccessToken();
-  }, [getAccessToken]);
+  }, [getAccessToken, isAuthenticated]);
 
   const fetchUserInfo = async () => {
     if (!accessToken) {
