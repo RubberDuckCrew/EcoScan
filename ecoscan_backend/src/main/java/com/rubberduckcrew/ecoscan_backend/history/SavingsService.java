@@ -68,7 +68,7 @@ public class SavingsService {
                 .title("Dein Wochen-Ergebnis \uD83C\uDF3F")
                 .message(String.format(Locale.GERMANY, "Du hast diese Woche %,.1f kg CO₂ eingespart! Sieh dir jetzt deine gesamte Statistik an.",
                     result.data().co2Saving()))
-                .url("/History")
+                .url("/(tabs)/(history)")
                 .build());
     }
 
