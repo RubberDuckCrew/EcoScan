@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [oauthLogin]);
 
   const logout = useCallback(async () => {
-    await oauthLogout();
+    await oauthLogout(idTokenRef.current);
   }, [oauthLogout]);
 
   const value: AuthContextType = {

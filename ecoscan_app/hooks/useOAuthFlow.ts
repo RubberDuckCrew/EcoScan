@@ -133,27 +133,28 @@ export const useOAuthFlow = ({
     return tokenInstance.accessToken;
   }, [tokenConfig, discovery, saveTokens, clearTokens]);
 
-  const logout = useCallback(async () => {
-    if (!discovery) {
-      await clearTokens();
-      return;
-    }
+  const logout = useCallback(
+    async (idToken?: string | null) => {
+      if (!discovery) {
+        await clearTokens();
+        return;
+      }
 
-    const idToken = tokenConfig?.idToken;
-
-    try {
-      const logoutUrl = `${discovery.endSessionEndpoint}?client_id=${
-        AUTH_CONFIG.clientId
-      }${idToken ? `&id_token_hint=${idToken}` : ""}&post_logout_redirect_uri=${encodeURIComponent(
-        redirectUri,
-      )}`;
-      await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
-    } catch (e) {
-      console.error("Logout failed", e);
-    } finally {
-      await clearTokens();
-    }
-  }, [tokenConfig, discovery, clearTokens]);
+      try {
+        const logoutUrl = `${discovery.endSessionEndpoint}?client_id=${
+          AUTH_CONFIG.clientId
+        }${idToken ? `&id_token_hint=${idToken}` : ""}&post_logout_redirect_uri=${encodeURIComponent(
+          redirectUri,
+        )}`;
+        await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
+      } catch (e) {
+        console.error("Logout failed", e);
+      } finally {
+        await clearTokens();
+      }
+    },
+    [discovery, clearTokens],
+  );
 
   return {
     login,

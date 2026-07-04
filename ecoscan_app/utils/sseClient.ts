@@ -72,7 +72,6 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
         });
 
         eventSourceRef.current = eventSource;
-        reconnectAttemptsRef.current = 0;
 
         eventSource.addEventListener(eventName, (event: any) => {
           try {
@@ -108,6 +107,7 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
         });
 
         eventSource.addEventListener("open", () => {
+          reconnectAttemptsRef.current = 0;
           console.log("[SSE] Connection established");
         });
       } catch (err) {
