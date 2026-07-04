@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         refreshToken: initialRefreshToken,
         isStorageLoading,
         saveTokens: saveTokensToStorage,
-        clearTokens,
+        clearTokens: clearTokensFromStorage,
     } = useAuthStorage();
 
     const accessTokenRef = useRef<string | null>(initialAccessToken);
@@ -52,6 +52,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const tokenExpiresAtRef = useRef<number | null>(
         getTokenExpiresAt(initialAccessToken)
     );
+
+    const [isAuthenticatedState, setIsAuthenticatedState] = useState(
+        !!initialAccessToken && !!initialRefreshToken
+    );
+    const [isLoadingState, setIsLoadingState] = useState(isStorageLoading);
+
+    const handleClearTokens = useCallback(async () => {
+        await clearTokensFromStorage();
+
+        accessTokenRef.current = null;
+        idTokenRef.current = null;
+        refreshTokenRef.current = null;
+        tokenExpiresAtRef.current = null;
+
+        setIsAuthenticatedState(false);
+        console.log("[Auth] Tokens cleared and user logged out");
+    }, [clearTokensFromStorage]);
 
     const saveTokens = useCallback(
         async (tokenResult: AuthSession.TokenResponse) => {
@@ -68,7 +85,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 refreshTokenRef.current = tokenResult.refreshToken;
             }
 
-            console.log("[Auth] Tokens updated in refs (silent update)");
+            setIsAuthenticatedState(!!tokenResult.accessToken && !!tokenResult.refreshToken);
+
+            console.log("[Auth] Tokens updated in refs and state");
         },
         [saveTokensToStorage]
     );
@@ -79,18 +98,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         refresh: refreshOAuth,
         isDiscoveryLoading,
     } = useOAuthFlow({
-        idToken: initialIdToken,
-        refreshToken: initialRefreshToken,
         saveTokens,
-        clearTokens,
+        clearTokens: handleClearTokens,
     });
-
-    const [isAuthenticatedState, setIsAuthenticatedState] = useState(
-        !!initialAccessToken && !!initialRefreshToken
-    );
-    const [isLoadingState, setIsLoadingState] = useState(
-        isStorageLoading || isDiscoveryLoading
-    );
 
     const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isRefreshingRef = useRef(false);
@@ -122,7 +132,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         const now = Date.now();
         const timeUntilExpiry = tokenExpiresAt - now;
-
         const REFRESH_THRESHOLD = 60 * 1000;
         const delayUntilRefresh = Math.max(0, timeUntilExpiry - REFRESH_THRESHOLD);
 
@@ -142,23 +151,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, [tokenExpiresAtRef.current?.toString()]);
 
     const refreshInternal = useCallback(async () => {
-        if (isRefreshingRef.current || !refreshTokenRef.current) {
+        const currentRefreshToken = refreshTokenRef.current;
+
+        if (isRefreshingRef.current || !currentRefreshToken) {
             return;
         }
 
         isRefreshingRef.current = true;
         try {
             console.log("[Auth] Refreshing tokens in background...");
-            await refreshOAuth();
-
+            await refreshOAuth(currentRefreshToken);
             console.log("[Auth] Tokens refreshed successfully (silent)");
         } catch (e) {
             console.error("[Auth] Failed to refresh tokens:", e);
-            await clearTokens();
+            await handleClearTokens();
         } finally {
             isRefreshingRef.current = false;
         }
-    }, [refreshOAuth, clearTokens]);
+    }, [refreshOAuth, handleClearTokens]);
 
     const refresh = useCallback(async () => {
         await refreshInternal();

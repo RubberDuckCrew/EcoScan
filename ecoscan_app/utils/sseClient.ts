@@ -16,8 +16,7 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 const INITIAL_RECONNECT_DELAY = 2000;
 
 export function useSseClient<T>(eventName: string): SseClient<T> {
-  const { getAccessToken, refreshTokens } = useAuth();
-
+  const { getAccessToken, refresh } = useAuth();
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
@@ -146,7 +145,7 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
 
           try {
             console.log("[SSE] Refreshing token before reconnect...");
-            await refreshTokens();
+            await refresh();
           } catch (err) {
             console.warn("[SSE] Token refresh failed during reconnect:", err);
           }
@@ -154,7 +153,7 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
           connectToStream(endpoint, onMessage, onError);
         }, delay);
       },
-      [refreshTokens]
+      [refresh]
   );
 
   const startStream = useCallback(
