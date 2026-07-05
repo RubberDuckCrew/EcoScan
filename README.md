@@ -59,5 +59,5 @@ graph TD
 ### 👥 Contributors
 
 <a href="https://github.com/RubberDuckCrew/EcoScan/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=RubberDuckCrew/EcoScan" />
+  <img src="https://contrib.rocks/image?repo=RubberDuckCrew/EcoScan" alt="EcoScan contributors" />
 </a>
