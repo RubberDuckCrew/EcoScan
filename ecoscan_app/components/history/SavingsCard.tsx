@@ -40,7 +40,7 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
                   variant="displayLarge"
                   style={[styles.text, styles.title]}
                 >
-                  {savings && savings.co2Saving
+                  {savings && savings.co2Saving != undefined
                     ? savings.co2Saving.toFixed(1).replace(".", ",")
                     : "-"}
                 </Text>
@@ -50,7 +50,7 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
               </View>
               <Text variant="bodyLarge" style={styles.text}>
                 Das entspricht{" "}
-                {savings && savings.carRideEquivalent
+                {savings && savings.carRideEquivalent != undefined
                   ? savings.carRideEquivalent.toFixed(0)
                   : "-"}{" "}
                 km Autofahrt.
