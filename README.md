@@ -6,6 +6,8 @@
 
 **EcoScan** is a mobile app that enables to you track and analyze the ecological footprint of food products. By scanning barcodes on the go, EcoScan connects with a local Open Food Facts database and leverages intelligent AI agents to deliver detailed insights into the environmental impact of your daily choices.
 
+For setting up your local environment, check the [Local Setup Guide](./SETUP.md).
+
 > ⚠️ This app was built as a university project submission for a course module.
 
 ## 🚀 Features
