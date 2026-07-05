@@ -43,8 +43,7 @@ public class FoodDataRepository {
         }
         product.setCategories(categories);
         product.setDescription("");
-        //TODO fix dummy values
-        product.setImageUrl("");
+        product.setImageUrl(OpenFoodFactsImageUtil.getFrontImageUrl(product.getId()));
         product.setData("");
         return product;
     }
