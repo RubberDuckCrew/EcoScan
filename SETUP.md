@@ -10,6 +10,20 @@ Make sure you have the following installed on your development machine:
 - **Node.js** (see [mise.toml](./mise.toml) for versions)
 - **Git**
 
+## 🌐 Network Configuration
+
+Services run on `localhost` of your machine, but mobile devices need to reach them over the network. The correct host depends on your target:
+
+| Target | Host |
+|---|---|
+| **Physical device** | Your machine's local IP (e.g., `192.168.1.100`) |
+| **Android emulator** | `10.0.2.2` (Android host alias) |
+| **iOS simulator** | `localhost` (no change needed) |
+
+> 💡 **Android tip:** Use `adb reverse tcp:8100 tcp:8100` and `adb reverse tcp:8080 tcp:8080` to forward ports from your Android device (physical or emulator) to your host — then you can keep `localhost` in the URLs below.
+
+You'll need to substitute the correct host in the next steps wherever you see `<HOST>`.
+
 ## 🛠️ Step-by-Step Setup
 
 ### 1. Download the OpenFoodFacts Database
@@ -39,10 +53,8 @@ cp .env.example .env
 Inside the root [.env](./.env), configure your Keycloak external hostname:
 
 ```env
-KEYCLOAK_HOSTNAME=http://localhost:8100
+KEYCLOAK_HOSTNAME=http://<HOST>:8100
 ```
-
-*(Note: If you plan on testing the mobile app on a physical device, replace `localhost` with your local development machine's IP address, e.g., `http://192.168.1.100:8100`)*
 
 ### 3. Configure the AI Service LLM
 
@@ -71,19 +83,11 @@ To connect the mobile application to your local stack, locate [ecoscan_app/.env]
 Update the IP addresses for Keycloak and the backend:
 
 ```env
-EXPO_PUBLIC_KEYCLOAK_URL=http://localhost:8100
+EXPO_PUBLIC_KEYCLOAK_URL=http://<HOST>:8100
 EXPO_PUBLIC_KEYCLOAK_REALM=local_realm
 EXPO_PUBLIC_KEYCLOAK_CLIENT_ID=local
-EXPO_PUBLIC_BACKEND_URL=http://localhost:8080/api
+EXPO_PUBLIC_BACKEND_URL=http://<HOST>:8080/api
 ```
-
-> [!IMPORTANT]
-> If you are running the app on a **physical mobile device** or a **separate simulator/emulator**, `localhost` will not resolve to your computer.
-> You must replace `localhost` with your machine's local IP address (e.g., `192.168.1.100`):
-> ```env
-> EXPO_PUBLIC_KEYCLOAK_URL=http://192.168.1.100:8100
-> EXPO_PUBLIC_BACKEND_URL=http://192.168.1.100:8080/api
-> ```
 
 ### 5. Launch the Infrastructure Stack
 
