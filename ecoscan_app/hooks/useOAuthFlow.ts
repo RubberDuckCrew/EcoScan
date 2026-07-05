@@ -7,15 +7,13 @@ import { AUTH_CONFIG } from "@/utils/authConfig";
 const redirectUri = AuthSession.makeRedirectUri();
 
 interface UseOAuthFlowProps {
-  idToken: string | null;
-  refreshToken: string | null;
+  tokenConfig: AuthSession.TokenResponseConfig | null;
   saveTokens: (tokens: AuthSession.TokenResponse) => Promise<void>;
   clearTokens: () => Promise<void>;
 }
 
 export const useOAuthFlow = ({
-  idToken,
-  refreshToken,
+  tokenConfig,
   saveTokens,
   clearTokens,
 }: UseOAuthFlowProps) => {
@@ -66,44 +64,103 @@ export const useOAuthFlow = ({
     }
   }, [discovery, saveTokens]);
 
-  const refresh = useCallback(async () => {
-    if (!refreshToken || !discovery) return;
-    try {
-      const tokenResult = await AuthSession.refreshAsync(
-        { clientId: AUTH_CONFIG.clientId, refreshToken },
-        discovery,
-      );
-      await saveTokens(tokenResult);
-    } catch (e) {
-      console.error("Refresh failed", e);
-      await logout();
-    }
-  }, [refreshToken, discovery, saveTokens, clearTokens]);
+  const refresh = useCallback(
+    async (refreshToken: string) => {
+      let currentDiscovery = discovery;
 
-  const logout = useCallback(async () => {
-    if (!discovery) {
-      await clearTokens();
-      return;
+      if (!currentDiscovery) {
+        try {
+          console.log("[OAuthFlow] Discovery missing. Loading on-the-fly ...");
+          currentDiscovery = await AuthSession.fetchDiscoveryAsync(
+            AUTH_CONFIG.issuer,
+          );
+        } catch (e) {
+          throw new Error(
+            "Cannot refresh: Auth-Service (Discovery) is not available",
+          );
+        }
+      }
+
+      const tokenInstance = new AuthSession.TokenResponse({
+        accessToken: "",
+        refreshToken,
+      });
+
+      try {
+        const refreshedToken = await tokenInstance.refreshAsync(
+          { clientId: AUTH_CONFIG.clientId },
+          currentDiscovery,
+        );
+
+        refreshedToken.refreshToken =
+          refreshedToken.refreshToken ?? refreshToken;
+
+        await saveTokens(refreshedToken);
+        console.info("[OAuthFlow] Token refresh successful");
+        return refreshedToken;
+      } catch (e) {
+        console.error("[OAuthFlow] Token refresh failed", e);
+        throw e;
+      }
+    },
+    [discovery, saveTokens],
+  );
+
+  const getValidAccessToken = useCallback(async (): Promise<string | null> => {
+    if (!tokenConfig) return null;
+
+    const tokenInstance = new AuthSession.TokenResponse(tokenConfig);
+
+    if (tokenInstance.shouldRefresh()) {
+      if (!discovery) return null;
+      try {
+        const refreshedToken = await tokenInstance.refreshAsync(
+          { clientId: AUTH_CONFIG.clientId },
+          discovery,
+        );
+        refreshedToken.refreshToken =
+          refreshedToken.refreshToken ?? tokenInstance.refreshToken;
+        await saveTokens(refreshedToken);
+        console.info("Refreshed access token successfully");
+        return refreshedToken.accessToken;
+      } catch (e) {
+        console.error("Auto-refresh failed, forcing logout", e);
+        await clearTokens();
+        return null;
+      }
     }
 
-    try {
-      const logoutUrl = `${discovery.endSessionEndpoint}?client_id=${
-        AUTH_CONFIG.clientId
-      }${idToken ? `&id_token_hint=${idToken}` : ""}&post_logout_redirect_uri=${encodeURIComponent(
-        redirectUri,
-      )}`;
-      await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
-    } catch (e) {
-      console.error("Logout failed", e);
-    } finally {
-      await clearTokens();
-    }
-  }, [idToken, discovery, clearTokens]);
+    return tokenInstance.accessToken;
+  }, [tokenConfig, discovery, saveTokens, clearTokens]);
+
+  const logout = useCallback(
+    async (idToken?: string | null) => {
+      if (!discovery) {
+        await clearTokens();
+        return;
+      }
+
+      try {
+        const logoutUrl = `${discovery.endSessionEndpoint}?client_id=${
+          AUTH_CONFIG.clientId
+        }${idToken ? `&id_token_hint=${idToken}` : ""}&post_logout_redirect_uri=${encodeURIComponent(
+          redirectUri,
+        )}`;
+        await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
+      } catch (e) {
+        console.error("Logout failed", e);
+      } finally {
+        await clearTokens();
+      }
+    },
+    [discovery, clearTokens],
+  );
 
   return {
     login,
     logout,
     refresh,
+    getValidAccessToken,
     isDiscoveryLoading,
     discovery,
   };

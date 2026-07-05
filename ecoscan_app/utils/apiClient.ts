@@ -6,17 +6,19 @@ type ApiClient = {
   get: (endpoint: string, options?: RequestInit) => Promise<any>;
   post: (endpoint: string, body?: any, options?: RequestInit) => Promise<any>;
   put: (endpoint: string, body?: any, options?: RequestInit) => Promise<any>;
-  delete: (endpoint: string, options?: RequestInit) => Promise<any>;
+  delete: (endpoint: string, body?: any, options?: RequestInit) => Promise<any>;
 };
 
 export const useApiClient = () => {
-  const { accessToken, refresh } = useAuth();
+  const { getAccessToken, refresh } = useAuth();
 
   const request = useCallback(
     async (endpoint: string, options: RequestInit = {}, isRetry = false) => {
       const url = `${ENV.backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
       const headers = new Headers(options.headers);
+
+      const accessToken = getAccessToken();
       if (accessToken) {
         headers.set("Authorization", `Bearer ${accessToken}`);
       }
@@ -46,7 +48,7 @@ export const useApiClient = () => {
       }
       return await response.text();
     },
-    [accessToken, refresh],
+    [getAccessToken, refresh],
   );
 
   return useMemo(
@@ -65,8 +67,12 @@ export const useApiClient = () => {
           method: "PUT",
           body: JSON.stringify(body),
         }),
-      delete: (endpoint: string, options?: RequestInit) =>
-        request(endpoint, { ...options, method: "DELETE" }),
+      delete: (endpoint: string, body?: any, options?: RequestInit) =>
+        request(endpoint, {
+          ...options,
+          method: "DELETE",
+          body: body ? JSON.stringify(body) : undefined,
+        }),
     }),
     [request],
   );
