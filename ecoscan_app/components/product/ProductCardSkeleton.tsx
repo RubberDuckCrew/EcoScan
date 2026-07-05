@@ -14,6 +14,6 @@ export default function ProductCardSkeleton() {
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 8,
-    gap: 4
+    gap: 4,
   },
 });
