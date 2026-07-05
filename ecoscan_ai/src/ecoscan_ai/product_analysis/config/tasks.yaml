@@ -5,8 +5,8 @@ description_task:
     Kern des Produkts erfassen und genau einen Satz lang sein.
   expected_output: >
     Eine deutsche Ein-Satz-Beschreibung des Produkts, die seinen Zweck und seine wichtigsten 
-    Merkmale klar vermittelt. Das Format ist UTF-8, also ohne sonderzeichen wie umlaute oder 
-    andere nicht ascii Zeichen.
+    Merkmale klar vermittelt. Erlaubt sind nur ASCII-Zeichen, also ohne sonderzeichen wie umlaute
+    oder andere nicht ascii Zeichen.
   agent: description_generator
 
 analysis_task:

@@ -42,7 +42,7 @@ public class FoodDataRepository {
             categories = "{}";
         }
         product.setCategories(categories);
-        product.setDescription(categories);
+        product.setDescription("");
         //TODO fix dummy values
         product.setImageUrl("");
         product.setData("");
