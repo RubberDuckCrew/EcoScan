@@ -2,11 +2,13 @@ description_task:
   description: >
     Generiere eine deutsche Ein-Satz-Beschreibung des Produkts: {productName} mit den Kategorien:
     {productCategories}. Die Beschreibung sollte prägnant, informativ und ansprechend sein, den 
-    Kern des Produkts erfassen und genau einen Satz lang sein.
+    Kern des Produkts erfassen und genau einen Satz lang sein. Erlaubt sind nur ASCII-Zeichen, 
+    also ohne sonderzeichen wie umlaute oder andere nicht ascii Zeichen.
   expected_output: >
-    Eine deutsche Ein-Satz-Beschreibung des Produkts, die seinen Zweck und seine wichtigsten 
-    Merkmale klar vermittelt. Erlaubt sind nur ASCII-Zeichen, also ohne sonderzeichen wie umlaute
-    oder andere nicht ascii Zeichen.
+    Ein valides JSON-Objekt mit genau einem Feld:
+    {
+      "description": "<hier die Ein-Satz-Beschreibung>"
+    }
   agent: description_generator
 
 analysis_task:
@@ -16,10 +18,9 @@ analysis_task:
     Gather all available data about the product focusing on: its identifying features, ecological 
     impact, sustainability aspects amd any other relevant information that can be found.
   expected_output: >
-    A comprehensive report about the product, including but not limited to:
-    - Identifying features
-    - Ecological impact
-    - Sustainability aspects
-    - Any other relevant information that can be found.
+    A valid JSON object with exactly one field:
+    {
+      "data": "<structured information about the product>"
+    }
   context: [description_task]
   agent: product_analyzer
