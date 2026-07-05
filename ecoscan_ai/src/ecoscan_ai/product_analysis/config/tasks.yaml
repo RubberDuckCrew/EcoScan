@@ -1,10 +1,12 @@
 description_task:
   description: >
-    Generate a one-sentence description of the product: {productName} with the categories: {productCategories}.
-    The description should be concise, informative, and engaging, capturing the essence of the 
-    product while still being exactly one sentence.
+    Generiere eine deutsche Ein-Satz-Beschreibung des Produkts: {productName} mit den Kategorien:
+    {productCategories}. Die Beschreibung sollte prägnant, informativ und ansprechend sein, den 
+    Kern des Produkts erfassen und genau einen Satz lang sein.
   expected_output: >
-    A one-sentence description of the product that clearly conveys its purpose and key features.
+    Eine deutsche Ein-Satz-Beschreibung des Produkts, die seinen Zweck und seine wichtigsten 
+    Merkmale klar vermittelt. Das Format ist UTF-8, also ohne sonderzeichen wie umlaute oder 
+    andere nicht ascii Zeichen.
   agent: description_generator
 
 analysis_task:
@@ -19,4 +21,5 @@ analysis_task:
     - Ecological impact
     - Sustainability aspects
     - Any other relevant information that can be found.
+  context: [description_task]
   agent: product_analyzer

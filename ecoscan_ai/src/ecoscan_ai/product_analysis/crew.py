@@ -51,4 +51,5 @@ class ProductAnalysisCrew:
         pydantic_output: ProductAnalysisResult = result.pydantic  # type: ignore[assignment]
         if pydantic_output is None:
             raise ValueError("Crew did not produce a valid ProductAnalysisResult")
+        pydantic_output.description = pydantic_output.description.split(".", 1)[0]
         return pydantic_output
