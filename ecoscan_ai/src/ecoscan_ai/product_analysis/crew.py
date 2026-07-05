@@ -1,3 +1,5 @@
+import re
+
 from crewai import Task, Agent, Crew, Process
 from crewai.project import agent, task, crew, CrewBase
 
@@ -51,4 +53,8 @@ class ProductAnalysisCrew:
         pydantic_output: ProductAnalysisResult = result.pydantic  # type: ignore[assignment]
         if pydantic_output is None:
             raise ValueError("Crew did not produce a valid ProductAnalysisResult")
+        pydantic_output.description = pydantic_output.description.split(".", 1)[0]
+        match = re.search(r"\.(?:\s|$)", pydantic_output.description)
+        if match:
+            pydantic_output.description = pydantic_output.description[: match.end() - 1]
         return pydantic_output

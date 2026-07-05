@@ -39,10 +39,10 @@ public class FoodDataRepository {
         product.setName((String) json.get("product_name"));
         String categories = (String) json.get("categories");
         if (categories == null) {
-            categories = "";
+            categories = "{}";
         }
         product.setCategories(categories);
-        product.setDescription(categories);
+        product.setDescription("");
         //TODO fix dummy values
         product.setImageUrl("");
         product.setData("");
