@@ -31,23 +31,26 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
               <LoadingIndicator color={theme.colors.background} />
             </View>
           ) : (
-            <View>
+            <View style={styles.textContainer}>
               <Text variant="titleLarge" style={[styles.text, styles.title]}>
                 Diese Woche gespart
               </Text>
               <View style={styles.co2}>
-                <Text variant="displayLarge" style={styles.text}>
-                  {savings && savings.co2Saving != undefined
+                <Text
+                  variant="displayLarge"
+                  style={[styles.text, styles.title]}
+                >
+                  {savings && savings.co2Saving !== undefined
                     ? savings.co2Saving.toFixed(1).replace(".", ",")
                     : "-"}
                 </Text>
-                <Text variant="titleLarge" style={styles.text}>
+                <Text variant="bodyLarge" style={styles.text}>
                   kg CO₂
                 </Text>
               </View>
-              <Text variant="titleMedium" style={styles.text}>
+              <Text variant="bodyLarge" style={styles.text}>
                 Das entspricht{" "}
-                {savings && savings.carRideEquivalent != undefined
+                {savings && savings.carRideEquivalent !== undefined
                   ? savings.carRideEquivalent.toFixed(0)
                   : "-"}{" "}
                 km Autofahrt.
@@ -75,6 +78,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 8,
   },
+  textContainer: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",
@@ -90,5 +96,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "baseline",
     gap: 8,
+    flexWrap: "wrap",
   },
 });

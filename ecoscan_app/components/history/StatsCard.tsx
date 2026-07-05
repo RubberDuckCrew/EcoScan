@@ -1,7 +1,7 @@
-import { Card, Text } from "react-native-paper";
-import { StyleProp, StyleSheet, ViewStyle } from "react-native";
-import { theme } from "@/theme";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
+import { theme } from "@/theme";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
+import { Card, Text } from "react-native-paper";
 
 type StatsCardProps = {
   value?: number;
@@ -25,7 +25,7 @@ export function StatsCard({
           {value ?? "-"}
         </Text>
       )}
-      <Text variant="bodySmall" style={styles.description}>
+      <Text variant="bodyMedium" style={styles.description}>
         {description}
       </Text>
     </Card>

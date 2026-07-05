@@ -1,8 +1,7 @@
-import { Surface, Text } from "react-native-paper";
-import { Image, StyleSheet, View, ScrollView } from "react-native";
-import { useEffect, useState } from "react";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import ImageFallback from "@/components/ImageFallback";
 import { theme } from "@/theme";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Surface, Text } from "react-native-paper";
 
 export interface ProductCardProps {
   name: string;
@@ -17,39 +16,10 @@ export default function ProductCard({
   description,
   ean,
 }: ProductCardProps) {
-  const [imageLoadError, setImageLoadError] = useState(false);
-
-  const handleImageError = () => {
-    setImageLoadError(true);
-  };
-
-  useEffect(() => {
-    setImageLoadError(false);
-  }, [imageUrl]);
-
-  const isImageValid: boolean = imageUrl.trim() !== "";
-
   return (
     <Surface style={styles.rootCard} elevation={0}>
       <View style={styles.headerRow}>
-        <View style={styles.imageContainer}>
-          {isImageValid && !imageLoadError ? (
-            <Image
-              source={{ uri: imageUrl }}
-              style={styles.image}
-              resizeMode="cover"
-              onError={handleImageError}
-            />
-          ) : (
-            <View style={styles.fallbackIcon}>
-              <MaterialIcons
-                name="image-not-supported"
-                size={64}
-                color="#757575"
-              />
-            </View>
-          )}
-        </View>
+        <ImageFallback imageUrl={imageUrl} style={styles.imageContainer} />
 
         <View style={styles.headerTextContainer}>
           <Text
@@ -97,19 +67,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: theme.colors.background,
     flexShrink: 0,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-  },
-  fallbackIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: theme.colors.background,
   },
   headerTextContainer: {
     flex: 1,
