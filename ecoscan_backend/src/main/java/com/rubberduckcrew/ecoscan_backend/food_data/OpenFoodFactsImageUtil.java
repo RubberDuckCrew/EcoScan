@@ -8,7 +8,7 @@ public final class OpenFoodFactsImageUtil {
 
     public static String getFrontImageUrl(final String barcode) {
         if (barcode == null || barcode.isBlank() || barcode.length() > 13) {
-            return null;
+            return "";
         }
         final String digits = "0".repeat(13 - barcode.length()) + barcode;
         return BASE_URL
