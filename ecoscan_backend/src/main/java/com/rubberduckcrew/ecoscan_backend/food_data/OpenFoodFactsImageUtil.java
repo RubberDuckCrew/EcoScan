@@ -3,10 +3,14 @@ package com.rubberduckcrew.ecoscan_backend.food_data;
 public final class OpenFoodFactsImageUtil {
     private static final String BASE_URL = "https://images.openfoodfacts.org/images/products/";
 
-    public static String getFrontImageUrl(String barcode) {
-        if (barcode == null || barcode.isBlank())
+    private OpenFoodFactsImageUtil() {
+    }
+
+    public static String getFrontImageUrl(final String barcode) {
+        if (barcode == null || barcode.isBlank() || barcode.length() > 13) {
             return null;
-        String digits = "0".repeat(13 - barcode.length()) + barcode;
+        }
+        final String digits = "0".repeat(13 - barcode.length()) + barcode;
         return BASE_URL
             + digits.substring(0, 3) + "/"
             + digits.substring(3, 6) + "/"
