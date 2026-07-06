@@ -2,6 +2,7 @@ import { FlatList, StyleSheet } from "react-native";
 import { Surface, Text, Button } from "react-native-paper";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
+import StoreCard from "@/components/alternatives/StoreCard";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -13,11 +14,9 @@ export default function Index() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
-  const { alternatives, loading, fetchAlternatives } = useAlternatives();
+  const { alternatives, stores, loading, fetchAlternatives } = useAlternatives();
 
   const hasFetched = useRef(false);
-
-  console.log("Product aus Kontext: ", product);
 
   useEffect(() => {
     async function getCurrentLocation() {
@@ -41,7 +40,7 @@ export default function Index() {
   useEffect(() => {
     if (product?.id && product?.categories && userLatitude !== -1 && userLongitude !== -1 && !hasFetched.current) {
       hasFetched.current = true;
-      console.log(product.categories);
+      console.log("cat:", product.categories);
       fetchAlternatives(product.id, product.categories, `${userLatitude},${userLongitude}`);
     }
   }, [product?.id, product?.categories, userLatitude, userLongitude]);
@@ -62,13 +61,16 @@ export default function Index() {
         image={product?.imageUrl ?? ""}
         score={product?.score ?? 0}
       />
+      <Text variant={"bodyLarge"} style={{padding:8}}>
+        Alternativen:
+      </Text>
+
       <FlatList
-          style={{marginTop: 16, paddingHorizontal: 2}}
-          //TODO Liste sortieren?
+          style={{ paddingBottom: 16, paddingHorizontal: 2}}
           data={alternatives}
           renderItem={({item}) =>
               <AlternativeCard
-                  title={item.name}
+                  title={item.ean}
                   image={item.imageUrl ? { uri: item.imageUrl } : null }
                   scanScore={product?.score ?? 0}
                   alternativeScore={item.score ?? 0}
@@ -78,7 +80,37 @@ export default function Index() {
                   userLongitude={userLongitude}
               />
           }
+          ListEmptyComponent={() => (
+              <Text style={{ textAlign: 'center', color: 'gray'}}>
+                  Keine Alternativen gefunden
+              </Text>
+          )}
       />
+
+        <Text variant={"bodyLarge"} style={{padding:8}}>
+            Supermärkte in der Nähe:
+        </Text>
+
+      <FlatList
+          style={{paddingHorizontal: 2}}
+          data={stores}
+          renderItem={({store}) =>
+              <StoreCard
+                  name={store?.name}
+                  targetLatitude={store?.latitude}
+                  targetLongitude={store?.longitude}
+                  userLatitude={userLatitude}
+                  userLongitude={userLongitude}
+              />
+          }
+          ListEmptyComponent={() => (
+              <Text style={{ textAlign: 'center', color: 'gray'}}>
+                  Keine Alternativen gefunden (Array ist leer).
+              </Text>
+          )}
+      />
+
+        <StoreCard name="Test Store" targetLatitude={0} targetLongitude={0} userLatitude={userLatitude} userLongitude={userLongitude} />
     </Surface>
   );
 }
