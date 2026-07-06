@@ -39,7 +39,8 @@ export default function StoreCard({
         <Card style={styles.card}>
             <View style={styles.cardContentHorizontal}>
                 <View style={styles.textColumn}>
-                    <Text variant="titleMedium" style={{ fontWeight: "600" }}>
+                    <Text variant="titleMedium" style={{ lineHeight: 20, fontWeight: "600" }} numberOfLines={2}
+                          ellipsizeMode="tail">
                         {name}
                     </Text>
                     {distance && (

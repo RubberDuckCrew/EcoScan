@@ -94,23 +94,21 @@ export default function Index() {
       <FlatList
           style={{paddingHorizontal: 2}}
           data={stores}
-          renderItem={({store}) =>
+          renderItem={({item}) =>
               <StoreCard
-                  name={store?.name}
-                  targetLatitude={store?.latitude}
-                  targetLongitude={store?.longitude}
+                  name={item.name}
+                  targetLatitude={item.latitude}
+                  targetLongitude={item.longitude}
                   userLatitude={userLatitude}
                   userLongitude={userLongitude}
               />
           }
           ListEmptyComponent={() => (
               <Text style={{ textAlign: 'center', color: 'gray'}}>
-                  Keine Alternativen gefunden (Array ist leer).
+                  Keine Supermärkte in der Nähe gefunden.
               </Text>
           )}
       />
-
-        <StoreCard name="Test Store" targetLatitude={0} targetLongitude={0} userLatitude={userLatitude} userLongitude={userLongitude} />
     </Surface>
   );
 }
