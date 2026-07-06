@@ -73,6 +73,15 @@ public class AlternativesService {
 
         jobSseService.send(jobIdAlternatives, "product-alternatives-eans", Map.of("value", "DONE"));
         jobSseService.send(storeJobId, "product-alternatives-store", Map.of("done", true));
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        jobSseService.complete(storeJobId);
+        jobSseService.complete(jobIdAlternatives);
         jobSseService.complete(storeJobId);
         jobSseService.complete(jobIdAlternatives);
 
