@@ -17,11 +17,6 @@ export default function Index() {
 
   const hasFetched = useRef(false);
 
-  const handleClick = useCallback((latitude: number, longitude: number) => {
-      const url = `https://maps.google.com/?q=48.150139,11.559488`;
-      Linking.openURL(url);
-  });
-
   console.log("Product aus Kontext: ", product);
 
   useEffect(() => {
@@ -44,12 +39,12 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (product?.id && userLatitude !== -1 && userLongitude !== -1 && !hasFetched.current) {
+    if (product?.id && product?.categories && userLatitude !== -1 && userLongitude !== -1 && !hasFetched.current) {
       hasFetched.current = true;
       console.log(product.categories);
       fetchAlternatives(product.id, product.categories, `${userLatitude},${userLongitude}`);
     }
-  }, [product?.id, userLatitude, userLongitude]);
+  }, [product?.id, product?.categories, userLatitude, userLongitude]);
 
   console.log("Alternatives", alternatives);
 
@@ -61,12 +56,6 @@ export default function Index() {
       <Text variant={"bodyLarge"} style={styles.subHeadline}>
         In deiner Nähe verfügbar
       </Text>
-      <Button
-          mode={"contained"}
-        onPress={handleClick}
-        >
-        Alternativen
-    </Button>
       <ProductCard
         title={product?.name ?? ""}
         description={product?.description ?? ""}

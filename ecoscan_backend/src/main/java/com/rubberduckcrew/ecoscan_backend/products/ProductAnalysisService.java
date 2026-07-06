@@ -69,6 +69,7 @@ public class ProductAnalysisService {
 
         final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
         if (alternativesJobId.isPresent()) {
+            log.info("Alternatives job is registered for product {} with jobId {}", p.getId(), alternativesJobId.get());
             handleAlternativesService.handleAlternativeProduct(p, alternativesJobId.get());
             jobEanService.remove(response.jobId());
             return;

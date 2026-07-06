@@ -27,11 +27,11 @@ public class HandleAlternativeService {
         final UUID alternativesJobId = jobAlternativeService.getAlternativesJobId(jobIdAnalyzeProduct).orElse(null);
         if (alternativesJobId == null) return;
 
-        //GreenScore
-        final UUID scoreJobId = scoreService.scoreProduct(alternativeProduct.getId(), alternativesJobId);
-        jobEanService.register(scoreJobId, alternativeProduct.getId());
-        jobAlternativeService.register(scoreJobId, alternativesJobId);
-        jobAlternativeService.remove(jobIdAnalyzeProduct);
+        //GreenScore für die analysierte Alternative berechnen
+//        final UUID scoreJobId = scoreService.scoreProduct(alternativeProduct.getId(), alternativesJobId);
+//        jobEanService.register(scoreJobId, alternativeProduct.getId());
+//        jobAlternativeService.register(scoreJobId, alternativesJobId);
+//        jobAlternativeService.remove(jobIdAnalyzeProduct);
     }
 
     public void handleScannedAlternative(final ScannedProduct scoredAlternative, final UUID alternativesJobId) {
@@ -40,6 +40,7 @@ public class HandleAlternativeService {
         jobSseService.send(alternativesJobId, "product-alternatives", scoredAlternative);
         final boolean completed = jobAlternativeService.incrementAlternativesCounter(alternativesJobId);
         if(completed) {
+            log.info("limit reached, complete jobSseService (handleScannedAlternative) ");
             jobSseService.complete(alternativesJobId);
         }
     }

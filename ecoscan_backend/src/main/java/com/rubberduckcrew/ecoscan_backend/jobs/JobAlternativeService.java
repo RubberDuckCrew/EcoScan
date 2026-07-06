@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class JobAlternativeService {
     private final Map<UUID, UUID> jobAlternativeMap = new ConcurrentHashMap<>(); //Key: JobId von analyzeProduct oder greenScore, Value: jobId von findAlternatives
     private final Map<UUID, AtomicInteger> jobAlternativesCounter = new ConcurrentHashMap<>(); //Key: JobId von findAlternatives, Value: Anzahl ans Frontend gesendeter Alternativen
+//    private final Map<UUID, AtomicInteger> jobAlternativesExpectedCounter = new ConcurrentHashMap<>();
 
     public void register(final UUID jobIdAnalyzeProduct, final UUID jobIdAlternative) {
         if (jobIdAnalyzeProduct == null || jobIdAlternative == null) {
@@ -40,8 +41,11 @@ public class JobAlternativeService {
 
         int value = counter.incrementAndGet();
 
+//        AtomicInteger expected = jobAlternativesExpectedCounter.get(jobIdAlternative);
         if (value >= 5) {
+            log.info("Limit reached, return completed=true");
             jobAlternativesCounter.remove(jobIdAlternative, counter);
+//            jobAlternativesExpectedCounter.remove(jobIdAlternative, expected);
             return true;
         }
 
@@ -50,5 +54,6 @@ public class JobAlternativeService {
 
     public void registerAlternativesJob(final UUID jobIdAlternative, final int expectedCount) {
         jobAlternativesCounter.put(jobIdAlternative, new AtomicInteger(0));
+//        jobAlternativesExpectedCounter.put(jobIdAlternative, new AtomicInteger(expectedCount));
     }
 }

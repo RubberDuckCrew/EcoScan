@@ -1,16 +1,16 @@
 from pydantic import BaseModel
 
 
-class AlternativesRequest(BaseModel):
-    categories: str
-    userCoordinates: str
-
-
-class AlternativeProduct(BaseModel):
-    ean: str
+class AlternativeCoordinates(BaseModel):
     latitude: float
     longitude: float
 
+class AlternativesRequest(BaseModel):
+    categories: str
+    userCoordinates: str
+    storeJobId: str | None = None
 
 class AlternativesResult(BaseModel):
-    alternatives: list[AlternativeProduct]
+    eans: list[str]
+    stores: list[AlternativeCoordinates]
+    storeJobId: str | None = None

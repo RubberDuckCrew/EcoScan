@@ -63,7 +63,6 @@ public class ScoreService {
             jobAlternativeService.remove(result.jobId());
             return;
         }
-        log.warn("NOT IN IF");
 
         jobSseService.send(result.jobId(), "product-evaluation", result.data());
         jobSseService.complete(result.jobId());
