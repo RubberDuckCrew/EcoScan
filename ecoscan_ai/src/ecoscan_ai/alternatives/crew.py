@@ -14,7 +14,7 @@ class AlternativesCrew:
             config=self.agents_config["alternatives_researcher"],
             tools=[SearchProductsByCategoryTool()],
             verbose=True,
-            max_iter=3,
+            max_iter=10,
         )
 
     @agent

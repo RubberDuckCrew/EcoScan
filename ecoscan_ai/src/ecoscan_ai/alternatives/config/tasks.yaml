@@ -6,6 +6,9 @@ research_alternatives_task:
     product database for alternative products in the same or a closely
     related category. Use the "Search products by category" tool ONCE with it.
     Use ONLY the EAN numbers returned by the tool, maximum 5.
+    CRITICAL: As soon as you have found at least 5 eans, STOP immediately. 
+        Do not make any further tool calls to find more. One successful tool call 
+        that returns data is enough.
   expected_output: >
     A structured list of EAN numbers for all found alternative products
     in the same category.

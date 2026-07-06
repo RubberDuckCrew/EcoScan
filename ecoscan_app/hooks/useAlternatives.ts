@@ -53,15 +53,25 @@ export function useAlternatives(): UseAlternativesResult {
         (jobId: string) => {
             startEanStream(
                 `jobs/stream/${jobId}`,
-                (data: any) => {
-                    if (data?.value === "DONE") {
+                (rawData: any) => {
+                    let data = rawData;
+                    if (typeof rawData === 'string') {
+                        try {
+                            data = JSON.parse(rawData);
+                        } catch (e) {
+                            data = rawData;
+                        }
+                    }
+                    if (data === "DONE" || data?.value === "DONE" || data?.done === true) {
                         console.info("EAN stream finished");
                         closeEanStream();
                         return;
                     }
-                    const ean = typeof data === 'string' ? data : data.value;
-                    console.info("EAN received: ", ean);
-                    setAlternatives((prev => [...prev, { ean }]));
+                    const ean = typeof data === 'object' && data !== null ? data.value : data;
+                    if (ean) {
+                        console.info("EAN received: ", ean);
+                        setAlternatives((prev) => [...prev, { ean }]);
+                    }
                 },
                 () => {
                     closeEanStream();
@@ -85,6 +95,7 @@ export function useAlternatives(): UseAlternativesResult {
                     const store = data as NearbyStore;
                     console.info("Store received: ", store);
                     setStores((prev) => [...prev, store]);
+                    console.log(stores);
                 },
                 () => {
                     closeStoreStream();

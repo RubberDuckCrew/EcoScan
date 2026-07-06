@@ -1,5 +1,4 @@
-from pydantic import BaseModel
-
+from pydantic import BaseModel, Field, AliasChoices
 
 class AlternativeCoordinates(BaseModel):
     name: str
@@ -12,6 +11,6 @@ class AlternativesRequest(BaseModel):
     storeJobId: str | None = None
 
 class AlternativesResult(BaseModel):
-    eans: list[str]
+    eans: list[str] = Field(..., validation_alias=AliasChoices('eans', 'ean'))
     stores: list[AlternativeCoordinates]
     storeJobId: str | None = None
