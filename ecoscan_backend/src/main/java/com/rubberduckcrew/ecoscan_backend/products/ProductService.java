@@ -6,6 +6,7 @@ import com.rubberduckcrew.ecoscan_backend.products.dto.ProductDTO;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -64,7 +65,13 @@ public class ProductService {
             "Scanned product with id " + id + " not found"));
     }
 
+    @Transactional
     public void addScannedProduct(final String id, final GreenScoreResultDTO greenScoreResult) {
+        if (scannedProductRepository.existsById(id)) {
+            log.info("Scanned product with id {} already exists, returning early.", id);
+            return;
+        }
+
         final Product product = getProduct(id);
         productRepository.delete(product);
         final ScannedProduct scannedProduct = productMapper.toScannedProduct(product);
