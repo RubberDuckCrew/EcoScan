@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Product } from "@/types/product";
 
 type UseAlternativesResult = {
+  stores: NearbyStore[];
   alternatives: Alternative[];
   loading: boolean;
   fetchAlternatives: (
@@ -14,12 +15,12 @@ type UseAlternativesResult = {
   onError: (handler: (err?: any) => void) => void;
 };
 
-type Alternative = Product & {
-  latitude: number;
-  longitude: number;
-};
+type Alternative = {
+    ean: string;
+}
 
 type NearbyStore = {
+  name: string;
   latitude: number;
   longitude: number;
 };
@@ -30,6 +31,9 @@ export function useAlternatives(): UseAlternativesResult {
   const { startStream: startStoreStream, closeStream: closeStoreStream } = useSseClient<NearbyStore>("product-alternatives-store");
 
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [alternatives, setAlternatives] = useState<Alternative[]>([]);
+  const [stores, setStores] = useState<NearbyStore[]>([]);
 
   const loadingRef = useRef(false);
   const onErrorRef = useRef<(err?: any) => void>(() => {});
@@ -53,10 +57,11 @@ export function useAlternatives(): UseAlternativesResult {
                     if (data?.value === "DONE") {
                         console.info("EAN stream finished");
                         closeEanStream();
-                        return;rr
+                        return;
                     }
                     const ean = typeof data === 'string' ? data : data.value;
                     console.info("EAN received: ", ean);
+                    setAlternatives((prev => [...prev, { ean }]));
                 },
                 () => {
                     closeEanStream();
@@ -79,6 +84,7 @@ export function useAlternatives(): UseAlternativesResult {
                     }
                     const store = data as NearbyStore;
                     console.info("Store received: ", store);
+                    setStores((prev) => [...prev, store]);
                 },
                 () => {
                     closeStoreStream();
@@ -116,7 +122,8 @@ export function useAlternatives(): UseAlternativesResult {
     );
 
   return {
-    alternatives: [],
+    alternatives,
+    stores,
     loading,
     fetchAlternatives,
     onError: useCallback((handler: (err?: any) => void) => {

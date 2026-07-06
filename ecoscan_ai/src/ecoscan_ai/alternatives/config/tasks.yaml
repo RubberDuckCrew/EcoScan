@@ -4,7 +4,8 @@ research_alternatives_task:
     Use the "Search by category tool" tool with this EXACT format:
     {{"category": "your_category_here"}} to search our internal
     product database for alternative products in the same or a closely
-    related category. Do not use any external web search for this task.
+    related category. Use the "Search products by category" tool ONCE with it.
+    Use ONLY the EAN numbers returned by the tool, maximum 5.
   expected_output: >
     A structured list of EAN numbers for all found alternative products
     in the same category.
@@ -14,8 +15,10 @@ find_coordinates_task:
   description: >
     Use the "Find nearby stores" tool with the user coordinates
     latitude and longitude from {user_coordinates} (format: "lat,lon").
-    Find supermarkets near the user, where the alternative product discovered in the previous task (research_alternatives_task) can be bought, and assign one to each alternative EAN.
-    Only try once
+    Call the "Find nearby stores" tool ONCE with these exact numeric values.
+    Use ONLY the store names, latitudes and longitudes returned by the tool.
+    Only try once.
   expected_output: >
-    A list of each ean number with latitude and longitude of a nearby store.
+    A JSON object with keys "eans" (list of EAN strings from previous task) and "stores"
+    (list of name, latitude and longitude of a nearby store).
   agent: coordinates_researcher
