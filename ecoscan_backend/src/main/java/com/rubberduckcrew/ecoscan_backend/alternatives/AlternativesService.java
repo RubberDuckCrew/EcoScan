@@ -12,6 +12,7 @@ import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
+import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.score.ScoreService;
 import java.util.Map;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +63,24 @@ public class AlternativesService {
         log.info("EAN result received for job {}", jobIdAlternatives);
         jobAlternativeService.registerAlternativesJob(jobIdAlternatives, result.data().eans().size());
 
-        result.data().eans().forEach(ean -> jobSseService.send(jobIdAlternatives, "product-alternatives-eans", Map.of("value", ean)));
+        result.data().eans().forEach(ean -> {
+            try {
+                Product product = foodDataRepository.getProduct(ean);
+
+                Map<String, Object> payload = Map.of(
+                    "ean", ean,
+                    "name", product.getName(),
+                    "imageUrl", "");
+                jobSseService.send(jobIdAlternatives, "product-alternatives-eans", payload);
+
+            } catch (ResponseStatusException e) {
+                Map<String, Object> fallbackPayload = Map.of(
+                    "ean", ean,
+                    "name", "Produkt nicht gefunden",
+                    "imageUrl", "");
+                jobSseService.send(jobIdAlternatives, "product-alternatives-eans", fallbackPayload);
+            }
+        });
 
         jobSseService.send(jobIdAlternatives, "product-alternatives-eans", Map.of("value", "DONE"));
         jobSseService.complete(jobIdAlternatives);

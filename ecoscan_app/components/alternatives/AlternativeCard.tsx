@@ -3,9 +3,10 @@ import { Card, Text, Avatar } from "react-native-paper";
 
 type AlternativeCardProps = {
   name: string;
+  ean: string;
   image: any;
 };
-export default function AlternativeCard({ name, image }: AlternativeCardProps) {
+export default function AlternativeCard({ name, ean, image }: AlternativeCardProps) {
   return (
     <Card style={styles.card}>
       <View style={styles.content}>
@@ -19,6 +20,9 @@ export default function AlternativeCard({ name, image }: AlternativeCardProps) {
         <View>
           <Text variant="titleMedium" style={{ fontWeight: "600" }}>
             {name}
+          </Text>
+          <Text variant="bodyMedium" style={{ color: "#666" }}>
+            Ean: {ean}
           </Text>
         </View>
       </View>

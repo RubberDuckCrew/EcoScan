@@ -1,4 +1,9 @@
-import { FlatList, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
 import { Surface, Text } from "react-native-paper";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
@@ -124,50 +129,50 @@ export default function Alternatives() {
       {/*  }*/}
       {/*/>*/}
 
-        <ScrollView style={{ flex: 1 }}>
-            <Text variant={"bodyLarge"} style={{ padding: 8 }}>
-                Alternativen:
+      <ScrollView style={{ flex: 1 }}>
+        <Text variant={"bodyLarge"} style={{ padding: 8 }}>
+          Alternativen:
+        </Text>
+
+        {alternatives.length === 0 ? (
+          loadingEan ? (
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          ) : (
+            <Text style={{ textAlign: "center", color: "gray" }}>
+              Keine Alternativen gefunden
             </Text>
+          )
+        ) : (
+          alternatives.map((item) => (
+            <AlternativeCard key={item.ean} name={item.name} ean={item.ean} />
+          ))
+        )}
 
-            {alternatives.length === 0 ? (
-                loadingEan ? (
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
-                ) : (
-                    <Text style={{ textAlign: "center", color: "gray" }}>
-                        Keine Alternativen gefunden
-                    </Text>
-                )
-            ) : (
-                alternatives.map((item) => (
-                    <AlternativeCard key={item.ean} name={item.ean} />
-                ))
-            )}
+        <Text variant={"bodyLarge"} style={{ padding: 8 }}>
+          Supermärkte in der Nähe:
+        </Text>
 
-            <Text variant={"bodyLarge"} style={{ padding: 8 }}>
-                Supermärkte in der Nähe:
+        {stores.length === 0 ? (
+          loadingStore ? (
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          ) : (
+            <Text style={{ textAlign: "center", color: "gray" }}>
+              Keine Supermärkte in der Nähe gefunden.
             </Text>
-
-            {stores.length === 0 ? (
-                loadingStore ? (
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
-                ) : (
-                    <Text style={{ textAlign: "center", color: "gray" }}>
-                        Keine Supermärkte in der Nähe gefunden.
-                    </Text>
-                )
-            ) : (
-                stores.map((item) => (
-                    <StoreCard
-                        key={item.name}
-                        name={item.name}
-                        targetLatitude={item.latitude}
-                        targetLongitude={item.longitude}
-                        userLatitude={userLatitude}
-                        userLongitude={userLongitude}
-                    />
-                ))
-            )}
-        </ScrollView>
+          )
+        ) : (
+          stores.map((item) => (
+            <StoreCard
+              key={item.name}
+              name={item.name}
+              targetLatitude={item.latitude}
+              targetLongitude={item.longitude}
+              userLatitude={userLatitude}
+              userLongitude={userLongitude}
+            />
+          ))
+        )}
+      </ScrollView>
     </Surface>
   );
 }
