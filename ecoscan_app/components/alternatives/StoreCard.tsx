@@ -61,11 +61,7 @@ export default function StoreCard({
         </View>
 
         <View style={styles.buttonColumn}>
-          <Button
-            mode="contained"
-            icon="google-maps"
-            onPress={handleClick}
-          >
+          <Button mode="contained" icon="google-maps" onPress={handleClick}>
             Route
           </Button>
         </View>
