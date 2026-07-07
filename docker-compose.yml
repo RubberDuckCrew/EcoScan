@@ -28,7 +28,7 @@ services:
       SPRING_RABBITMQ_PASSWORD: admin
       ECOSCAN_SECURITY_JWK_SET_URI: "http://keycloak:8100/auth/realms/local_realm/protocol/openid-connect/certs"
       ECOSCAN_SECURITY_ISSUER_URI: "${KEYCLOAK_HOSTNAME}/auth/realms/local_realm"
-      FOOD_DATA_URL: "jdbc:duckdb:data/food/food.parquet"
+      ECOSCAN_FOOD_DATA_URL: "jdbc:duckdb:data/food/food.parquet"
       ECOSCAN_SAVINGS_CRON: 0 */10 * * * *
     volumes:
       - "./data/food/food.parquet:/data/food/food.parquet"
