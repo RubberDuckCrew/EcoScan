@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, ActivityIndicator } from "react-native";
 import { Surface, Text, Button } from "react-native-paper";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
@@ -9,12 +9,13 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import * as Location from "expo-location";
 
 import { Linking } from "react-native";
+import {theme} from "@/theme";
 
 export default function Index() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
-  const { alternatives, stores, loading, fetchAlternatives } = useAlternatives();
+  const { alternatives, stores, loadingEan, loadingStore, fetchAlternatives } = useAlternatives();
 
   const hasFetched = useRef(false);
 
@@ -70,20 +71,17 @@ export default function Index() {
           data={alternatives}
           renderItem={({item}) =>
               <AlternativeCard
-                  title={item.ean}
-                  image={item.imageUrl ? { uri: item.imageUrl } : null }
-                  scanScore={product?.score ?? 0}
-                  alternativeScore={item.score ?? 0}
-                  targetLatitude={0}
-                  targetLongitude={0}
-                  userLatitude={userLatitude}
-                  userLongitude={userLongitude}
+                  name={item.ean}
               />
           }
           ListEmptyComponent={() => (
-              <Text style={{ textAlign: 'center', color: 'gray'}}>
-                  Keine Alternativen gefunden
-              </Text>
+              loadingEan ? (
+                  <ActivityIndicator size="large" color={theme.colors.primary} />
+              ) : (
+                  <Text style={{ textAlign: 'center', color: 'gray'}}>
+                      Keine Alternativen gefunden
+                  </Text>
+              )
           )}
       />
 
@@ -104,9 +102,13 @@ export default function Index() {
               />
           }
           ListEmptyComponent={() => (
-              <Text style={{ textAlign: 'center', color: 'gray'}}>
-                  Keine Supermärkte in der Nähe gefunden.
-              </Text>
+              loadingStore ? (
+                  <ActivityIndicator size="large" color={theme.colors.primary} />
+              ) : (
+                  <Text style={{ textAlign: 'center', color: 'gray'}}>
+                      Keine Supermärkte in der Nähe gefunden.
+                  </Text>
+              )
           )}
       />
     </Surface>

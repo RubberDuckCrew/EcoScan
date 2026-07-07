@@ -22,26 +22,6 @@ export default function AlternativeCard({
   userLatitude,
   userLongitude,
 }: AlternativeCardProps) {
-  const scoreDifference = alternativeScore - scanScore;
-
-  const distance = useMemo(() => {
-    if (userLatitude === -1 || userLongitude === -1) return null;
-    if (!targetLatitude || !targetLongitude) return null;
-
-    const R = 6371;
-    const dLat = ((targetLatitude - userLatitude) * Math.PI) / 180;
-    const dLon = ((targetLongitude - userLongitude) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos((userLatitude * Math.PI) / 180) *
-        Math.cos((targetLatitude * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-    const km = R * 2 * Math.asin(Math.sqrt(a));
-
-    return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
-  }, [userLatitude, userLongitude]);
-
-  console.log(distance);
 
   return (
     <Card style={styles.card}>
@@ -57,22 +37,6 @@ export default function AlternativeCard({
           <Text variant="titleMedium" style={{ fontWeight: "600" }}>
             {name}
           </Text>
-          <Text
-            variant="bodyMedium"
-            style={{ color: "#666" }}
-            numberOfLines={3}
-          >
-            {alternativeScore} (+ {scoreDifference} Punkte besser)
-          </Text>
-          {distance && (
-            <Text
-              variant="bodyMedium"
-              style={{ color: "#666" }}
-              numberOfLines={3}
-            >
-              {distance}
-            </Text>
-          )}
         </View>
       </View>
     </Card>

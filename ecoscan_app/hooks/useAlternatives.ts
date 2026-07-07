@@ -6,7 +6,8 @@ import { Product } from "@/types/product";
 type UseAlternativesResult = {
   stores: NearbyStore[];
   alternatives: Alternative[];
-  loading: boolean;
+  loadingEan: boolean;
+  loadingStore: boolean;
   fetchAlternatives: (
     productId: string,
     categories: string,
@@ -30,24 +31,23 @@ export function useAlternatives(): UseAlternativesResult {
   const { startStream: startEanStream, closeStream: closeEanStream } = useSseClient<string>("product-alternatives-eans");
   const { startStream: startStoreStream, closeStream: closeStoreStream } = useSseClient<NearbyStore>("product-alternatives-store");
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingEan, setLoadingEan] = useState<boolean>(false);
+  const [loadingStore, setLoadingStore] = useState<boolean>(false);
 
   const [alternatives, setAlternatives] = useState<Alternative[]>([]);
   const [stores, setStores] = useState<NearbyStore[]>([]);
 
+    const loadingEanRef = useRef(false);
+    const loadingStoreRef = useRef(false);
+
+    const checkBothDone = useCallback(() => {
+        if (!loadingEanRef.current && !loadingStoreRef.current) {
+            loadingRef.current = false;
+        }
+    }, []);
+
   const loadingRef = useRef(false);
   const onErrorRef = useRef<(err?: any) => void>(() => {});
-
-  const cleanupStreams = useCallback(() => {
-        closeEanStream();
-        closeStoreStream();
-        setLoading(false);
-        loadingRef.current = false;
-        }, [closeEanStream, closeStoreStream]);
-
-  useEffect(() => {
-    loadingRef.current = loading;
-  }, [loading]);
 
     const startSseListenerEans = useCallback(
         (jobId: string) => {
@@ -65,6 +65,9 @@ export function useAlternatives(): UseAlternativesResult {
                     if (data === "DONE" || data?.value === "DONE" || data?.done === true) {
                         console.info("EAN stream finished");
                         closeEanStream();
+                        loadingEanRef.current = false;
+                        setLoadingEan(false);
+                        checkBothDone();
                         return;
                     }
                     const ean = typeof data === 'object' && data !== null ? data.value : data;
@@ -75,8 +78,9 @@ export function useAlternatives(): UseAlternativesResult {
                 },
                 () => {
                     closeEanStream();
-                    setLoading(false);
-                    loadingRef.current = false;
+                    setLoadingEan(false);
+                    loadingEanRef.current = false;
+                    checkBothDone();
                 },
             );
         },
@@ -90,6 +94,9 @@ export function useAlternatives(): UseAlternativesResult {
                 (data: any) => {
                     if (data.done === true) {
                         closeStoreStream();
+                        loadingStoreRef.current = false;
+                        setLoadingStore(false);
+                        checkBothDone();
                         return;
                     }
                     const store = data as NearbyStore;
@@ -99,8 +106,10 @@ export function useAlternatives(): UseAlternativesResult {
                 },
                 () => {
                     closeStoreStream();
-                    setLoading(false);
-                    loadingRef.current = false;
+                    loadingStoreRef.current = false;
+                    setLoadingStore(false);
+                    setLoadingEan(false);
+                    checkBothDone();
                 },
             );
         },
@@ -111,8 +120,11 @@ export function useAlternatives(): UseAlternativesResult {
         async (productId: string, categories: string, userCoordinates: string) => {
             if (loadingRef.current) return;
 
-            setLoading(true);
             loadingRef.current = true;
+            loadingEanRef.current = true;
+            loadingStoreRef.current = true;
+            setLoadingEan(true);
+            setLoadingStore(true);
 
             try {
                 const jobs = await api.post(
@@ -125,7 +137,8 @@ export function useAlternatives(): UseAlternativesResult {
             } catch (e) {
                 console.error("Error in fetchAlternatives", e);
                 try { onErrorRef.current(e); } catch {}
-                setLoading(false);
+                setLoadingEan(false);
+                setLoadingStore(false);
                 loadingRef.current = false;
             }
         },
@@ -135,7 +148,8 @@ export function useAlternatives(): UseAlternativesResult {
   return {
     alternatives,
     stores,
-    loading,
+    loadingEan,
+    loadingStore,
     fetchAlternatives,
     onError: useCallback((handler: (err?: any) => void) => {
       onErrorRef.current = handler || (() => {});

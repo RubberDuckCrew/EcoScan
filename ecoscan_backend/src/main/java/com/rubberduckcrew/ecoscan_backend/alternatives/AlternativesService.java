@@ -82,8 +82,6 @@ public class AlternativesService {
 
         jobSseService.complete(storeJobId);
         jobSseService.complete(jobIdAlternatives);
-        jobSseService.complete(storeJobId);
-        jobSseService.complete(jobIdAlternatives);
 
 //        result.data().alternatives().forEach(ean -> {
 //            final String ean = alternative.ean();
