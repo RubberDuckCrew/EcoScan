@@ -1,6 +1,6 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Linking } from "react-native";
 import { Card, Text, Button } from "react-native-paper";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 
 type StoreCardProps = {
   name: string;
@@ -32,7 +32,12 @@ export default function StoreCard({
     return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
   }, [userLatitude, userLongitude, targetLatitude, targetLongitude]);
 
-  console.log(distance);
+  const handleClick = useCallback(() => {
+    const url = `https://maps.google.com/?q=${targetLatitude},${targetLongitude}`;
+    Linking.openURL(url).catch((err) =>
+      console.warn("Failed to open maps URL", err),
+    );
+  }, [targetLatitude, targetLongitude]);
 
   return (
     <Card style={styles.card}>
@@ -58,11 +63,7 @@ export default function StoreCard({
         </View>
 
         <View style={styles.buttonColumn}>
-          <Button
-            mode="contained"
-            icon="google-maps"
-            onPress={() => console.log("Store gedrückt")}
-          >
+          <Button mode="contained" icon="google-maps" onPress={handleClick}>
             Route
           </Button>
         </View>
