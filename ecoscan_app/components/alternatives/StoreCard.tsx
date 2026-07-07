@@ -34,7 +34,9 @@ export default function StoreCard({
 
   const handleClick = useCallback(() => {
     const url = `https://maps.google.com/?q=${targetLatitude},${targetLongitude}`;
-    Linking.openURL(url);
+    Linking.openURL(url).catch((err) =>
+      console.warn("Failed to open maps URL", err),
+    );
   }, [targetLatitude, targetLongitude]);
 
   return (
