@@ -1,27 +1,11 @@
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Card, Text, Avatar } from "react-native-paper";
-import { useEffect, useMemo, useState } from "react";
 
 type AlternativeCardProps = {
   name: string;
   image: any;
-  scanScore: number;
-  alternativeScore: number;
-  targetLatitude: number;
-  targetLongitude: number;
-  userLatitude: number;
-  userLongitude: number;
 };
-export default function AlternativeCard({
-  name,
-  image,
-  scanScore,
-  alternativeScore,
-  targetLatitude,
-  targetLongitude,
-  userLatitude,
-  userLongitude,
-}: AlternativeCardProps) {
+export default function AlternativeCard({ name, image }: AlternativeCardProps) {
   return (
     <Card style={styles.card}>
       <View style={styles.content}>

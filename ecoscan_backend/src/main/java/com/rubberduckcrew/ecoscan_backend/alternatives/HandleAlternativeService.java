@@ -23,9 +23,10 @@ public class HandleAlternativeService {
 
     public void handleAlternativeProduct(final Product alternativeProduct, final UUID jobIdAnalyzeProduct) {
         log.info("Analyzed alternative Product: " + alternativeProduct.toString());
-        final UUID alternativesJobId = jobAlternativeService.getAlternativesJobId(jobIdAnalyzeProduct).orElse(null);
-        if (alternativesJobId == null)
-            return;
+        //        final UUID alternativesJobId = jobAlternativeService.getAlternativesJobId(jobIdAnalyzeProduct).orElse(null);
+        //        if (alternativesJobId == null) {
+        //            return;
+        //        }
 
         //GreenScore für die analysierte Alternative berechnen
         //        final UUID scoreJobId = scoreService.scoreProduct(alternativeProduct.getId(), alternativesJobId);

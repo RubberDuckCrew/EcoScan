@@ -11,10 +11,9 @@ class LocationInput(BaseModel):
     longitude: float
 
     model_config = {
-        "json_schema_extra": {
-            "examples": [{"latitude": 48.1351, "longitude": 11.5820}]
-        }
+        "json_schema_extra": {"examples": [{"latitude": 48.1351, "longitude": 11.5820}]}
     }
+
 
 class FindNearbyStoresTool(BackendTool):
     name: str = "Find nearby stores"
@@ -36,16 +35,18 @@ class FindNearbyStoresTool(BackendTool):
                 "format": "json",
                 "limit": 3,
                 "bounded": 1,
-                "viewbox": f"{longitude-0.05},{latitude+0.05},{longitude+0.05},{latitude-0.05}"
+                "viewbox": f"{longitude - 0.05},{latitude + 0.05},{longitude + 0.05},{latitude - 0.05}",
             },
             headers={"User-Agent": "EcoScan/1.0"},
-            timeout=10
+            timeout=10,
         )
         response.raise_for_status()
         results = [
-            {"name": r.get("display_name", "Supermarkt"),
-             "latitude": float(r["lat"]),
-             "longitude": float(r["lon"])}
+            {
+                "name": r.get("display_name", "Supermarkt"),
+                "latitude": float(r["lat"]),
+                "longitude": float(r["lon"]),
+            }
             for r in response.json()
         ]
         return str(results)

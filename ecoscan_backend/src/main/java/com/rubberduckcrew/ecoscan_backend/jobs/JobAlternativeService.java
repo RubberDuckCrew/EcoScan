@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class JobAlternativeService {
     private final Map<UUID, UUID> jobAlternativeMap = new ConcurrentHashMap<>(); //Key: JobId von analyzeProduct oder greenScore, Value: jobId von findAlternatives
     private final Map<UUID, AtomicInteger> jobAlternativesCounter = new ConcurrentHashMap<>(); //Key: JobId von findAlternatives, Value: Anzahl ans Frontend gesendeter Alternativen
-    //    private final Map<UUID, AtomicInteger> jobAlternativesExpectedCounter = new ConcurrentHashMap<>();
+    private final Map<UUID, AtomicInteger> jobAlternativesExpectedCounter = new ConcurrentHashMap<>();
 
     public void register(final UUID jobIdAnalyzeProduct, final UUID jobIdAlternative) {
         if (jobIdAnalyzeProduct == null || jobIdAlternative == null) {
@@ -31,22 +31,22 @@ public class JobAlternativeService {
         jobAlternativeMap.remove(jobIdAnalyzeProduct);
     }
 
-    public boolean incrementAlternativesCounter(UUID jobIdAlternative) {
+    public boolean incrementAlternativesCounter(final UUID jobIdAlternative) {
         if (jobIdAlternative == null) {
             return false;
         }
 
-        AtomicInteger counter = jobAlternativesCounter.computeIfAbsent(
+        final AtomicInteger counter = jobAlternativesCounter.computeIfAbsent(
             jobIdAlternative,
             id -> new AtomicInteger(0));
 
-        int value = counter.incrementAndGet();
+        final int value = counter.incrementAndGet();
 
-        //        AtomicInteger expected = jobAlternativesExpectedCounter.get(jobIdAlternative);
-        if (value >= 5) {
+        final AtomicInteger expected = jobAlternativesExpectedCounter.get(jobIdAlternative);
+        if (value >= expected.get()) {
             log.info("Limit reached, return completed=true");
             jobAlternativesCounter.remove(jobIdAlternative, counter);
-            //            jobAlternativesExpectedCounter.remove(jobIdAlternative, expected);
+            jobAlternativesExpectedCounter.remove(jobIdAlternative, expected);
             return true;
         }
 
@@ -55,6 +55,6 @@ public class JobAlternativeService {
 
     public void registerAlternativesJob(final UUID jobIdAlternative, final int expectedCount) {
         jobAlternativesCounter.put(jobIdAlternative, new AtomicInteger(0));
-        //        jobAlternativesExpectedCounter.put(jobIdAlternative, new AtomicInteger(expectedCount));
+        jobAlternativesExpectedCounter.put(jobIdAlternative, new AtomicInteger(expectedCount));
     }
 }

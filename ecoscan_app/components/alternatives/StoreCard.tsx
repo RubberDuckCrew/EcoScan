@@ -1,6 +1,6 @@
-import { Image, StyleSheet, View } from "react-native";
-import { Card, Text, Avatar, Button } from "react-native-paper";
-import { useEffect, useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Card, Text, Button } from "react-native-paper";
+import { useMemo } from "react";
 
 type StoreCardProps = {
   name: string;
@@ -30,7 +30,7 @@ export default function StoreCard({
     const km = R * 2 * Math.asin(Math.sqrt(a));
 
     return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
-  }, [userLatitude, userLongitude]);
+  }, [userLatitude, userLongitude, targetLatitude, targetLongitude]);
 
   console.log(distance);
 

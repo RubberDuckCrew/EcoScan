@@ -1,14 +1,13 @@
 import { FlatList, StyleSheet, ActivityIndicator } from "react-native";
-import { Surface, Text, Button } from "react-native-paper";
+import { Surface, Text } from "react-native-paper";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
 import StoreCard from "@/components/alternatives/StoreCard";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
 
-import { Linking } from "react-native";
 import { theme } from "@/theme";
 
 export default function Alternatives() {
@@ -55,7 +54,13 @@ export default function Alternatives() {
         `${userLatitude},${userLongitude}`,
       );
     }
-  }, [product?.id, product?.categories, userLatitude, userLongitude]);
+  }, [
+    product?.id,
+    product?.categories,
+    userLatitude,
+    userLongitude,
+    fetchAlternatives,
+  ]);
 
   console.log("Alternatives", alternatives);
 

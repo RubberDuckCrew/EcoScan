@@ -23,7 +23,7 @@ class AlternativesCrew:
             config=self.agents_config["coordinates_researcher"],
             tools=[FindNearbyStoresTool()],
             verbose=True,
-            max_rpm = 20,
+            max_rpm=20,
         )
 
     @task
