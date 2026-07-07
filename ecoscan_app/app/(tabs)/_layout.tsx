@@ -40,12 +40,6 @@ export default function TabLayout() {
           }}
         />
       ))}
-      <Tabs.Screen
-        name="alternatives"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }
