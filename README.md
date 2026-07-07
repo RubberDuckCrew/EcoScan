@@ -56,7 +56,7 @@ graph TD
 - **Identity & Access Management**: Keycloak
 - **Message Broker**: RabbitMQ
 
-### 👥 Contributors
+## 👥 Contributors
 
 <a href="https://github.com/RubberDuckCrew/EcoScan/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=RubberDuckCrew/EcoScan" alt="EcoScan contributors" />
