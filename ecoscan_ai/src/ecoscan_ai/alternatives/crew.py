@@ -2,7 +2,7 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 
 from ecoscan_ai.alternatives.models import AlternativesRequest, AlternativesResult
-from ecoscan_ai.tools.dddg_search_tool import DuckDuckGoSearchTool
+from ecoscan_ai.tools.find_nearby_stores_tool import FindNearbyStoresTool
 from ecoscan_ai.tools.search_by_category_tool import SearchProductsByCategoryTool
 
 
@@ -14,20 +14,23 @@ class AlternativesCrew:
             config=self.agents_config["alternatives_researcher"],
             tools=[SearchProductsByCategoryTool()],
             verbose=True,
+            max_iter=10,
         )
 
     @agent
     def coordinates_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config["coordinates_researcher"],
-            tools=[DuckDuckGoSearchTool()],
+            tools=[FindNearbyStoresTool()],
             verbose=True,
+            max_rpm=20,
         )
 
     @task
     def research_alternatives_task(self) -> Task:
         return Task(
             config=self.tasks_config["research_alternatives_task"],
+            agent=self.alternatives_researcher(),
         )
 
     @task
@@ -35,6 +38,7 @@ class AlternativesCrew:
         return Task(
             config=self.tasks_config["find_coordinates_task"],
             output_pydantic=AlternativesResult,
+            agent=self.coordinates_researcher(),
         )
 
     @crew
@@ -54,4 +58,5 @@ class AlternativesCrew:
             }
         )
         pydantic_output: AlternativesResult = result.pydantic  # type: ignore[assignment]
+        pydantic_output.storeJobId = request.storeJobId
         return pydantic_output

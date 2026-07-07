@@ -1,12 +1,17 @@
 package com.rubberduckcrew.ecoscan_backend.score;
 
+import com.rubberduckcrew.ecoscan_backend.alternatives.HandleAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
+import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
+import com.rubberduckcrew.ecoscan_backend.products.entity.ScannedProduct;
 import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
 import com.rubberduckcrew.ecoscan_backend.score.dto.ScoreRequestDTO;
+
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +29,8 @@ public class ScoreService {
     private final JobEanService jobEanService;
     private final RabbitTemplate rabbitTemplate;
     private final JobSseService jobSseService;
+    private final JobAlternativeService jobAlternativeService;
+    private final HandleAlternativeService handleAlternativeService;
 
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.score"))
     public void handleSavingsResult(final AiDTO<GreenScoreResultDTO> result) {
@@ -44,6 +51,19 @@ public class ScoreService {
             productService.addScannedProduct(id, result.data());
         }
         jobEanService.remove(jobId);
+
+        final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(result.jobId());
+        if (alternativesJobId.isPresent()) {
+            log.info("Greenscore von Alternative");
+            final ScannedProduct scoredProduct = productService.getScannedProduct(id);
+            log.info("scored alternative: " + scoredProduct);
+
+            handleAlternativeService.handleScannedAlternative(scoredProduct, alternativesJobId.get());
+
+            jobAlternativeService.remove(result.jobId());
+            return;
+        }
+
         jobSseService.send(result.jobId(), "product-evaluation", result.data());
         jobSseService.complete(result.jobId());
     }

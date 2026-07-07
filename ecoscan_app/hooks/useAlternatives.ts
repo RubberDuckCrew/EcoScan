@@ -1,142 +1,164 @@
 import { useApiClient } from "@/utils/apiClient";
 import { useSseClient } from "@/utils/sseClient";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useGreenScore } from "@/hooks/useGreenScore";
 import { Product } from "@/types/product";
 
 type UseAlternativesResult = {
+  stores: NearbyStore[];
   alternatives: Alternative[];
-  loading: boolean;
+  loadingEan: boolean;
+  loadingStore: boolean;
   fetchAlternatives: (
     productId: string,
+    categories: string,
     userCoordinates: string,
   ) => Promise<void>;
   onError: (handler: (err?: any) => void) => void;
 };
 
-type Alternative = Product;
-
-type productJobId = Product | string;
-
-type AlternativesSseResult = {
+type Alternative = {
   ean: string;
+};
+
+type NearbyStore = {
+  name: string;
   latitude: number;
   longitude: number;
 };
+
 export function useAlternatives(): UseAlternativesResult {
   const api = useApiClient();
-  const { startStream, closeStream } = useSseClient<AlternativesSseResult[]>(
-    "product-alternatives",
-  );
-  const [loading, setLoading] = useState<boolean>(false);
+  const { startStream: startEanStream, closeStream: closeEanStream } =
+    useSseClient<string>("product-alternatives-eans");
+  const { startStream: startStoreStream, closeStream: closeStoreStream } =
+    useSseClient<NearbyStore>("product-alternatives-store");
+
+  const [loadingEan, setLoadingEan] = useState<boolean>(false);
+  const [loadingStore, setLoadingStore] = useState<boolean>(false);
+
   const [alternatives, setAlternatives] = useState<Alternative[]>([]);
+  const [stores, setStores] = useState<NearbyStore[]>([]);
+
+  const loadingEanRef = useRef(false);
+  const loadingStoreRef = useRef(false);
+
+  const checkBothDone = useCallback(() => {
+    if (!loadingEanRef.current && !loadingStoreRef.current) {
+      loadingRef.current = false;
+    }
+  }, []);
 
   const loadingRef = useRef(false);
   const onErrorRef = useRef<(err?: any) => void>(() => {});
 
-  useEffect(() => {
-    loadingRef.current = loading;
-  }, [loading]);
-
-  // useEffect(() => {
-  //     if (!jobId) return;
-  //     startSseListenerAgents(jobId);
-  //     return () => {
-  //         closeStream();
-  //     };
-  // }, [jobId]);
-
-  // const fetchProductRaw = useCallback((ean: string) => {
-  //     async (ean: string): Promise<Product | null> => {
-  //         try {
-  //             return await api.get(`product/${ean}`);
-  //         } catch (e) {
-  //             console.error("Error fetching alternative product", ean, e);
-  //             return null;
-  //         }
-  //     },
-  //     [api],
-  // },[]);
-
-  //TODO von markus
-  const startSseListenerProduct = useCallback(() => {}, []);
-
-  const startSseListenerAgents = useCallback(
+  const startSseListenerEans = useCallback(
     (jobId: string) => {
-      startStream(
+      startEanStream(
         `jobs/stream/${jobId}`,
-        (result: AlternativesSseResult[]) => {
-          console.info("result: ", result);
-          result.map(async ({ ean }) => {
-            //Product oder JobId
-            // const product = await fetchProductRaw(ean);
-            //TODO Listener dafür aufrufen, wenn jobId
-            startSseListenerProduct();
-          });
+        (rawData: any) => {
+          let data = rawData;
+          if (typeof rawData === "string") {
+            try {
+              data = JSON.parse(rawData);
+            } catch (e) {
+              data = rawData;
+            }
+          }
+          if (
+            data === "DONE" ||
+            data?.value === "DONE" ||
+            data?.done === true
+          ) {
+            console.info("EAN stream finished");
+            closeEanStream();
+            loadingEanRef.current = false;
+            setLoadingEan(false);
+            checkBothDone();
+            return;
+          }
+          const ean =
+            typeof data === "object" && data !== null ? data.value : data;
+          if (ean) {
+            console.info("EAN received: ", ean);
+            setAlternatives((prev) => [...prev, { ean }]);
+          }
         },
         () => {
-          //TODO als int
-          setLoading(false);
-          loadingRef.current = false;
-          try {
-            onErrorRef.current(new Error("Error in SSE stream"));
-          } catch (e) {}
-          console.error("Error in SSE stream");
+          closeEanStream();
+          setLoadingEan(false);
+          loadingEanRef.current = false;
+          checkBothDone();
         },
       );
     },
-    [startStream],
+    [startEanStream, closeEanStream],
+  );
+
+  const startSseListenerStores = useCallback(
+    (jobId: string) => {
+      startStoreStream(
+        `jobs/stream/${jobId}`,
+        (data: any) => {
+          if (data.done === true) {
+            closeStoreStream();
+            loadingStoreRef.current = false;
+            setLoadingStore(false);
+            checkBothDone();
+            return;
+          }
+          const store = data as NearbyStore;
+          console.info("Store received: ", store);
+          setStores((prev) => [...prev, store]);
+          console.log(stores);
+        },
+        () => {
+          closeStoreStream();
+          loadingStoreRef.current = false;
+          setLoadingStore(false);
+          setLoadingEan(false);
+          checkBothDone();
+        },
+      );
+    },
+    [startStoreStream, closeStoreStream],
   );
 
   const fetchAlternatives = useCallback(
-    async (productId: string, userCoordinates: string) => {
+    async (productId: string, categories: string, userCoordinates: string) => {
       if (loadingRef.current) return;
 
-      setLoading(true);
       loadingRef.current = true;
-      setAlternatives([]);
+      loadingEanRef.current = true;
+      loadingStoreRef.current = true;
+      setLoadingEan(true);
+      setLoadingStore(true);
 
       try {
-        const jobId = await api.post(
-          `alternatives/${productId}?userCoordinates=${encodeURIComponent(userCoordinates)}`,
+        const jobs = await api.post(
+          `alternatives/${productId}?categories=${encodeURIComponent(categories)}&userCoordinates=${encodeURIComponent(userCoordinates)}`,
         );
-        if (jobId) {
-          startSseListenerAgents(jobId);
-        }
+        console.log("jobs received:", jobs);
+
+        if (jobs?.eanJobId) startSseListenerEans(jobs.eanJobId);
+        if (jobs?.storeJobId) startSseListenerStores(jobs.storeJobId);
       } catch (e) {
         console.error("Error in fetchAlternatives", e);
         try {
           onErrorRef.current(e);
         } catch {}
-
-        setLoading(false);
+        setLoadingEan(false);
+        setLoadingStore(false);
         loadingRef.current = false;
       }
     },
-    [api],
-  );
-
-  const fetchGreenScore = useCallback(
-    async (productId: string) => {
-      if (loadingRef.current) return;
-      setLoading(true);
-      try {
-        const data = await api.post(`score/${productId}`);
-        if (data) {
-        }
-      } catch (err) {
-        try {
-          onErrorRef.current("Produktscore konnte nicht geladen werden.");
-          setLoading(false);
-        } catch (e) {}
-      }
-    },
-    [api],
+    [api, startSseListenerEans, startSseListenerStores],
   );
 
   return {
     alternatives,
-    loading,
+    stores,
+    loadingEan,
+    loadingStore,
     fetchAlternatives,
     onError: useCallback((handler: (err?: any) => void) => {
       onErrorRef.current = handler || (() => {});

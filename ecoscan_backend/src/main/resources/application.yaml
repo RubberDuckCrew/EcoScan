@@ -11,6 +11,9 @@ spring:
   flyway:
     locations:
       - classpath:db/migration/schema
+  mvc:
+    async:
+      request-timeout: -1
 
 
 server.servlet.contextPath: /api

@@ -52,28 +52,30 @@ public class ProductAnalysisService {
     public void handleProductAnalysisResponse(final AiDTO<ProductAnalysisResponseDTO> response) {
         final ProductAnalysisResponseDTO result = response.data();
         log.info("Received ProductAnalysis results: {}", result.toString());
-        try {
-            final String productId = jobEanService.getEan(response.jobId()).orElse(null);
-            if (productId == null) {
-                log.warn("Dropping analysis result for missing product in job {}", response.jobId());
-                return;
-            }
-            final Product p = productRepository.getProductById(productId).orElse(null);
-            if (p == null) {
-                log.warn("Dropping analysis result for missing product {}", productId);
-                return;
-            }
-            p.setDescription(result.description());
-            p.setData(result.data());
-            productRepository.save(p);
-            jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
-            final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
-            if (alternativesJobId.isPresent()) {
-                handleAlternativesService.handleAlternativeProduct(p);
-            }
-        } finally {
-            jobEanService.remove(response.jobId());
-            jobSseService.complete(response.jobId());
+
+        final String productId = jobEanService.getEan(response.jobId()).orElse(null);
+        if (productId == null) {
+            log.warn("Dropping analysis result for missing product in job {}", response.jobId());
+            return;
         }
+        final Product p = productRepository.getProductById(productId).orElse(null);
+        if (p == null) {
+            log.warn("Dropping analysis result for missing product {}", productId);
+            return;
+        }
+        p.setDescription(result.description());
+        p.setData(result.data());
+        productRepository.save(p);
+
+        final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
+        if (alternativesJobId.isPresent()) {
+            log.info("Alternatives job is registered for product {} with jobId {}", p.getId(), alternativesJobId.get());
+            handleAlternativesService.handleAlternativeProduct(p, alternativesJobId.get());
+            jobEanService.remove(response.jobId());
+            return;
+        }
+        jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
+        jobEanService.remove(response.jobId());
+        jobSseService.complete(response.jobId());
     }
 }
