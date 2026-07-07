@@ -11,8 +11,8 @@ import org.springframework.validation.annotation.Validated;
 @Configuration
 @Validated
 public class FoodDataConfiguration {
-    @Value("${food-data.url}")
-    @NotBlank(message = "food-data.url must be configured") private String duckdbUrl;
+    @Value("${ecoscan.food-data.url}")
+    @NotBlank(message = "ecoscan.food-data.url must be configured") private String duckdbUrl;
 
     @Bean
     public FoodDataTemplate duckDbTemplate() {

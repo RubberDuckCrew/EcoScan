@@ -34,4 +34,4 @@ ecoscan:
   security:
     jwk-set-uri: http://localhost:8100/auth/realms/local_realm/protocol/openid-connect/certs
     issuer-uri: http://localhost:8100/auth/realms/local_realm
-food-data.url: "jdbc:duckdb:data/food/food.parquet"
+  food-data.url: "jdbc:duckdb:data/food/food.parquet"
