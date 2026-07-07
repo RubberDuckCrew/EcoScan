@@ -9,13 +9,14 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import * as Location from "expo-location";
 
 import { Linking } from "react-native";
-import {theme} from "@/theme";
+import { theme } from "@/theme";
 
-export default function Index() {
+export default function Alternatives() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
-  const { alternatives, stores, loadingEan, loadingStore, fetchAlternatives } = useAlternatives();
+  const { alternatives, stores, loadingEan, loadingStore, fetchAlternatives } =
+    useAlternatives();
 
   const hasFetched = useRef(false);
 
@@ -39,10 +40,20 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (product?.id && product?.categories && userLatitude !== -1 && userLongitude !== -1 && !hasFetched.current) {
+    if (
+      product?.id &&
+      product?.categories &&
+      userLatitude !== -1 &&
+      userLongitude !== -1 &&
+      !hasFetched.current
+    ) {
       hasFetched.current = true;
       console.log("cat:", product.categories);
-      fetchAlternatives(product.id, product.categories, `${userLatitude},${userLongitude}`);
+      fetchAlternatives(
+        product.id,
+        product.categories,
+        `${userLatitude},${userLongitude}`,
+      );
     }
   }, [product?.id, product?.categories, userLatitude, userLongitude]);
 
@@ -62,54 +73,50 @@ export default function Index() {
         image={product?.imageUrl ?? ""}
         score={product?.score ?? 0}
       />
-      <Text variant={"bodyLarge"} style={{padding:8}}>
+      <Text variant={"bodyLarge"} style={{ padding: 8 }}>
         Alternativen:
       </Text>
 
       <FlatList
-          style={{ paddingBottom: 16, paddingHorizontal: 2}}
-          data={alternatives}
-          renderItem={({item}) =>
-              <AlternativeCard
-                  name={item.ean}
-              />
-          }
-          ListEmptyComponent={() => (
-              loadingEan ? (
-                  <ActivityIndicator size="large" color={theme.colors.primary} />
-              ) : (
-                  <Text style={{ textAlign: 'center', color: 'gray'}}>
-                      Keine Alternativen gefunden
-                  </Text>
-              )
-          )}
+        style={{ paddingBottom: 16, paddingHorizontal: 2 }}
+        data={alternatives}
+        renderItem={({ item }) => <AlternativeCard name={item.ean} />}
+        ListEmptyComponent={() =>
+          loadingEan ? (
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          ) : (
+            <Text style={{ textAlign: "center", color: "gray" }}>
+              Keine Alternativen gefunden
+            </Text>
+          )
+        }
       />
 
-        <Text variant={"bodyLarge"} style={{padding:8}}>
-            Supermärkte in der Nähe:
-        </Text>
+      <Text variant={"bodyLarge"} style={{ padding: 8 }}>
+        Supermärkte in der Nähe:
+      </Text>
 
       <FlatList
-          style={{paddingHorizontal: 2}}
-          data={stores}
-          renderItem={({item}) =>
-              <StoreCard
-                  name={item.name}
-                  targetLatitude={item.latitude}
-                  targetLongitude={item.longitude}
-                  userLatitude={userLatitude}
-                  userLongitude={userLongitude}
-              />
-          }
-          ListEmptyComponent={() => (
-              loadingStore ? (
-                  <ActivityIndicator size="large" color={theme.colors.primary} />
-              ) : (
-                  <Text style={{ textAlign: 'center', color: 'gray'}}>
-                      Keine Supermärkte in der Nähe gefunden.
-                  </Text>
-              )
-          )}
+        style={{ paddingHorizontal: 2 }}
+        data={stores}
+        renderItem={({ item }) => (
+          <StoreCard
+            name={item.name}
+            targetLatitude={item.latitude}
+            targetLongitude={item.longitude}
+            userLatitude={userLatitude}
+            userLongitude={userLongitude}
+          />
+        )}
+        ListEmptyComponent={() =>
+          loadingStore ? (
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          ) : (
+            <Text style={{ textAlign: "center", color: "gray" }}>
+              Keine Supermärkte in der Nähe gefunden.
+            </Text>
+          )
+        }
       />
     </Surface>
   );

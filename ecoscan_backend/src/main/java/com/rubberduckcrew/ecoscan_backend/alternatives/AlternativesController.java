@@ -24,9 +24,9 @@ public class AlternativesController {
 
     @PostMapping("/{id}")
     public ResponseEntity<AlternativesJobsDTO> findAlternatives(
-            @PathVariable final String id,
-            @NotNull @RequestParam final String categories,
-            @NotNull @RequestParam final String userCoordinates) {
+        @PathVariable final String id,
+        @NotNull @RequestParam final String categories,
+        @NotNull @RequestParam final String userCoordinates) {
         final UUID userId = AuthUtils.getSub();
         log.info("userId: {}", userId);
         final AlternativesJobsDTO jobs = alternativesService.findAlternatives(categories, userCoordinates, userId);

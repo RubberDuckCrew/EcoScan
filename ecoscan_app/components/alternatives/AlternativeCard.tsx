@@ -22,15 +22,14 @@ export default function AlternativeCard({
   userLatitude,
   userLongitude,
 }: AlternativeCardProps) {
-
   return (
     <Card style={styles.card}>
       <View style={styles.content}>
         <View style={styles.imageContainer}>
           {image ? (
-              <Avatar.Image size={64} source={{ uri: image }} />
+            <Avatar.Image size={64} source={{ uri: image }} />
           ) : (
-              <Avatar.Icon size={64} icon="image-off" />
+            <Avatar.Icon size={64} icon="image-off" />
           )}
         </View>
         <View>
