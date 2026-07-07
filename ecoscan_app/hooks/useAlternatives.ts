@@ -115,7 +115,6 @@ export function useAlternatives(): UseAlternativesResult {
           closeStoreStream();
           loadingStoreRef.current = false;
           setLoadingStore(false);
-          setLoadingEan(false);
           checkBothDone();
         },
       );
