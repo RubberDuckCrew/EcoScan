@@ -1,6 +1,6 @@
 import { StyleSheet, View, Linking } from "react-native";
 import { Card, Text, Button } from "react-native-paper";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 
 type StoreCardProps = {
   name: string;
