@@ -31,7 +31,7 @@ export function useAlternatives(): UseAlternativesResult {
   const { startStream: startEanStream, closeStream: closeEanStream } =
     useSseClient<string>("product-alternatives-eans");
   const { startStream: startStoreStream, closeStream: closeStoreStream } =
-    useSseClient<NearbyStore>("product-alternatives-store");
+    useSseClient<NearbyStore>("product-alternatives-stores");
 
   const [loadingEan, setLoadingEan] = useState<boolean>(false);
   const [loadingStore, setLoadingStore] = useState<boolean>(false);
@@ -78,10 +78,14 @@ export function useAlternatives(): UseAlternativesResult {
           }
           const ean =
             typeof data === "object" && data !== null ? data.value : data;
-          if (ean) {
-            console.info("EAN received: ", ean);
-            setAlternatives((prev) => [...prev, { ean }]);
-          }
+            if (ean) {
+                console.info("EAN received: ", ean);
+                setAlternatives((prev) => {
+                    const exists = prev.some((item) => item.ean === ean);
+                    if (exists) return prev;
+                    return [...prev, { ean }];
+                });
+            }
         },
         () => {
           closeEanStream();
@@ -131,6 +135,9 @@ export function useAlternatives(): UseAlternativesResult {
       loadingStoreRef.current = true;
       setLoadingEan(true);
       setLoadingStore(true);
+
+        setAlternatives([]);
+        setStores([]);
 
       try {
         const jobs = await api.post(
