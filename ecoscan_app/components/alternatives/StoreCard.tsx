@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Linking } from "react-native";
 import { Card, Text, Button } from "react-native-paper";
 import { useMemo } from "react";
 
@@ -32,7 +32,10 @@ export default function StoreCard({
     return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
   }, [userLatitude, userLongitude, targetLatitude, targetLongitude]);
 
-  console.log(distance);
+  const handleClick = useCallback(() => {
+    const url = `https://maps.google.com/?q=${targetLatitude},${targetLongitude}`;
+    Linking.openURL(url);
+  }, [targetLatitude, targetLongitude]);
 
   return (
     <Card style={styles.card}>
@@ -61,7 +64,7 @@ export default function StoreCard({
           <Button
             mode="contained"
             icon="google-maps"
-            onPress={() => console.log("Store gedrückt")}
+            onPress={handleClick}
           >
             Route
           </Button>
