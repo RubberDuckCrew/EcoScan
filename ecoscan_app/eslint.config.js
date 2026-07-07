@@ -6,7 +6,7 @@ module.exports = defineConfig([
   expoConfig,
   eslintConfigPrettier,
   {
-    ignores: ["dist/*", "**/alternatives/**"], // TODO: Remove alternatives
+    ignores: ["dist/*"],
   },
   {
     rules: {
