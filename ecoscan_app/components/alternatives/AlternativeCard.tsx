@@ -6,7 +6,11 @@ type AlternativeCardProps = {
   ean: string;
   image: any;
 };
-export default function AlternativeCard({ name, ean, image }: AlternativeCardProps) {
+export default function AlternativeCard({
+  name,
+  ean,
+  image,
+}: AlternativeCardProps) {
   return (
     <Card style={styles.card}>
       <View style={styles.content}>

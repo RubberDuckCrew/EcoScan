@@ -3,8 +3,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
-    useWindowDimensions,
-    View,
+  useWindowDimensions,
+  View,
 } from "react-native";
 import { Surface, Text } from "react-native-paper";
 import { TabView, TabBar } from "react-native-tab-view";
@@ -31,8 +31,8 @@ export default function Alternatives() {
   const [tabIndex, setTabIndex] = useState(0);
 
   const routes = [
-    { key: 'alternatives', title: 'Alternativen' },
-    { key: 'stores', title: 'Supermärkte' },
+    { key: "alternatives", title: "Alternativen" },
+    { key: "stores", title: "Supermärkte" },
   ];
 
   const hasFetched = useRef(false);
@@ -79,8 +79,6 @@ export default function Alternatives() {
     fetchAlternatives,
   ]);
 
-  console.log("Alternatives", alternatives);
-
   return (
     <Surface style={styles.pageStyle}>
       <Text variant="headlineMedium" style={styles.headline}>
@@ -97,28 +95,50 @@ export default function Alternatives() {
       />
 
       <TabView
-          navigationState={{ index: tabIndex, routes }}
-          renderScene={({ route }) => {
-            switch (route.key) {
-              case "alternatives":
-                return <AlternativesTab alternatives={alternatives} loadingEan={loadingEan} />;
-              case "stores":
-                return <StoresTab stores={stores} loadingStore={loadingStore} userLatitude={userLatitude} userLongitude={userLongitude} />;
-              default:
-                return null;
-            }
-          }}
-          onIndexChange={setTabIndex}
-          initialLayout={{ width: layout.width }}
-          renderTabBar={(props) => (
-              <TabBar
-                  {...props}
-                  style={{ backgroundColor: 'transparent', elevation: 0,  }}
-                  indicatorStyle={{ backgroundColor: theme.colors.primary  }}
-                  activeColor={theme.colors.primary}
-                  inactiveColor={theme.colors.text}
-              />
-          )}
+        navigationState={{ index: tabIndex, routes }}
+        renderScene={({ route }) => {
+          switch (route.key) {
+            case "alternatives":
+              return (
+                <AlternativesTab
+                  alternatives={alternatives}
+                  loadingEan={loadingEan}
+                />
+              );
+            case "stores":
+              return (
+                <StoresTab
+                  stores={stores}
+                  loadingStore={loadingStore}
+                  userLatitude={userLatitude}
+                  userLongitude={userLongitude}
+                />
+              );
+            default:
+              return null;
+          }
+        }}
+        onIndexChange={setTabIndex}
+        initialLayout={{ width: layout.width }}
+        renderTabBar={(props) => (
+          <TabBar
+            {...props}
+            style={{
+              backgroundColor: "transparent",
+              elevation: 0,
+              borderBottomWidth: 2,
+              borderBottomColor: "#cccccc",
+            }}
+            indicatorStyle={{
+              backgroundColor: theme.colors.primary,
+              height: 3,
+              borderRadius: 1.5,
+              bottom: -2,
+            }}
+            activeColor={theme.colors.primary}
+            inactiveColor={theme.colors.text}
+          />
+        )}
       />
     </Surface>
   );
