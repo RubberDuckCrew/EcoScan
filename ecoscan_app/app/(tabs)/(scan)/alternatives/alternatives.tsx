@@ -3,11 +3,16 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
+    useWindowDimensions,
+    View,
 } from "react-native";
 import { Surface, Text } from "react-native-paper";
+import { TabView, TabBar } from "react-native-tab-view";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
 import StoreCard from "@/components/alternatives/StoreCard";
+import AlternativesTab from "@/components/alternatives/AlternativesTab";
+import StoresTab from "@/components/alternatives/StoresTab";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
 import { useEffect, useState, useRef } from "react";
@@ -21,6 +26,14 @@ export default function Alternatives() {
   const [userLongitude, setUserLongitude] = useState<number>(-1);
   const { alternatives, stores, loadingEan, loadingStore, fetchAlternatives } =
     useAlternatives();
+
+  const layout = useWindowDimensions();
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const routes = [
+    { key: 'alternatives', title: 'Alternativen' },
+    { key: 'stores', title: 'Supermärkte' },
+  ];
 
   const hasFetched = useRef(false);
 
@@ -52,7 +65,6 @@ export default function Alternatives() {
       !hasFetched.current
     ) {
       hasFetched.current = true;
-      console.log("cat:", product.categories);
       fetchAlternatives(
         product.id,
         product.categories,
@@ -83,96 +95,31 @@ export default function Alternatives() {
         image={product?.imageUrl ?? ""}
         score={product?.score ?? 0}
       />
-      {/*<Text variant={"bodyLarge"} style={{ padding: 8 }}>*/}
-      {/*  Alternativen:*/}
-      {/*</Text>*/}
 
-      {/*<FlatList*/}
-      {/*  style={{ paddingBottom: 16, paddingHorizontal: 2 }}*/}
-      {/*  data={alternatives}*/}
-      {/*  renderItem={({ item }) => <AlternativeCard name={item.ean} />}*/}
-      {/*  ListEmptyComponent={() =>*/}
-      {/*    loadingEan ? (*/}
-      {/*      <ActivityIndicator size="large" color={theme.colors.primary} />*/}
-      {/*    ) : (*/}
-      {/*      <Text style={{ textAlign: "center", color: "gray" }}>*/}
-      {/*        Keine Alternativen gefunden*/}
-      {/*      </Text>*/}
-      {/*    )*/}
-      {/*  }*/}
-      {/*/>*/}
-
-      {/*<Text variant={"bodyLarge"} style={{ padding: 8 }}>*/}
-      {/*  Supermärkte in der Nähe:*/}
-      {/*</Text>*/}
-
-      {/*<FlatList*/}
-      {/*  style={{ paddingHorizontal: 2 }}*/}
-      {/*  data={stores}*/}
-      {/*  renderItem={({ item }) => (*/}
-      {/*    <StoreCard*/}
-      {/*      name={item.name}*/}
-      {/*      targetLatitude={item.latitude}*/}
-      {/*      targetLongitude={item.longitude}*/}
-      {/*      userLatitude={userLatitude}*/}
-      {/*      userLongitude={userLongitude}*/}
-      {/*    />*/}
-      {/*  )}*/}
-      {/*  ListEmptyComponent={() =>*/}
-      {/*    loadingStore ? (*/}
-      {/*      <ActivityIndicator size="large" color={theme.colors.primary} />*/}
-      {/*    ) : (*/}
-      {/*      <Text style={{ textAlign: "center", color: "gray" }}>*/}
-      {/*        Keine Supermärkte in der Nähe gefunden.*/}
-      {/*      </Text>*/}
-      {/*    )*/}
-      {/*  }*/}
-      {/*/>*/}
-
-      <ScrollView style={{ flex: 1 }}>
-        <Text variant={"bodyLarge"} style={{ padding: 8 }}>
-          Alternativen:
-        </Text>
-
-        {alternatives.length === 0 ? (
-          loadingEan ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} />
-          ) : (
-            <Text style={{ textAlign: "center", color: "gray" }}>
-              Keine Alternativen gefunden
-            </Text>
-          )
-        ) : (
-          alternatives.map((item) => (
-            <AlternativeCard key={item.ean} name={item.name} ean={item.ean} />
-          ))
-        )}
-
-        <Text variant={"bodyLarge"} style={{ padding: 8 }}>
-          Supermärkte in der Nähe:
-        </Text>
-
-        {stores.length === 0 ? (
-          loadingStore ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} />
-          ) : (
-            <Text style={{ textAlign: "center", color: "gray" }}>
-              Keine Supermärkte in der Nähe gefunden.
-            </Text>
-          )
-        ) : (
-          stores.map((item) => (
-            <StoreCard
-              key={item.name}
-              name={item.name}
-              targetLatitude={item.latitude}
-              targetLongitude={item.longitude}
-              userLatitude={userLatitude}
-              userLongitude={userLongitude}
-            />
-          ))
-        )}
-      </ScrollView>
+      <TabView
+          navigationState={{ index: tabIndex, routes }}
+          renderScene={({ route }) => {
+            switch (route.key) {
+              case "alternatives":
+                return <AlternativesTab alternatives={alternatives} loadingEan={loadingEan} />;
+              case "stores":
+                return <StoresTab stores={stores} loadingStore={loadingStore} userLatitude={userLatitude} userLongitude={userLongitude} />;
+              default:
+                return null;
+            }
+          }}
+          onIndexChange={setTabIndex}
+          initialLayout={{ width: layout.width }}
+          renderTabBar={(props) => (
+              <TabBar
+                  {...props}
+                  style={{ backgroundColor: 'transparent', elevation: 0,  }}
+                  indicatorStyle={{ backgroundColor: theme.colors.primary  }}
+                  activeColor={theme.colors.primary}
+                  inactiveColor={theme.colors.text}
+              />
+          )}
+      />
     </Surface>
   );
 }
