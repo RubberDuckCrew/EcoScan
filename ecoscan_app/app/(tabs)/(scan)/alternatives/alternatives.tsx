@@ -1,16 +1,7 @@
-import {
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
-  ScrollView,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { Surface, Text } from "react-native-paper";
 import { TabView, TabBar } from "react-native-tab-view";
 import ProductCard from "@/components/alternatives/ProductCard";
-import AlternativeCard from "@/components/alternatives/AlternativeCard";
-import StoreCard from "@/components/alternatives/StoreCard";
 import AlternativesTab from "@/components/alternatives/AlternativesTab";
 import StoresTab from "@/components/alternatives/StoresTab";
 import { useProduct } from "@/context/ProductContext";
@@ -82,7 +73,7 @@ export default function Alternatives() {
   return (
     <Surface style={styles.pageStyle}>
       <Text variant="headlineMedium" style={styles.headline}>
-        Bessere Alternativen
+        Alternativen
       </Text>
       <Text variant={"bodyLarge"} style={styles.subHeadline}>
         In deiner Nähe verfügbar

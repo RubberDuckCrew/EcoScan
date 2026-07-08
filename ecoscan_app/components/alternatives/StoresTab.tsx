@@ -1,6 +1,6 @@
 import { FlatList, ActivityIndicator } from "react-native";
 import { Text } from "react-native-paper";
-import StoreCard from "./StoreCard";
+import StoreCard from "@/components/alternatives/StoreCard";
 import { theme } from "@/theme";
 
 type Store = {

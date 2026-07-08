@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: 56,
-    height: 56,
+    width: 90,
+    height: 90,
     borderRadius: 10,
   },
   textContainer: {

@@ -400,6 +400,9 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+litellm = [
+    { name = "litellm" },
+]
 tools = [
     { name = "crewai-tools" },
 ]
@@ -563,7 +566,7 @@ name = "ecoscan-ai"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "crewai", extra = ["tools"] },
+    { name = "crewai", extra = ["litellm", "tools"] },
     { name = "geopy" },
     { name = "litellm" },
     { name = "pika" },
@@ -577,7 +580,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "crewai", extras = ["tools"], specifier = "==1.15.1" },
+    { name = "crewai", extras = ["litellm", "tools"], specifier = "==1.15.1" },
     { name = "geopy", specifier = "==2.4.1" },
     { name = "litellm", specifier = "==1.91.0" },
     { name = "pika", specifier = "==1.4.1" },

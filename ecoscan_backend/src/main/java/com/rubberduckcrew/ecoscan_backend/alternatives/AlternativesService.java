@@ -69,16 +69,12 @@ public class AlternativesService {
 
                 Map<String, Object> payload = Map.of(
                     "ean", ean,
-                    "name", product.getName(),
-                    "imageUrl", "");
+                    "name", product.getName() != null ? product.getName() : "Name nicht gefunden",
+                    "imageUrl", product.getImageUrl() != null ? product.getImageUrl() : "");
                 jobSseService.send(jobIdAlternatives, "product-alternatives-eans", payload);
 
             } catch (ResponseStatusException e) {
-                Map<String, Object> fallbackPayload = Map.of(
-                    "ean", ean,
-                    "name", "Produkt nicht gefunden",
-                    "imageUrl", "");
-                jobSseService.send(jobIdAlternatives, "product-alternatives-eans", fallbackPayload);
+                log.warn("Product not found for EAN {}, not sending to frontend", ean);
             }
         });
 

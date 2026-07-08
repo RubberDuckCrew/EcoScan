@@ -6,6 +6,7 @@ import { theme } from "@/theme";
 type Alternative = {
   ean: string;
   name: string;
+  imageUrl: string;
 };
 
 type AlternativesTabProps = {
@@ -22,7 +23,12 @@ export default function AlternativesTab({
       data={alternatives}
       keyExtractor={(item) => item.ean}
       renderItem={({ item }) => (
-        <AlternativeCard key={item.ean} name={item.name} ean={item.ean} />
+        <AlternativeCard
+          key={item.ean}
+          name={item.name}
+          ean={item.ean}
+          imageUrl={item.imageUrl}
+        />
       )}
       ListEmptyComponent={() =>
         loadingEan ? (

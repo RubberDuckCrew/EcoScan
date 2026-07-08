@@ -19,7 +19,7 @@ type UseAlternativesResult = {
 type Alternative = {
   ean: string;
   name: string;
-  imageUrl?: string;
+  imageUrl: string;
 };
 
 type NearbyStore = {
@@ -58,6 +58,7 @@ export function useAlternatives(): UseAlternativesResult {
       startEanStream(
         `jobs/stream/${jobId}`,
         (rawData: any) => {
+          console.log("RawData: ", rawData);
           let data = rawData;
           if (typeof rawData === "string") {
             try {
@@ -66,6 +67,7 @@ export function useAlternatives(): UseAlternativesResult {
               data = rawData;
             }
           }
+          console.log("data: ", data);
           if (
             data === "DONE" ||
             data?.value === "DONE" ||
@@ -82,9 +84,12 @@ export function useAlternatives(): UseAlternativesResult {
           if (data && typeof data === "object" && data.ean) {
             const alternativeItem: Alternative = {
               ean: data.ean,
-              name: data.name || "Unbekanntes Produkt",
+              name: data.name,
               imageUrl: data.imageUrl || "",
             };
+            if (alternativeItem.name === "Produkt nicht gefunden") {
+              return;
+            }
 
             console.info("Alternative received: ", alternativeItem.name);
 
@@ -92,6 +97,7 @@ export function useAlternatives(): UseAlternativesResult {
               const exists = prev.some(
                 (item) => item.ean === alternativeItem.ean,
               );
+
               if (exists) return prev;
               return [...prev, alternativeItem];
             });
