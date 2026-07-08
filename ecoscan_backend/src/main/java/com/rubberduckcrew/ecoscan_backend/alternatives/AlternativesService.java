@@ -65,9 +65,9 @@ public class AlternativesService {
 
         result.data().eans().forEach(ean -> {
             try {
-                Product product = foodDataRepository.getProduct(ean);
+                final Product product = foodDataRepository.getProduct(ean);
 
-                Map<String, Object> payload = Map.of(
+                final Map<String, Object> payload = Map.of(
                     "ean", ean,
                     "name", product.getName() != null ? product.getName() : "Name nicht gefunden",
                     "imageUrl", product.getImageUrl() != null ? product.getImageUrl() : "");
