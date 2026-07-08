@@ -25,7 +25,7 @@ export default function AlternativeCard({
             {name}
           </Text>
           <Text variant="bodyMedium" style={{ color: "#666" }}>
-            Ean: {ean}
+            EAN: {ean}
           </Text>
         </View>
       </View>
