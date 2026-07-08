@@ -1,8 +1,11 @@
 package com.rubberduckcrew.ecoscan_backend.food_data;
 
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.duckdb.DuckDBArray;
 import org.duckdb.DuckDBStruct;
 
+@Slf4j
 public final class OpenFoodFactsImageUtil {
     private static final String BASE_URL = "https://images.openfoodfacts.org/images/products/";
     private static final String FRONT_DE = "front_de";
@@ -30,22 +33,24 @@ public final class OpenFoodFactsImageUtil {
     private static String getImageIdentifier(final DuckDBArray imageArray) {
         String imageIdentifier = "1";
         try {
-            final DuckDBStruct[] images = (DuckDBStruct[]) imageArray.getArray();
+            final Object[] images = (Object[]) imageArray.getArray();
             boolean unchanged = true;
-            for (final DuckDBStruct image : images) {
-                final String key = (String) image.getMap().get("key");
+            for (final Object image : images) {
+                final Map<String, Object> imageMap = ((DuckDBStruct) image).getMap();
+                final String key = (String) imageMap.get("key");
                 if (FRONT_DE.equals(key)) {
-                    final int rev = (int) image.getMap().get("rev");
+                    final int rev = (int) imageMap.get("rev");
                     imageIdentifier = key + "." + rev;
                     break;
                 }
                 if (unchanged && key.startsWith("front")) {
-                    final int rev = (int) image.getMap().get("rev");
+                    final int rev = (int) imageMap.get("rev");
                     imageIdentifier = key + "." + rev;
                     unchanged = false;
                 }
             }
         } catch (Exception e) {
+            log.warn("Error while generating imageUrl: {}", e.getMessage());
             return null;
         }
         return imageIdentifier;
