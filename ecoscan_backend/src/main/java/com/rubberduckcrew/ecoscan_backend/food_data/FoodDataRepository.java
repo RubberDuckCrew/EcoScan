@@ -5,6 +5,7 @@ import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.duckdb.DuckDBArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,7 +20,8 @@ public class FoodDataRepository {
                 SELECT
                     code,
                     product_name[1].text AS product_name,
-                    categories
+                    categories,
+                    images
                 FROM food
                 WHERE code = ?
             """;
@@ -43,7 +45,9 @@ public class FoodDataRepository {
         }
         product.setCategories(categories);
         product.setDescription("");
-        product.setImageUrl(OpenFoodFactsImageUtil.getFrontImageUrl(product.getId()));
+        final String imageUrl = OpenFoodFactsImageUtil.getFrontImageUrl(product.getId(),
+            (DuckDBArray) json.get("images"));
+        product.setImageUrl(imageUrl);
         product.setData("");
         return product;
     }
