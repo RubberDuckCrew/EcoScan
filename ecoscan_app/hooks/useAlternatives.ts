@@ -58,7 +58,6 @@ export function useAlternatives(): UseAlternativesResult {
       startEanStream(
         `jobs/stream/${jobId}`,
         (rawData: any) => {
-          console.log("RawData: ", rawData);
           let data = rawData;
           if (typeof rawData === "string") {
             try {
@@ -67,7 +66,6 @@ export function useAlternatives(): UseAlternativesResult {
               data = rawData;
             }
           }
-          console.log("data: ", data);
           if (
             data === "DONE" ||
             data?.value === "DONE" ||
@@ -90,8 +88,6 @@ export function useAlternatives(): UseAlternativesResult {
             if (alternativeItem.name === "Produkt nicht gefunden") {
               return;
             }
-
-            console.info("Alternative received: ", alternativeItem.name);
 
             setAlternatives((prev) => {
               const exists = prev.some(
@@ -129,7 +125,6 @@ export function useAlternatives(): UseAlternativesResult {
           const store = data as NearbyStore;
           console.info("Store received: ", store);
           setStores((prev) => [...prev, store]);
-          console.log(stores);
         },
         () => {
           closeStoreStream();
@@ -159,7 +154,6 @@ export function useAlternatives(): UseAlternativesResult {
         const jobs = await api.post(
           `alternatives/${productId}?categories=${encodeURIComponent(categories)}&userCoordinates=${encodeURIComponent(userCoordinates)}`,
         );
-        console.log("jobs received:", jobs);
 
         if (jobs?.eanJobId) startSseListenerEans(jobs.eanJobId);
         if (jobs?.storeJobId) startSseListenerStores(jobs.storeJobId);
