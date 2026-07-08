@@ -1,24 +1,31 @@
 import { StyleSheet, View } from "react-native";
-import { Card, Text, Avatar } from "react-native-paper";
+import { Card, Text } from "react-native-paper";
+import ImageFallback from "@/components/ImageFallback";
 
 type AlternativeCardProps = {
   name: string;
-  image: any;
+  ean: string;
+  imageUrl: any;
 };
-export default function AlternativeCard({ name, image }: AlternativeCardProps) {
+export default function AlternativeCard({
+  name,
+  ean,
+  imageUrl,
+}: AlternativeCardProps) {
   return (
     <Card style={styles.card}>
       <View style={styles.content}>
-        <View style={styles.imageContainer}>
-          {image ? (
-            <Avatar.Image size={64} source={{ uri: image }} />
-          ) : (
-            <Avatar.Icon size={64} icon="image-off" />
-          )}
-        </View>
-        <View>
-          <Text variant="titleMedium" style={{ fontWeight: "600" }}>
+        <ImageFallback imageUrl={imageUrl} imageStyle={styles.image} />
+        <View style={{ flex: 1 }}>
+          <Text
+            variant="titleMedium"
+            style={{ fontWeight: "600" }}
+            numberOfLines={2}
+          >
             {name}
+          </Text>
+          <Text variant="bodyMedium" style={{ color: "#666" }}>
+            EAN: {ean}
           </Text>
         </View>
       </View>
@@ -28,10 +35,12 @@ export default function AlternativeCard({ name, image }: AlternativeCardProps) {
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
     borderWidth: 0,
     borderBottomWidth: 0,
     padding: 8,
     marginTop: 12,
+    marginHorizontal: 2,
   },
   content: {
     flexDirection: "row",
@@ -40,8 +49,8 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 90,
+    height: 90,
     borderRadius: 8,
   },
 });

@@ -18,6 +18,8 @@ type UseAlternativesResult = {
 
 type Alternative = {
   ean: string;
+  name: string;
+  imageUrl: string;
 };
 
 type NearbyStore = {
@@ -31,7 +33,7 @@ export function useAlternatives(): UseAlternativesResult {
   const { startStream: startEanStream, closeStream: closeEanStream } =
     useSseClient<string>("product-alternatives-eans");
   const { startStream: startStoreStream, closeStream: closeStoreStream } =
-    useSseClient<NearbyStore>("product-alternatives-store");
+    useSseClient<NearbyStore>("product-alternatives-stores");
 
   const [loadingEan, setLoadingEan] = useState<boolean>(false);
   const [loadingStore, setLoadingStore] = useState<boolean>(false);
@@ -76,11 +78,25 @@ export function useAlternatives(): UseAlternativesResult {
             checkBothDone();
             return;
           }
-          const ean =
-            typeof data === "object" && data !== null ? data.value : data;
-          if (ean) {
-            console.info("EAN received: ", ean);
-            setAlternatives((prev) => [...prev, { ean }]);
+
+          if (data && typeof data === "object" && data.ean) {
+            const alternativeItem: Alternative = {
+              ean: data.ean,
+              name: data.name,
+              imageUrl: data.imageUrl || "",
+            };
+            if (alternativeItem.name === "Produkt nicht gefunden") {
+              return;
+            }
+
+            setAlternatives((prev) => {
+              const exists = prev.some(
+                (item) => item.ean === alternativeItem.ean,
+              );
+
+              if (exists) return prev;
+              return [...prev, alternativeItem];
+            });
           }
         },
         () => {
@@ -91,7 +107,7 @@ export function useAlternatives(): UseAlternativesResult {
         },
       );
     },
-    [startEanStream, closeEanStream],
+    [startEanStream, closeEanStream, checkBothDone],
   );
 
   const startSseListenerStores = useCallback(
@@ -109,13 +125,11 @@ export function useAlternatives(): UseAlternativesResult {
           const store = data as NearbyStore;
           console.info("Store received: ", store);
           setStores((prev) => [...prev, store]);
-          console.log(stores);
         },
         () => {
           closeStoreStream();
           loadingStoreRef.current = false;
           setLoadingStore(false);
-          setLoadingEan(false);
           checkBothDone();
         },
       );
@@ -133,11 +147,13 @@ export function useAlternatives(): UseAlternativesResult {
       setLoadingEan(true);
       setLoadingStore(true);
 
+      setAlternatives([]);
+      setStores([]);
+
       try {
         const jobs = await api.post(
           `alternatives/${productId}?categories=${encodeURIComponent(categories)}&userCoordinates=${encodeURIComponent(userCoordinates)}`,
         );
-        console.log("jobs received:", jobs);
 
         if (jobs?.eanJobId) startSseListenerEans(jobs.eanJobId);
         if (jobs?.storeJobId) startSseListenerStores(jobs.storeJobId);

@@ -9,11 +9,15 @@ class AlternativeCoordinates(BaseModel):
 
 class AlternativesRequest(BaseModel):
     categories: str
-    userCoordinates: str
-    storeJobId: str | None = None
 
 
 class AlternativesResult(BaseModel):
     eans: list[str] = Field(..., validation_alias=AliasChoices("eans", "ean"))
+
+
+class AlternativesStoreRequest(BaseModel):
+    userCoordinates: str
+
+
+class AlternativesStoreResult(BaseModel):
     stores: list[AlternativeCoordinates]
-    storeJobId: str | None = None

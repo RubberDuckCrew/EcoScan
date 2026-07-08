@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e3e3e3",
     borderRadius: 16,
     padding: 12,
-    marginTop: 16,
+    marginVertical: 16,
   },
   cardHeader: {
     alignItems: "center",
@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: 56,
-    height: 56,
+    width: 90,
+    height: 90,
     borderRadius: 10,
   },
   textContainer: {

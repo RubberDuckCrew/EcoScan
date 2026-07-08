@@ -33,7 +33,7 @@ class FindNearbyStoresTool(BackendTool):
                 "lat": latitude,
                 "lon": longitude,
                 "format": "json",
-                "limit": 3,
+                "limit": 7,
                 "bounded": 1,
                 "viewbox": f"{longitude - 0.05},{latitude + 0.05},{longitude + 0.05},{latitude - 0.05}",
             },
