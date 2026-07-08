@@ -1,6 +1,5 @@
 package com.rubberduckcrew.ecoscan_backend.food_data;
 
-import java.sql.SQLException;
 import org.duckdb.DuckDBArray;
 import org.duckdb.DuckDBStruct;
 
@@ -46,7 +45,7 @@ public final class OpenFoodFactsImageUtil {
                     unchanged = false;
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return null;
         }
         return imageIdentifier;
