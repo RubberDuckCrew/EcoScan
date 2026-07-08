@@ -15,7 +15,7 @@ export default function AlternativeCard({
   return (
     <Card style={styles.card}>
       <View style={styles.content}>
-        <ImageFallback imageUrl={imageUrl} imageStyle={styles.image} />
+        <ImageFallback imageUrl={imageUrl} imageStyle={styles.image} fallbackStyle={styles.image}/>
         <View style={{ flex: 1 }}>
           <Text
             variant="titleMedium"
