@@ -14,7 +14,10 @@ import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.score.ScoreService;
+
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +64,13 @@ public class AlternativesService {
         final UUID jobIdAlternatives = result.jobId();
         log.info("Alternatives result for job {}", jobIdAlternatives);
         log.info("EAN result received for job {}", jobIdAlternatives);
-        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, result.data().eans().size());
 
-        result.data().eans().forEach(ean -> {
+        final Set<String> uniqueEans = new HashSet<>(result.data().eans());
+        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, uniqueEans.size());
+
+        uniqueEans.forEach(ean -> {
             try {
                 final Product product = foodDataRepository.getProduct(ean);
-
                 final Map<String, Object> payload = Map.of(
                     "ean", ean,
                     "name", product.getName() != null ? product.getName() : "Name nicht gefunden",
@@ -87,7 +91,13 @@ public class AlternativesService {
         final UUID storeJobId = result.jobId();
         log.info("Store result received for job {}", storeJobId);
 
-        result.data().stores().forEach(store -> jobSseService.send(storeJobId, "product-alternatives-stores", store));
+        final Set<String> sentStores = new HashSet<>();
+        result.data().stores().forEach(store -> {
+            final String key = store.name() + "-" + store.latitude() + "-" + "-" + store.longitude();
+            if (sentStores.add(key)) {
+                jobSseService.send(storeJobId, "product-alternatives-stores", store);
+            }
+        });
 
         jobSseService.send(storeJobId, "product-alternatives-stores", Map.of("done", true));
         jobSseService.complete(storeJobId);

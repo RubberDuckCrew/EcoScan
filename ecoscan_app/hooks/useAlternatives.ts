@@ -90,11 +90,6 @@ export function useAlternatives(): UseAlternativesResult {
             }
 
             setAlternatives((prev) => {
-              const exists = prev.some(
-                (item) => item.ean === alternativeItem.ean,
-              );
-
-              if (exists) return prev;
               return [...prev, alternativeItem];
             });
           }
@@ -124,7 +119,9 @@ export function useAlternatives(): UseAlternativesResult {
           }
           const store = data as NearbyStore;
           console.info("Store received: ", store);
-          setStores((prev) => [...prev, store]);
+          setStores((prev) => {
+            return [...prev, store];
+          });
         },
         () => {
           closeStoreStream();

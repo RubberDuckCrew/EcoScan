@@ -25,7 +25,7 @@ export default function StoresTab({
   return (
     <FlatList
       data={stores}
-      keyExtractor={(item) => item.name}
+      keyExtractor={(item) => `${item.name}-${item.latitude}-${item.longitude}`}
       renderItem={({ item }) => (
         <StoreCard
           name={item.name}
