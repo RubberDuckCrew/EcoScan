@@ -17,7 +17,7 @@ const tabs = {
     icon: "format-list-bulleted",
     headerShown: false,
   },
-  Profile: { title: "Profil", icon: "account", headerShown: true },
+  Profile: { title: "Profil", icon: "account", headerShown: false },
 } satisfies Record<string, TabConfig>;
 
 export default function TabLayout() {
