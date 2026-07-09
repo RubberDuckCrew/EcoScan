@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -24,6 +24,7 @@ export default function Scan() {
   const { loading, analyzeProduct, cancelAnalysis } = useAnalyzeProduct();
   const { consumeError } = useError();
   const [scanned, setScanned] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const showError = (message: string) => {
     setError(message);
@@ -63,14 +64,9 @@ export default function Scan() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={150}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
         <PageContainer>
           <Text variant="headlineMedium" style={styles.title}>
             Produkt scannen
@@ -88,6 +84,13 @@ export default function Scan() {
               value={barcode}
               onChangeText={(text) => {
                 setBarcode(text);
+              }}
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollToEnd({
+                    animated: true,
+                  });
+                }, 100);
               }}
               placeholder="z.B. 4001686312520"
               placeholderTextColor={theme.colors.muted}
@@ -191,6 +194,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    marginBottom: 150,
   },
 
   input: {
