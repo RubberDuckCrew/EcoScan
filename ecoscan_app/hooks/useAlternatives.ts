@@ -124,7 +124,16 @@ export function useAlternatives(): UseAlternativesResult {
           }
           const store = data as NearbyStore;
           console.info("Store received: ", store);
-          setStores((prev) => [...prev, store]);
+            setStores((prev) => {
+                const exists = prev.some(
+                    (item) =>
+                        item.name === store.name &&
+                        item.latitude === store.latitude &&
+                        item.longitude === store.longitude,
+                );
+                if (exists) return prev;
+                return [...prev, store];
+            });
         },
         () => {
           closeStoreStream();
