@@ -1,6 +1,13 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
-import { ActivityIndicator, Button, Text } from "react-native-paper";
+import { useEffect, useRef, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+import { ActivityIndicator, Button, Snackbar, Text } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
@@ -12,17 +19,25 @@ import { useError } from "@/context/ErrorContext";
 export default function Scan() {
   const [barcode, setBarcode] = useState("");
   const [error, setError] = useState<string | undefined>();
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
   const router = useRouter();
-  const { loading, analyzeProduct } = useAnalyzeProduct();
+  const { loading, analyzeProduct, cancelAnalysis } = useAnalyzeProduct();
   const { consumeError } = useError();
+  const [scanned, setScanned] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const showError = (message: string) => {
+    setError(message);
+    setSnackbarVisible(true);
+  };
 
   const onScanned = async (code: string) => {
+    setScanned(true);
     const trimmed = code.trim();
     if (!trimmed) {
-      setError("Barcode darf nicht leer sein.");
+      showError("Barcode darf nicht leer sein.");
       return;
     }
-    setError(undefined);
     setBarcode(trimmed);
     try {
       if (await analyzeProduct(trimmed)) {
@@ -31,74 +46,113 @@ export default function Scan() {
           params: { id: trimmed },
         });
       } else {
-        setError("Produkt konnte nicht analysiert werden.");
+        showError("Produkt konnte nicht analysiert werden.");
       }
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Analyse fehlgeschlagen.";
-      setError(msg);
+      showError(msg);
     }
   };
 
   useEffect(() => {
     const errorMsg = consumeError();
     if (errorMsg) {
-      setError(errorMsg);
+      showError(errorMsg);
     }
   }, [consumeError]);
 
   return (
-    <PageContainer>
-      <Text style={styles.title}>Produkt scannen</Text>
-      <View style={styles.scannerContainer}>
-        <View style={styles.scannerBox}>
-          <BarcodeScanner onScanned={onScanned} />
-        </View>
-      </View>
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
-      <Text style={styles.label}>Oder Barcode eingeben</Text>
-      <View style={styles.inputRow}>
-        <TextInput
-          value={barcode}
-          onChangeText={(text) => {
-            setBarcode(text);
-            setError(undefined);
-          }}
-          placeholder="z.B. 4001686312520"
-          placeholderTextColor={theme.colors.muted}
-          keyboardType="numeric"
-          style={styles.input}
-        />
-        <Button
-          onPress={() => onScanned(barcode)}
-          style={styles.button}
-          disabled={loading || !barcode}
-        >
-          <Text style={styles.buttonText}>Los</Text>
-        </Button>
-      </View>
-      {loading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            animating={true}
-            size="large"
-            color={theme.colors.primary}
-          />
-        </View>
-      )}
-    </PageContainer>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
+        <PageContainer>
+          <Text variant="headlineMedium" style={styles.title}>
+            Produkt scannen
+          </Text>
+          <View style={styles.scannerContainer}>
+            <View style={styles.scannerBox}>
+              <BarcodeScanner onScanned={onScanned} scanned={scanned} />
+            </View>
+          </View>
+          <Text variant="bodyMedium" style={styles.label}>
+            Oder Barcode eingeben
+          </Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              value={barcode}
+              onChangeText={(text) => {
+                setBarcode(text);
+              }}
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollToEnd({
+                    animated: true,
+                  });
+                }, 100);
+              }}
+              placeholder="z.B. 4001686312520"
+              placeholderTextColor={theme.colors.muted}
+              keyboardType="numeric"
+              style={styles.input}
+              editable={!loading}
+            />
+            <Button
+              onPress={() => onScanned(barcode)}
+              style={styles.button}
+              disabled={loading || !barcode}
+              mode="contained"
+            >
+              Los
+            </Button>
+          </View>
+          {loading && (
+            <View style={styles.loadingOverlay}>
+              <View style={styles.loadingContent}>
+                <ActivityIndicator
+                  animating={true}
+                  size="large"
+                  color={theme.colors.primary}
+                  style={styles.indicator}
+                />
+                <Text variant="headlineSmall" style={styles.loadingTitle}>
+                  Produkt wird analysiert
+                </Text>
+                <Text variant="bodySmall" style={styles.loadingMessage}>
+                  Dies kann einen Moment dauern...
+                </Text>
+                <Button
+                  onPress={() => {
+                    cancelAnalysis();
+                  }}
+                  style={styles.cancelButton}
+                  textColor={theme.colors.error}
+                  mode="text"
+                >
+                  Abbrechen
+                </Button>
+              </View>
+            </View>
+          )}
+
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={() => setSnackbarVisible(false)}
+            duration={4000}
+            style={{ backgroundColor: theme.colors.error }}
+          >
+            {error}
+          </Snackbar>
+        </PageContainer>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   title: {
     color: theme.colors.onSurface,
-    fontSize: 22,
-    fontWeight: "700",
   },
 
   scannerContainer: {
@@ -129,13 +183,10 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: theme.colors.onError,
-    fontSize: 14,
-    fontWeight: "500",
   },
 
   label: {
     color: theme.colors.onSurface,
-    fontSize: 14,
     marginBottom: 10,
   },
 
@@ -143,6 +194,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    marginBottom: 150,
   },
 
   input: {
@@ -153,27 +205,50 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
-    fontSize: 15,
   },
 
   button: {
-    backgroundColor: theme.colors.primary,
     height: 48,
     paddingHorizontal: 18,
     borderRadius: 10,
     justifyContent: "center",
-    alignItems: "center",
   },
 
-  buttonText: {
-    color: theme.colors.surface,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
-  loadingContainer: {
+  loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
+    backgroundColor: theme.colors.backdrop,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 1000,
+  },
+
+  loadingContent: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 16,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    width: "80%",
+    maxWidth: 300,
+  },
+
+  indicator: {
+    marginBottom: 20,
+  },
+
+  loadingTitle: {
+    color: theme.colors.onSurface,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+
+  loadingMessage: {
+    color: theme.colors.muted,
+    marginBottom: 24,
+    textAlign: "center",
+  },
+
+  cancelButton: {
+    marginTop: 8,
   },
 });

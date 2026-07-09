@@ -6,11 +6,21 @@ import { Icon, Text } from "react-native-paper";
 
 type Props = {
   onScanned: (barcode: string) => void;
+  scanned?: boolean;
 };
 
-export default function BarcodeScanner({ onScanned }: Props) {
+export default function BarcodeScanner({
+  onScanned,
+  scanned: externalScanned,
+}: Props) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
+
+  useEffect(() => {
+    if (externalScanned) {
+      setScanned(true);
+    }
+  }, [externalScanned]);
 
   useEffect(() => {
     if (!permission?.granted) {
