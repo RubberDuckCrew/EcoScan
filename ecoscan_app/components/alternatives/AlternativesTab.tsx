@@ -1,5 +1,6 @@
-import React from "react";
+import { useState } from "react";
 import { FlatList, ActivityIndicator, Text } from "react-native";
+import { Snackbar } from "react-native-paper";
 import AlternativeCard from "@/components/alternatives/AlternativeCard";
 import { theme } from "@/theme";
 
@@ -18,32 +19,45 @@ export default function AlternativesTab({
   alternatives,
   loadingEan,
 }: AlternativesTabProps) {
+  const [isSnackbarVisible, setIsSnackbarVisible] = useState(false);
+
   return (
-    <FlatList
-      data={alternatives}
-      keyExtractor={(item) => item.ean}
-      renderItem={({ item }) => (
-        <AlternativeCard
-          key={item.ean}
-          name={item.name}
-          ean={item.ean}
-          imageUrl={item.imageUrl}
-        />
-      )}
-      ListEmptyComponent={() =>
-        loadingEan ? (
-          <ActivityIndicator
-            size="large"
-            color={theme.colors.primary}
-            style={{ padding: 16 }}
+    <>
+      <FlatList
+        data={alternatives}
+        keyExtractor={(item) => item.ean}
+        renderItem={({ item }) => (
+          <AlternativeCard
+            key={item.ean}
+            name={item.name}
+            ean={item.ean}
+            imageUrl={item.imageUrl}
+            onCopy={() => setIsSnackbarVisible(true)}
           />
-        ) : (
-          <Text style={{ textAlign: "center", color: "gray", padding: 16 }}>
-            Keine Alternativen gefunden
-          </Text>
-        )
-      }
-      contentContainerStyle={{ paddingBottom: 8 }}
-    />
+        )}
+        ListEmptyComponent={() =>
+          loadingEan ? (
+            <ActivityIndicator
+              size="large"
+              color={theme.colors.primary}
+              style={{ padding: 16 }}
+            />
+          ) : (
+            <Text style={{ textAlign: "center", color: "gray", padding: 16 }}>
+              Keine Alternativen gefunden
+            </Text>
+          )
+        }
+        contentContainerStyle={{ paddingBottom: 8 }}
+      />
+      <Snackbar
+        visible={isSnackbarVisible}
+        onDismiss={() => setIsSnackbarVisible(false)}
+        duration={2000}
+        style={{ backgroundColor: theme.colors.primary, marginBottom: -16 }}
+      >
+        EAN kopiert!
+      </Snackbar>
+    </>
   );
 }

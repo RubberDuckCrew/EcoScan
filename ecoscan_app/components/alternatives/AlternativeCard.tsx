@@ -1,39 +1,56 @@
-import { StyleSheet, View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { useState, useCallback } from "react";
+import { StyleSheet, View, Clipboard } from "react-native";
+import { Card, Text, IconButton, Snackbar } from "react-native-paper";
 import ImageFallback from "@/components/ImageFallback";
 
 type AlternativeCardProps = {
   name: string;
   ean: string;
   imageUrl: any;
+  onCopy: () => void;
 };
 export default function AlternativeCard({
   name,
   ean,
   imageUrl,
+  onCopy,
 }: AlternativeCardProps) {
+  const handleCopyToClipboard = useCallback(() => {
+    Clipboard.setString(ean);
+    onCopy();
+  }, [ean]);
+
   return (
-    <Card style={styles.card}>
-      <View style={styles.content}>
-        <ImageFallback
-          imageUrl={imageUrl}
-          imageStyle={styles.image}
-          fallbackStyle={styles.image}
-        />
-        <View style={{ flex: 1 }}>
-          <Text
-            variant="titleMedium"
-            style={{ fontWeight: "600" }}
-            numberOfLines={2}
-          >
-            {name}
-          </Text>
-          <Text variant="bodyMedium" style={{ color: "#666" }}>
-            EAN: {ean}
-          </Text>
+    <>
+      <Card style={styles.card}>
+        <View style={styles.content}>
+          <ImageFallback
+            imageUrl={imageUrl}
+            imageStyle={styles.image}
+            fallbackStyle={styles.image}
+          />
+          <View style={{ flex: 1 }}>
+            <Text
+              variant="titleMedium"
+              style={{ fontWeight: "600" }}
+              numberOfLines={2}
+            >
+              {name}
+            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text variant="bodyMedium" style={{ color: "#666" }}>
+                EAN: {ean}
+              </Text>
+              <IconButton
+                icon="content-copy"
+                size={16}
+                onPress={handleCopyToClipboard}
+              />
+            </View>
+          </View>
         </View>
-      </View>
-    </Card>
+      </Card>
+    </>
   );
 }
 
