@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import { ActivityIndicator, Button, Snackbar, Text } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
@@ -16,6 +23,7 @@ export default function Scan() {
   const router = useRouter();
   const { loading, analyzeProduct, cancelAnalysis } = useAnalyzeProduct();
   const { consumeError } = useError();
+  const [scanned, setScanned] = useState(false);
 
   const showError = (message: string) => {
     setError(message);
@@ -23,6 +31,7 @@ export default function Scan() {
   };
 
   const onScanned = async (code: string) => {
+    setScanned(true);
     const trimmed = code.trim();
     if (!trimmed) {
       showError("Barcode darf nicht leer sein.");
@@ -53,77 +62,88 @@ export default function Scan() {
   }, [consumeError]);
 
   return (
-    <PageContainer>
-      <Text variant="headlineMedium" style={styles.title}>
-        Produkt scannen
-      </Text>
-      <View style={styles.scannerContainer}>
-        <View style={styles.scannerBox}>
-          <BarcodeScanner onScanned={onScanned} />
-        </View>
-      </View>
-      <Text variant="bodyMedium" style={styles.label}>
-        Oder Barcode eingeben
-      </Text>
-      <View style={styles.inputRow}>
-        <TextInput
-          value={barcode}
-          onChangeText={(text) => {
-            setBarcode(text);
-          }}
-          placeholder="z.B. 4001686312520"
-          placeholderTextColor={theme.colors.muted}
-          keyboardType="numeric"
-          style={styles.input}
-          editable={!loading}
-        />
-        <Button
-          onPress={() => onScanned(barcode)}
-          style={styles.button}
-          disabled={loading || !barcode}
-          mode="contained"
-        >
-          Los
-        </Button>
-      </View>
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <View style={styles.loadingContent}>
-            <ActivityIndicator
-              animating={true}
-              size="large"
-              color={theme.colors.primary}
-              style={styles.indicator}
-            />
-            <Text variant="headlineSmall" style={styles.loadingTitle}>
-              Produkt wird analysiert
-            </Text>
-            <Text variant="bodySmall" style={styles.loadingMessage}>
-              Dies kann einen Moment dauern...
-            </Text>
-            <Button
-              onPress={() => {
-                cancelAnalysis();
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={150}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <PageContainer>
+          <Text variant="headlineMedium" style={styles.title}>
+            Produkt scannen
+          </Text>
+          <View style={styles.scannerContainer}>
+            <View style={styles.scannerBox}>
+              <BarcodeScanner onScanned={onScanned} scanned={scanned} />
+            </View>
+          </View>
+          <Text variant="bodyMedium" style={styles.label}>
+            Oder Barcode eingeben
+          </Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              value={barcode}
+              onChangeText={(text) => {
+                setBarcode(text);
               }}
-              style={styles.cancelButton}
-              textColor={theme.colors.error}
-              mode="text"
+              placeholder="z.B. 4001686312520"
+              placeholderTextColor={theme.colors.muted}
+              keyboardType="numeric"
+              style={styles.input}
+              editable={!loading}
+            />
+            <Button
+              onPress={() => onScanned(barcode)}
+              style={styles.button}
+              disabled={loading || !barcode}
+              mode="contained"
             >
-              Abbrechen
+              Los
             </Button>
           </View>
-        </View>
-      )}
+          {loading && (
+            <View style={styles.loadingOverlay}>
+              <View style={styles.loadingContent}>
+                <ActivityIndicator
+                  animating={true}
+                  size="large"
+                  color={theme.colors.primary}
+                  style={styles.indicator}
+                />
+                <Text variant="headlineSmall" style={styles.loadingTitle}>
+                  Produkt wird analysiert
+                </Text>
+                <Text variant="bodySmall" style={styles.loadingMessage}>
+                  Dies kann einen Moment dauern...
+                </Text>
+                <Button
+                  onPress={() => {
+                    cancelAnalysis();
+                  }}
+                  style={styles.cancelButton}
+                  textColor={theme.colors.error}
+                  mode="text"
+                >
+                  Abbrechen
+                </Button>
+              </View>
+            </View>
+          )}
 
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={4000}
-        style={{ backgroundColor: theme.colors.error }}
-      >
-        {error}
-      </Snackbar>
-    </PageContainer>
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={() => setSnackbarVisible(false)}
+            duration={4000}
+            style={{ backgroundColor: theme.colors.error }}
+          >
+            {error}
+          </Snackbar>
+        </PageContainer>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
