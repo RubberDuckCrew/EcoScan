@@ -54,13 +54,17 @@ export default function Scan() {
 
   return (
     <PageContainer>
-      <Text style={styles.title}>Produkt scannen</Text>
+      <Text variant="headlineMedium" style={styles.title}>
+        Produkt scannen
+      </Text>
       <View style={styles.scannerContainer}>
         <View style={styles.scannerBox}>
           <BarcodeScanner onScanned={onScanned} />
         </View>
       </View>
-      <Text style={styles.label}>Oder Barcode eingeben</Text>
+      <Text variant="bodyMedium" style={styles.label}>
+        Oder Barcode eingeben
+      </Text>
       <View style={styles.inputRow}>
         <TextInput
           value={barcode}
@@ -77,8 +81,9 @@ export default function Scan() {
           onPress={() => onScanned(barcode)}
           style={styles.button}
           disabled={loading || !barcode}
+          mode="contained"
         >
-          <Text style={styles.buttonText}>Los</Text>
+          Los
         </Button>
       </View>
       {loading && (
@@ -90,8 +95,10 @@ export default function Scan() {
               color={theme.colors.primary}
               style={styles.indicator}
             />
-            <Text style={styles.loadingTitle}>Produkt wird analysiert</Text>
-            <Text style={styles.loadingMessage}>
+            <Text variant="headlineSmall" style={styles.loadingTitle}>
+              Produkt wird analysiert
+            </Text>
+            <Text variant="bodySmall" style={styles.loadingMessage}>
               Dies kann einen Moment dauern...
             </Text>
             <Button
@@ -100,6 +107,7 @@ export default function Scan() {
               }}
               style={styles.cancelButton}
               textColor={theme.colors.error}
+              mode="text"
             >
               Abbrechen
             </Button>
@@ -122,8 +130,6 @@ export default function Scan() {
 const styles = StyleSheet.create({
   title: {
     color: theme.colors.onSurface,
-    fontSize: 22,
-    fontWeight: "700",
   },
 
   scannerContainer: {
@@ -154,13 +160,10 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: theme.colors.onError,
-    fontSize: 14,
-    fontWeight: "500",
   },
 
   label: {
     color: theme.colors.onSurface,
-    fontSize: 14,
     marginBottom: 10,
   },
 
@@ -178,27 +181,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
-    fontSize: 15,
   },
 
   button: {
-    backgroundColor: theme.colors.primary,
     height: 48,
     paddingHorizontal: 18,
     borderRadius: 10,
     justifyContent: "center",
-    alignItems: "center",
-  },
-
-  buttonText: {
-    color: theme.colors.surface,
-    fontSize: 16,
-    fontWeight: "700",
   },
 
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: theme.colors.backdrop,
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1000,
@@ -220,15 +214,12 @@ const styles = StyleSheet.create({
 
   loadingTitle: {
     color: theme.colors.onSurface,
-    fontSize: 18,
-    fontWeight: "700",
     marginBottom: 8,
     textAlign: "center",
   },
 
   loadingMessage: {
     color: theme.colors.muted,
-    fontSize: 14,
     marginBottom: 24,
     textAlign: "center",
   },
