@@ -91,7 +91,13 @@ public class AlternativesService {
         final UUID storeJobId = result.jobId();
         log.info("Store result received for job {}", storeJobId);
 
-        result.data().stores().forEach(store -> jobSseService.send(storeJobId, "product-alternatives-stores", store));
+        final Set<String> sentStores = new HashSet<>();
+        result.data().stores().forEach(store -> {
+            final String key = store.name() + store.latitude() + store.longitude();
+            if (sentStores.add(key)) {
+                jobSseService.send(storeJobId, "product-alternatives-stores", store);
+            }
+        });
 
         jobSseService.send(storeJobId, "product-alternatives-stores", Map.of("done", true));
         jobSseService.complete(storeJobId);
