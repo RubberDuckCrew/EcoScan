@@ -31,7 +31,7 @@ services:
       ECOSCAN_FOOD_DATA_URL: "jdbc:duckdb:data/food/food.parquet"
       ECOSCAN_SAVINGS_CRON: 0 */10 * * * *
     volumes:
-      - "./data/food/food.parquet:/data/food/food.parquet"
+      - "./data/food/food.parquet:/app/data/food/food.parquet"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 15s
