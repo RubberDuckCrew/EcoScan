@@ -71,7 +71,7 @@ For Ollama:
 
 ```env
 MODEL=ollama/llama3.2
-OLLAMA_API_BASE=http://localhost:11434/
+OPENAI_BASE_URL=http://host.docker.internal:11434
 ```
 
 Add your corresponding API key. You can also configure other model providers supported by crewAI (e.g. OpenAI, Anthropic, or Ollama for local offline execution).
@@ -127,3 +127,8 @@ docker compose ps
    npm run start
    ```
 4. Scan the QR code displayed in your terminal using the Expo Go app (Android/iOS) or press `a` (for Android emulator) or `i` (for iOS simulator) to run the application.
+
+### Login Credentials
+The default credentials are:
+- Username: `user`
+- Password: `user`
