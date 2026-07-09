@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { ActivityIndicator, Button, Text, Snackbar } from "react-native-paper";
+import { ActivityIndicator, Button, Snackbar, Text } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
@@ -14,7 +14,7 @@ export default function Scan() {
   const [error, setError] = useState<string | undefined>();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const router = useRouter();
-  const { loading, analyzeProduct } = useAnalyzeProduct();
+  const { loading, analyzeProduct, cancelAnalysis } = useAnalyzeProduct();
   const { consumeError } = useError();
 
   const showError = (message: string) => {
@@ -71,6 +71,7 @@ export default function Scan() {
           placeholderTextColor={theme.colors.muted}
           keyboardType="numeric"
           style={styles.input}
+          editable={!loading}
         />
         <Button
           onPress={() => onScanned(barcode)}
@@ -81,14 +82,31 @@ export default function Scan() {
         </Button>
       </View>
       {loading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            animating={true}
-            size="large"
-            color={theme.colors.primary}
-          />
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContent}>
+            <ActivityIndicator
+              animating={true}
+              size="large"
+              color={theme.colors.primary}
+              style={styles.indicator}
+            />
+            <Text style={styles.loadingTitle}>Produkt wird analysiert</Text>
+            <Text style={styles.loadingMessage}>
+              Dies kann einen Moment dauern...
+            </Text>
+            <Button
+              onPress={() => {
+                cancelAnalysis();
+              }}
+              style={styles.cancelButton}
+              textColor={theme.colors.error}
+            >
+              Abbrechen
+            </Button>
+          </View>
         </View>
       )}
+
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
@@ -178,9 +196,44 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  loadingContainer: {
+  loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 1000,
+  },
+
+  loadingContent: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 16,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    width: "80%",
+    maxWidth: 300,
+  },
+
+  indicator: {
+    marginBottom: 20,
+  },
+
+  loadingTitle: {
+    color: theme.colors.onSurface,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+
+  loadingMessage: {
+    color: theme.colors.muted,
+    fontSize: 14,
+    marginBottom: 24,
+    textAlign: "center",
+  },
+
+  cancelButton: {
+    marginTop: 8,
   },
 });

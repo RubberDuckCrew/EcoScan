@@ -8,6 +8,7 @@ import { Product } from "@/types/product";
 type UseAnalyzeProductResult = {
   loading: boolean;
   analyzeProduct: (productId: string) => Promise<boolean>;
+  cancelAnalysis: () => void;
 };
 
 export function useAnalyzeProduct(): UseAnalyzeProductResult {
@@ -18,7 +19,6 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
   const { startStream, closeStream } = useSseClient<Product>(
     "product-analysis-evaluation",
   );
-  const [jobId, setJobId] = useState<string | undefined>();
 
   const completionRef = useRef<{
     resolve: (ok: boolean) => void;
@@ -28,16 +28,15 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
   const handleStreamError = useCallback(
     (err?: any) => {
       closeStream();
-      setJobId(undefined);
       setLoading(false);
-      setError(
-        "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
-      );
-      console.error("Error in SSE stream", err);
-      if (completionRef.current) {
-        completionRef.current.reject(err);
-        completionRef.current = null;
-      }
+      const errorMsg =
+        err instanceof Error && err.name === "AbortError"
+          ? "Analyse abgebrochen"
+          : "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
+      setError(errorMsg);
+      console.error("SSE stream error:", err);
+      completionRef.current?.reject(errorMsg);
+      completionRef.current = null;
     },
     [setError],
   );
@@ -47,42 +46,45 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
       setProduct(() => result);
       setLoading(false);
       closeStream();
-      setJobId(undefined);
-      if (completionRef.current) {
-        completionRef.current.resolve(true);
-        completionRef.current = null;
-      }
+      completionRef.current?.resolve(true);
+      completionRef.current = null;
     },
     [setProduct],
   );
 
+  const cancelAnalysis = useCallback(() => {
+    setLoading(false);
+    closeStream();
+    completionRef.current?.reject("Analyse abgebrochen vom Benutzer");
+    completionRef.current = null;
+  }, [closeStream]);
+
   const analyzeProduct = useCallback(
     async (productId: string): Promise<boolean> => {
       if (completionRef.current) {
-        throw new Error("A product analysis is already in progress.");
+        throw new Error("Eine Produktanalyse läuft bereits.");
       }
       setLoading(true);
       try {
-        const data = await api.post(`product/analyze/${productId}`);
-        if (data) {
-          return new Promise<boolean>((resolve, reject) => {
-            completionRef.current = { resolve, reject };
-            setJobId(String(data));
-          });
-        }
-        try {
+        const jobId = await api.post(`product/analyze/${productId}`);
+        if (!jobId) {
           const productData = await api.get(`product/${productId}`);
           setLoading(false);
           if (productData) {
             setProduct(productData);
             return true;
           }
-          return false;
-        } catch (err) {
-          setLoading(false);
           setError("Produkt konnte nicht geladen werden.");
-          throw err;
+          return false;
         }
+        return new Promise<boolean>((resolve, reject) => {
+          completionRef.current = { resolve, reject };
+          startStream(
+            `jobs/stream/${jobId}`,
+            handleStreamSuccess,
+            handleStreamError,
+          );
+        });
       } catch (err) {
         setLoading(false);
         const errorMsg =
@@ -93,37 +95,23 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
         throw err;
       }
     },
-    [api, setError, setProduct],
-  );
-
-  const startSseListener = useCallback(
-    (jobId: string) => {
-      startStream(
-        `jobs/stream/${jobId}`,
-        handleStreamSuccess,
-        handleStreamError,
-      );
-    },
-    [startStream, handleStreamSuccess, handleStreamError],
+    [
+      api,
+      setProduct,
+      setError,
+      startStream,
+      handleStreamSuccess,
+      handleStreamError,
+    ],
   );
 
   useEffect(() => {
-    if (!jobId) return;
-    startSseListener(jobId);
     return () => {
       closeStream();
-    };
-  }, [jobId, startSseListener, closeStream]);
-
-  useEffect(() => {
-    return () => {
-      if (completionRef.current) {
-        completionRef.current.reject("Component unmounted");
-        completionRef.current = null;
-      }
-      closeStream();
+      completionRef.current?.reject("Component unmounted");
+      completionRef.current = null;
     };
   }, [closeStream]);
 
-  return { loading, analyzeProduct };
+  return { loading, analyzeProduct, cancelAnalysis };
 }
