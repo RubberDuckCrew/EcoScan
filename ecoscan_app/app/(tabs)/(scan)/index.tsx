@@ -38,9 +38,9 @@ export default function Scan() {
       showError("Barcode darf nicht leer sein.");
       return;
     }
-    setBarcode(trimmed);
     try {
       if (await analyzeProduct(trimmed)) {
+        setBarcode("");
         router.push({
           pathname: "/(tabs)/(scan)/product/[id]",
           params: { id: trimmed },
@@ -68,7 +68,7 @@ export default function Scan() {
     >
       <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
         <PageContainer>
-          <Text variant="headlineMedium" style={styles.title}>
+          <Text variant="headlineLarge" style={styles.title}>
             Produkt scannen
           </Text>
           <View style={styles.scannerContainer}>
@@ -153,6 +153,8 @@ export default function Scan() {
 const styles = StyleSheet.create({
   title: {
     color: theme.colors.onSurface,
+    fontWeight: "bold",
+    marginInline: 16,
   },
 
   scannerContainer: {
