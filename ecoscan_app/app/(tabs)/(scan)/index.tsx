@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { ActivityIndicator, Button, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Text, Snackbar } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
@@ -12,17 +12,22 @@ import { useError } from "@/context/ErrorContext";
 export default function Scan() {
   const [barcode, setBarcode] = useState("");
   const [error, setError] = useState<string | undefined>();
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
   const router = useRouter();
   const { loading, analyzeProduct } = useAnalyzeProduct();
   const { consumeError } = useError();
 
+  const showError = (message: string) => {
+    setError(message);
+    setSnackbarVisible(true);
+  };
+
   const onScanned = async (code: string) => {
     const trimmed = code.trim();
     if (!trimmed) {
-      setError("Barcode darf nicht leer sein.");
+      showError("Barcode darf nicht leer sein.");
       return;
     }
-    setError(undefined);
     setBarcode(trimmed);
     try {
       if (await analyzeProduct(trimmed)) {
@@ -31,19 +36,19 @@ export default function Scan() {
           params: { id: trimmed },
         });
       } else {
-        setError("Produkt konnte nicht analysiert werden.");
+        showError("Produkt konnte nicht analysiert werden.");
       }
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Analyse fehlgeschlagen.";
-      setError(msg);
+      showError(msg);
     }
   };
 
   useEffect(() => {
     const errorMsg = consumeError();
     if (errorMsg) {
-      setError(errorMsg);
+      showError(errorMsg);
     }
   }, [consumeError]);
 
@@ -55,18 +60,12 @@ export default function Scan() {
           <BarcodeScanner onScanned={onScanned} />
         </View>
       </View>
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
       <Text style={styles.label}>Oder Barcode eingeben</Text>
       <View style={styles.inputRow}>
         <TextInput
           value={barcode}
           onChangeText={(text) => {
             setBarcode(text);
-            setError(undefined);
           }}
           placeholder="z.B. 4001686312520"
           placeholderTextColor={theme.colors.muted}
@@ -90,6 +89,14 @@ export default function Scan() {
           />
         </View>
       )}
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={4000}
+        style={{ backgroundColor: theme.colors.error }}
+      >
+        {error}
+      </Snackbar>
     </PageContainer>
   );
 }
