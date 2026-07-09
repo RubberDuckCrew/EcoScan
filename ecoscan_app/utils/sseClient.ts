@@ -86,10 +86,27 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
           console.log("[SSE] Error event received:", err);
 
           if (isClosingRef.current) {
+            try {
+              eventSource.close();
+            } catch (e) {
+              console.warn(
+                "[SSE] Error while closing eventSource during isClosing:",
+                e,
+              );
+            }
             return;
           }
 
-          eventSourceRef.current = null;
+          try {
+            eventSource.close();
+          } catch (e) {
+            console.warn(
+              "[SSE] Error while closing eventSource on error event:",
+              e,
+            );
+          } finally {
+            eventSourceRef.current = null;
+          }
 
           const shouldReconnect =
             reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS &&
