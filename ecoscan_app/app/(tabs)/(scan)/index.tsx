@@ -32,6 +32,7 @@ export default function Scan() {
   };
 
   const onScanned = async (code: string) => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     setScanned(true);
     const trimmed = code.trim();
     if (!trimmed) {
@@ -67,7 +68,7 @@ export default function Scan() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
-        <PageContainer>
+        <PageContainer style={{ padding: 0 }}>
           <Text variant="headlineLarge" style={styles.title}>
             Produkt scannen
           </Text>
@@ -76,7 +77,7 @@ export default function Scan() {
               <BarcodeScanner onScanned={onScanned} scanned={scanned} />
             </View>
           </View>
-          <Text variant="bodyMedium" style={styles.label}>
+          <Text variant="bodyLarge" style={styles.label}>
             Oder Barcode eingeben
           </Text>
           <View style={styles.inputRow}>
@@ -155,6 +156,7 @@ const styles = StyleSheet.create({
     color: theme.colors.onSurface,
     fontWeight: "bold",
     marginInline: 16,
+    paddingTop: 16,
   },
 
   scannerContainer: {
@@ -190,6 +192,7 @@ const styles = StyleSheet.create({
   label: {
     color: theme.colors.onSurface,
     marginBottom: 10,
+    paddingHorizontal: 16,
   },
 
   inputRow: {
@@ -197,6 +200,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     marginBottom: 150,
+    paddingHorizontal: 16,
   },
 
   input: {
