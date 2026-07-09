@@ -90,11 +90,6 @@ export function useAlternatives(): UseAlternativesResult {
             }
 
             setAlternatives((prev) => {
-              const exists = prev.some(
-                (item) => item.ean === alternativeItem.ean,
-              );
-
-              if (exists) return prev;
               return [...prev, alternativeItem];
             });
           }

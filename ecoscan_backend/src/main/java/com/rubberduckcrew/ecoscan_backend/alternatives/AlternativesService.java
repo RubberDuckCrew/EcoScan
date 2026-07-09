@@ -14,7 +14,10 @@ import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
 import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.score.ScoreService;
+
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +66,8 @@ public class AlternativesService {
         log.info("EAN result received for job {}", jobIdAlternatives);
         jobAlternativeService.registerAlternativesJob(jobIdAlternatives, result.data().eans().size());
 
-        result.data().eans().forEach(ean -> {
+        final Set<String> uniqueEans = new HashSet<>(result.data().eans());
+        uniqueEans.forEach(ean -> {
             try {
                 final Product product = foodDataRepository.getProduct(ean);
 
