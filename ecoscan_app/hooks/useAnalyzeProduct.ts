@@ -35,7 +35,7 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
           : "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
       setError(errorMsg);
       console.error("SSE stream error:", err);
-      completionRef.current?.reject(errorMsg);
+      completionRef.current?.reject(new Error(errorMsg));
       completionRef.current = null;
     },
     [setError],
@@ -55,7 +55,9 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
   const cancelAnalysis = useCallback(() => {
     setLoading(false);
     closeStream();
-    completionRef.current?.reject("Analyse abgebrochen vom Benutzer");
+    completionRef.current?.reject(
+      new Error("Analyse abgebrochen vom Benutzer"),
+    );
     completionRef.current = null;
   }, [closeStream]);
 
@@ -108,7 +110,7 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
   useEffect(() => {
     return () => {
       closeStream();
-      completionRef.current?.reject("Component unmounted");
+      completionRef.current?.reject(new Error("Component unmounted"));
       completionRef.current = null;
     };
   }, [closeStream]);
