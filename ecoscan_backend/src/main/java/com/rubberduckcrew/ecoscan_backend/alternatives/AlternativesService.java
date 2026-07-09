@@ -64,13 +64,13 @@ public class AlternativesService {
         final UUID jobIdAlternatives = result.jobId();
         log.info("Alternatives result for job {}", jobIdAlternatives);
         log.info("EAN result received for job {}", jobIdAlternatives);
-        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, result.data().eans().size());
 
         final Set<String> uniqueEans = new HashSet<>(result.data().eans());
+        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, uniqueEans.size());
+
         uniqueEans.forEach(ean -> {
             try {
                 final Product product = foodDataRepository.getProduct(ean);
-
                 final Map<String, Object> payload = Map.of(
                     "ean", ean,
                     "name", product.getName() != null ? product.getName() : "Name nicht gefunden",
@@ -93,7 +93,7 @@ public class AlternativesService {
 
         final Set<String> sentStores = new HashSet<>();
         result.data().stores().forEach(store -> {
-            final String key = store.name() + store.latitude() + store.longitude();
+            final String key = store.name() + "-" + store.latitude() + "-" + "-" + store.longitude();
             if (sentStores.add(key)) {
                 jobSseService.send(storeJobId, "product-alternatives-stores", store);
             }
