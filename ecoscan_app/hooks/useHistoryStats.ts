@@ -20,7 +20,7 @@ export function useHistoryStats() {
       setStats(content);
     } catch (err) {
       console.warn(
-        "[useHistoryStats] Error while fetching history stats: ",
+        "[useHistoryStats] Error while fetching history stats:",
         err,
       );
       showError("Fehler beim Abrufen der Statistiken.");

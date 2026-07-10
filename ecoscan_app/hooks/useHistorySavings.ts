@@ -25,7 +25,7 @@ export function useHistorySavings() {
         setJobId(data);
       }
     } catch (err) {
-      console.warn("[useHistorySavings] Error while requesting savings: ", err);
+      console.warn("[useHistorySavings] Error while requesting savings:", err);
       showError("Fehler beim Abrufen der Ersparnisse.");
       loadingRef.current = false;
       setLoading(false);
@@ -45,7 +45,7 @@ export function useHistorySavings() {
         (error) => {
           loadingRef.current = false;
           setLoading(false);
-          console.warn("[useHistorySavings] Error in SSE stream: ", error);
+          console.warn("[useHistorySavings] Error in SSE stream:", error);
           showError("Fehler beim Abrufen der Ersparnisse.");
           closeStream();
         },
