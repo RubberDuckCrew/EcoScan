@@ -9,14 +9,3 @@ research_alternatives_task:
   expected_output: >
     A list of alternative product EAN numbers
   agent: alternatives_researcher
-
-find_coordinates_task:
-  description: >
-    Use the "Find nearby stores" tool with the user coordinates
-    latitude and longitude from {user_coordinates} (format: "lat,lon").
-    Call the "Find nearby stores" tool ONCE with these exact numeric values.
-    Use ONLY the store names, latitudes and longitudes returned by the tool.
-    Do NOT return tool names or parameters.
-  expected_output: >
-    A JSON list of nearby stores with their name, latitude, and longitude.
-  agent: coordinates_researcher
