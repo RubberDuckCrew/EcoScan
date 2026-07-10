@@ -25,7 +25,7 @@ export function useHistoryList() {
           : [];
 
         setHistory((prev) =>
-          pageToLoad === 0 ? content : [...prev, ...data.content],
+          pageToLoad === 0 ? content : [...prev, ...content],
         );
         setPage(
           typeof data?.currentPage === "number" ? data.currentPage : pageToLoad,
