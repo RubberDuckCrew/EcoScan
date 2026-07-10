@@ -15,11 +15,11 @@ export type SavingsCardRef = {
 
 export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
   ({ style }, ref) => {
-    const { savings, loading, fetchHistorySavings } = useHistorySavings();
+    const { savings, loading, requestSavings } = useHistorySavings();
 
     useImperativeHandle(ref, () => ({
       refresh() {
-        void fetchHistorySavings();
+        void requestSavings();
       },
     }));
 
@@ -40,9 +40,9 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
                   variant="displayLarge"
                   style={[styles.text, styles.title]}
                 >
-                  {savings && savings.co2Saving !== undefined
-                    ? savings.co2Saving.toFixed(1).replace(".", ",")
-                    : "-"}
+                  {savings?.co2Saving === undefined
+                    ? "-"
+                    : savings.co2Saving.toFixed(1).replace(".", ",")}
                 </Text>
                 <Text variant="bodyLarge" style={styles.text}>
                   kg CO₂
@@ -50,9 +50,9 @@ export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
               </View>
               <Text variant="bodyLarge" style={styles.text}>
                 Das entspricht{" "}
-                {savings && savings.carRideEquivalent !== undefined
-                  ? savings.carRideEquivalent.toFixed(0)
-                  : "-"}{" "}
+                {savings?.carRideEquivalent === undefined
+                  ? "-"
+                  : savings.carRideEquivalent.toFixed(0)}{" "}
                 km Autofahrt.
               </Text>
             </View>
