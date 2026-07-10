@@ -114,14 +114,6 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
     }
   }, [currentSnackbar, snackbarQueue]);
 
-  useEffect(() => {
-    if (!currentSnackbar) return;
-
-    const timer = setTimeout(dismissSnackbar, currentSnackbar.duration);
-
-    return () => clearTimeout(timer);
-  }, [currentSnackbar, dismissSnackbar]);
-
   const contextValue = useMemo(
     () => ({
       showError,

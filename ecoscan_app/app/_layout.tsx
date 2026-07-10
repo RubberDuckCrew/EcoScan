@@ -56,19 +56,17 @@ function RootLayoutNav() {
       ) : (
         stack
       )}
-      {currentSnackbar && (
-        <Snackbar
-          visible={!!currentSnackbar}
-          onDismiss={dismissSnackbar}
-          duration={40000}
-          style={{
-            ...getSnackbarStyles(currentSnackbar.type),
-            marginBottom: 70,
-          }}
-        >
-          {currentSnackbar.message}
-        </Snackbar>
-      )}
+      <Snackbar
+        visible={!!currentSnackbar}
+        onDismiss={dismissSnackbar}
+        duration={currentSnackbar?.duration || 4000}
+        style={{
+          ...(currentSnackbar ? getSnackbarStyles(currentSnackbar.type) : {}),
+          marginBottom: 70,
+        }}
+      >
+        {currentSnackbar?.message || ""}
+      </Snackbar>
     </>
   );
 }
