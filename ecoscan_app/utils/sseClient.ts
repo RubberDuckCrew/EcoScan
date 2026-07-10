@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { ENV } from "@/utils/env";
 import EventSource from "react-native-sse";
 
@@ -78,7 +78,7 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
             const parsedData = JSON.parse(event.data) as T;
             onMessage(parsedData);
           } catch (err) {
-            console.error("[SSE] Error parsing data:", err);
+            console.warn("[SSE] Error parsing data:", err);
           }
         });
 
@@ -115,7 +115,7 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
           if (shouldReconnect) {
             scheduleReconnect(endpoint, onMessage, onError);
           } else {
-            console.error("[SSE] Max reconnection attempts reached");
+            console.warn("[SSE] Max reconnection attempts reached");
             onError({
               message: "Verbindung konnte nicht wiederhergestellt werden",
               status: "max_retries_exceeded",
@@ -128,7 +128,7 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
           console.log("[SSE] Connection established");
         });
       } catch (err) {
-        console.error("[SSE] Failed to create EventSource:", err);
+        console.warn("[SSE] Failed to create EventSource:", err);
         if (!isClosingRef.current) {
           onError(err);
         }
@@ -151,7 +151,7 @@ export function useSseClient<T>(eventName: string): SseClient<T> {
         INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current);
       reconnectAttemptsRef.current += 1;
 
-      console.log(
+      console.warn(
         `[SSE] Scheduling reconnect attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS} in ${delay}ms`,
       );
 
