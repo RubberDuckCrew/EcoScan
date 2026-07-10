@@ -32,7 +32,10 @@ export function useHistoryList() {
         );
         setHasMore(Boolean(data?.hasNext));
       } catch (err) {
-        console.warn("[useHistoryList]", err);
+        console.warn(
+          "[useHistoryList] Error while fetching history page: ",
+          err,
+        );
         showError("Fehler beim Laden der Historie.");
       } finally {
         loadingRef.current = false;
