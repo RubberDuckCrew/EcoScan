@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import { Alert } from "react-native";
-import { AUTH_CONFIG } from "@/utils/authConfig";
+import {Alert} from "react-native";
+import {AUTH_CONFIG} from "@/utils/authConfig";
 
 const redirectUri = AuthSession.makeRedirectUri();
 

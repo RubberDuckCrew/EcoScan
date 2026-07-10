@@ -1,8 +1,7 @@
-import { useAuth } from "@/context/AuthContext";
-import { OidcUserInfo } from "@/types/userInfo";
-import { AUTH_CONFIG } from "@/utils/authConfig";
+import {useAuth} from "@/context/AuthContext";
+import {AUTH_CONFIG} from "@/utils/authConfig";
 import * as AuthSession from "expo-auth-session";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
 export const useUserInfo = () => {
   const { getAccessToken, refresh, isAuthenticated } = useAuth();

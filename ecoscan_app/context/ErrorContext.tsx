@@ -1,13 +1,6 @@
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useRef,
-  useEffect,
-  useState,
-} from "react";
-import { useSnackbar } from "@/context/SnackbarContext";
+import {useCallback,} from "react";
+import {useSnackbar} from "@/context/SnackbarContext";
+
 export function useError() {
   const { showError } = useSnackbar();
 

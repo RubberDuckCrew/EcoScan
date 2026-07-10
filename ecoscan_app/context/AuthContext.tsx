@@ -1,15 +1,8 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, {createContext, useCallback, useContext, useEffect, useRef, useState,} from "react";
 import * as AuthSession from "expo-auth-session";
-import { jwtDecode } from "jwt-decode";
-import { useAuthStorage } from "@/hooks/useAuthStorage";
-import { useOAuthFlow } from "@/hooks/useOAuthFlow";
+import {jwtDecode} from "jwt-decode";
+import {useAuthStorage} from "@/hooks/useAuthStorage";
+import {useOAuthFlow} from "@/hooks/useOAuthFlow";
 
 interface AuthContextType {
   refresh: () => Promise<void>;

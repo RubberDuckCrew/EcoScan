@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
-import { View } from "react-native";
-import { captureRef } from "react-native-view-shot";
-import { useSnackbar } from "@/context/SnackbarContext";
+import {useRef, useState} from "react";
+import {View} from "react-native";
+import {captureRef} from "react-native-view-shot";
+import {useSnackbar} from "@/context/SnackbarContext";
 import * as Sharing from "expo-sharing";
-import { File } from "expo-file-system";
+import {File} from "expo-file-system";
+
 interface ShareOptions {
   format?: "png" | "jpg" | "webm";
   quality?: number;
