@@ -31,7 +31,7 @@ type NearbyStore = {
 export function useAlternatives(): UseAlternativesResult {
   const api = useApiClient();
   const { startStream: startEanStream, closeStream: closeEanStream } =
-    useSseClient<string>("product-alternatives-eans");
+    useSseClient<Alternative>("product-alternatives-eans");
   const { startStream: startStoreStream, closeStream: closeStoreStream } =
     useSseClient<NearbyStore>("product-alternatives-stores");
 
