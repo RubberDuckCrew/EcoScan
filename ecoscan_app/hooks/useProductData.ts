@@ -35,7 +35,7 @@ export function useProductData(id: string | string[] | undefined) {
         if (data) {
           setProduct(data);
           if (data.score === undefined) {
-            await fetchGreenScore(normalizedId);
+            fetchGreenScore(normalizedId);
           }
         }
       } catch (err) {
