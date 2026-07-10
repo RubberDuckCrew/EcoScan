@@ -8,6 +8,7 @@ export interface ProductCardProps {
   imageUrl: string;
   description: string;
   ean: string;
+  showDescription?: boolean;
 }
 
 export default function ProductCard({
@@ -15,6 +16,7 @@ export default function ProductCard({
   imageUrl,
   description,
   ean,
+  showDescription = true,
 }: ProductCardProps) {
   return (
     <Surface style={styles.rootCard} elevation={0}>
@@ -34,17 +36,19 @@ export default function ProductCard({
           </Text>
         </View>
       </View>
-      <View style={styles.descriptionContainer}>
-        <ScrollView
-          nestedScrollEnabled={true}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={true}
-        >
-          <Text style={styles.descriptionText} variant={"bodyMedium"}>
-            {description}
-          </Text>
-        </ScrollView>
-      </View>
+      {showDescription && (
+        <View style={styles.descriptionContainer}>
+          <ScrollView
+            nestedScrollEnabled={true}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={true}
+          >
+            <Text style={styles.descriptionText} variant={"bodyMedium"}>
+              {description}
+            </Text>
+          </ScrollView>
+        </View>
+      )}
     </Surface>
   );
 }

@@ -9,6 +9,7 @@ import { useShareScreenshot } from "@/hooks/useShareScreenshot";
 import ScoreDetailsSkeleton from "@/components/product/loading/ScoreDetailsSkeleton";
 import ProductCardSkeleton from "@/components/product/loading/ProductCardSkeleton";
 import ProductScoreDashboard from "@/components/product/ProductScoreDashboard";
+import ShareComponent from "@/components/product/ShareComponent";
 
 type ProductScreenProps = {
   showActionButtons?: boolean;
@@ -35,7 +36,7 @@ export default function ProductScreen({
   }, [error, setError]);
 
   return (
-    <View ref={viewRef} collapsable={false} style={styles.root}>
+    <View style={styles.root}>
       <ScrollView>
         <PageContainer>
           {productLoading || !product ? (
@@ -63,6 +64,17 @@ export default function ProductScreen({
             ))}
         </PageContainer>
       </ScrollView>
+      <View ref={viewRef} collapsable={false} style={styles.shareContainer}>
+        {product && product.score !== undefined && (
+          <ShareComponent
+            ref={viewRef}
+            ean={product.id}
+            name={product.name}
+            imageUrl={product.imageUrl}
+            score={product.score}
+          />
+        )}
+      </View>
     </View>
   );
 }
@@ -88,5 +100,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingBottom: 16,
     paddingTop: 8,
+  },
+  shareContainer: {
+    position: "absolute",
+    left: -10000,
+    top: 0,
+    width: 400,
   },
 });
