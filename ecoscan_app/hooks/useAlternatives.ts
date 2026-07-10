@@ -57,17 +57,9 @@ export function useAlternatives(): UseAlternativesResult {
     (jobId: string) => {
       startEanStream(
         `jobs/stream/${jobId}`,
-        (rawData: any) => {
-          let data = rawData;
-          if (typeof rawData === "string") {
-            try {
-              data = JSON.parse(rawData);
-            } catch (e) {
-              data = rawData;
-            }
-          }
+        (alternative: Alternative) => {
           if (
-            data === "DONE") {
+            alternative.ean === "DONE") {
             console.info("EAN stream finished");
             closeEanStream();
             loadingEanRef.current = false;
@@ -75,21 +67,13 @@ export function useAlternatives(): UseAlternativesResult {
             checkBothDone();
             return;
           }
-
-          if (data && typeof data === "object" && data.ean) {
-            const alternativeItem: Alternative = {
-              ean: data.ean,
-              name: data.name,
-              imageUrl: data.imageUrl || "",
-            };
-            if (alternativeItem.name === "Produkt nicht gefunden") {
-              return;
-            }
-
-            setAlternatives((prev) => {
-              return [...prev, alternativeItem];
-            });
+          if (alternative.name === "Produkt nicht gefunden") {
+            return;
           }
+
+          setAlternatives((prev) => {
+            return [...prev, alternative];
+          });
         },
         () => {
           closeEanStream();

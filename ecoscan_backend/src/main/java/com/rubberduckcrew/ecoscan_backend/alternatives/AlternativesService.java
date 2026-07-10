@@ -1,5 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.alternatives;
 
+import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativeDTO;
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesJobsDTO;
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesResultDTO;
@@ -61,18 +62,19 @@ public class AlternativesService {
         uniqueEans.forEach(ean -> {
             try {
                 final Product product = foodDataRepository.getProduct(ean);
-                final Map<String, Object> payload = Map.of(
-                    "ean", ean,
-                    "name", product.getName() != null ? product.getName() : "Name nicht gefunden",
-                    "imageUrl", product.getImageUrl() != null ? product.getImageUrl() : "");
-                jobSseService.send(jobIdAlternatives, "product-alternatives-eans", payload);
+                final AlternativeDTO alternative = new AlternativeDTO(
+                    ean,
+                    product.getName() != null ? product.getName() : "Name nicht gefunden",
+                    product.getImageUrl() != null ? product.getImageUrl() : ""
+                );
+                jobSseService.send(jobIdAlternatives, "product-alternatives-eans", alternative);
 
             } catch (ResponseStatusException e) {
                 log.warn("Product not found for EAN {}, not sending to frontend", ean);
             }
         });
 
-        jobSseService.send(jobIdAlternatives, "product-alternatives-eans", Map.of("value", "DONE"));
+        jobSseService.send(jobIdAlternatives, "product-alternatives-eans", new AlternativeDTO("DONE", "", ""));
         jobSseService.complete(jobIdAlternatives);
     }
 
