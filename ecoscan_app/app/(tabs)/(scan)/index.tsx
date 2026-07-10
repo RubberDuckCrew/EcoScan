@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -7,7 +7,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { ActivityIndicator, Button, Snackbar, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Text } from "react-native-paper";
 
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { PageContainer } from "@/components/PageContainer";
@@ -18,25 +18,18 @@ import { useError } from "@/context/ErrorContext";
 
 export default function Scan() {
   const [barcode, setBarcode] = useState("");
-  const [error, setError] = useState<string | undefined>();
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const { setError } = useError();
   const router = useRouter();
   const { loading, analyzeProduct, cancelAnalysis } = useAnalyzeProduct();
-  const { consumeError } = useError();
   const [scanned, setScanned] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
-
-  const showError = (message: string) => {
-    setError(message);
-    setSnackbarVisible(true);
-  };
 
   const onScanned = async (code: string) => {
     scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     setScanned(true);
     const trimmed = code.trim();
     if (!trimmed) {
-      showError("Barcode darf nicht leer sein.");
+      setError("Barcode darf nicht leer sein.");
       return;
     }
     try {
@@ -47,21 +40,14 @@ export default function Scan() {
           params: { id: trimmed },
         });
       } else {
-        showError("Produkt konnte nicht analysiert werden.");
+        setError("Produkt konnte nicht analysiert werden.");
       }
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Analyse fehlgeschlagen.";
-      showError(msg);
+      setError(msg);
     }
   };
-
-  useEffect(() => {
-    const errorMsg = consumeError();
-    if (errorMsg) {
-      showError(errorMsg);
-    }
-  }, [consumeError]);
 
   return (
     <KeyboardAvoidingView
@@ -136,15 +122,6 @@ export default function Scan() {
               </View>
             </View>
           )}
-
-          <Snackbar
-            visible={snackbarVisible}
-            onDismiss={() => setSnackbarVisible(false)}
-            duration={4000}
-            style={{ backgroundColor: theme.colors.error }}
-          >
-            {error}
-          </Snackbar>
         </PageContainer>
       </ScrollView>
     </KeyboardAvoidingView>
