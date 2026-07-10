@@ -1,8 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.products;
 
-import com.rubberduckcrew.ecoscan_backend.alternatives.HandleAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
-import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.dto.ProductAnalysisRequestDTO;
@@ -24,8 +22,6 @@ public class ProductAnalysisService {
     private final RabbitTemplate rabbitTemplate;
     private final JobSseService jobSseService;
     private final ProductRepository productRepository;
-    private final JobAlternativeService jobAlternativeService;
-    private final HandleAlternativeService handleAlternativesService;
     private final JobEanService jobEanService;
 
     public UUID analyzeProduct(final Product product) {
@@ -67,13 +63,6 @@ public class ProductAnalysisService {
         p.setData(result.data());
         productRepository.save(p);
 
-        final Optional<UUID> alternativesJobId = jobAlternativeService.getAlternativesJobId(response.jobId());
-        if (alternativesJobId.isPresent()) {
-            log.info("Alternatives job is registered for product {} with jobId {}", p.getId(), alternativesJobId.get());
-            handleAlternativesService.handleAlternativeProduct(p, alternativesJobId.get());
-            jobEanService.remove(response.jobId());
-            return;
-        }
         jobSseService.send(response.jobId(), "product-analysis-evaluation", p);
         jobEanService.remove(response.jobId());
         jobSseService.complete(response.jobId());

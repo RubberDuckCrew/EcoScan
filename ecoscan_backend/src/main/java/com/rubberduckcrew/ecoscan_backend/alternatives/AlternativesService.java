@@ -8,13 +8,8 @@ import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesStoreResu
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.NearbyStoreDTO;
 import com.rubberduckcrew.ecoscan_backend.common.AiDTO;
 import com.rubberduckcrew.ecoscan_backend.food_data.FoodDataRepository;
-import com.rubberduckcrew.ecoscan_backend.jobs.JobAlternativeService;
-import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
-import com.rubberduckcrew.ecoscan_backend.products.ProductRepository;
-import com.rubberduckcrew.ecoscan_backend.products.ProductService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
-import com.rubberduckcrew.ecoscan_backend.score.ScoreService;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -32,7 +27,6 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 public class AlternativesService {
-    private final JobAlternativeService jobAlternativeService;
     private final RabbitTemplate rabbitTemplate;
     private final JobSseService jobSseService;
     private final FoodDataRepository foodDataRepository;
@@ -63,7 +57,6 @@ public class AlternativesService {
         log.info("EAN result received for job {}", jobIdAlternatives);
 
         final Set<String> uniqueEans = new HashSet<>(result.data().eans());
-//        jobAlternativeService.registerAlternativesJob(jobIdAlternatives, uniqueEans.size());
 
         uniqueEans.forEach(ean -> {
             try {
