@@ -31,7 +31,7 @@ type NearbyStore = {
 export function useAlternatives(): UseAlternativesResult {
   const api = useApiClient();
   const { startStream: startEanStream, closeStream: closeEanStream } =
-    useSseClient<string>("product-alternatives-eans");
+    useSseClient<Alternative>("product-alternatives-eans");
   const { startStream: startStoreStream, closeStream: closeStoreStream } =
     useSseClient<NearbyStore>("product-alternatives-stores");
 
@@ -57,20 +57,8 @@ export function useAlternatives(): UseAlternativesResult {
     (jobId: string) => {
       startEanStream(
         `jobs/stream/${jobId}`,
-        (rawData: any) => {
-          let data = rawData;
-          if (typeof rawData === "string") {
-            try {
-              data = JSON.parse(rawData);
-            } catch (e) {
-              data = rawData;
-            }
-          }
-          if (
-            data === "DONE" ||
-            data?.value === "DONE" ||
-            data?.done === true
-          ) {
+        (alternative: Alternative) => {
+          if (alternative.ean === "DONE") {
             console.info("EAN stream finished");
             closeEanStream();
             loadingEanRef.current = false;
@@ -78,21 +66,13 @@ export function useAlternatives(): UseAlternativesResult {
             checkBothDone();
             return;
           }
-
-          if (data && typeof data === "object" && data.ean) {
-            const alternativeItem: Alternative = {
-              ean: data.ean,
-              name: data.name,
-              imageUrl: data.imageUrl || "",
-            };
-            if (alternativeItem.name === "Produkt nicht gefunden") {
-              return;
-            }
-
-            setAlternatives((prev) => {
-              return [...prev, alternativeItem];
-            });
+          if (alternative.name === "Produkt nicht gefunden") {
+            return;
           }
+
+          setAlternatives((prev) => {
+            return [...prev, alternative];
+          });
         },
         () => {
           closeEanStream();
@@ -109,15 +89,14 @@ export function useAlternatives(): UseAlternativesResult {
     (jobId: string) => {
       startStoreStream(
         `jobs/stream/${jobId}`,
-        (data: any) => {
-          if (data.done === true) {
+        (store: NearbyStore) => {
+          if (store.name === "DONE") {
             closeStoreStream();
             loadingStoreRef.current = false;
             setLoadingStore(false);
             checkBothDone();
             return;
           }
-          const store = data as NearbyStore;
           console.info("Store received: ", store);
           setStores((prev) => {
             return [...prev, store];

@@ -4,7 +4,8 @@ import threading
 from concurrent.futures import Future, ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
-from ecoscan_ai.alternatives.worker import AlternativesWorker, AlternativesStoreWorker
+from ecoscan_ai.alternatives.worker import AlternativesWorker
+from ecoscan_ai.stores.worker import AlternativesStoreWorker
 from ecoscan_ai.product_analysis.worker import ProductAnalysisWorker
 from ecoscan_ai.greenscore.worker import GreenScoreWorker
 from ecoscan_ai.savings.worker import SavingsWorker

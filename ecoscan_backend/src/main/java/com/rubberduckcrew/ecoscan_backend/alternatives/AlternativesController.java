@@ -28,10 +28,8 @@ public class AlternativesController {
         @NotNull @RequestParam final String categories,
         @NotNull @RequestParam final String userCoordinates) {
         final UUID userId = AuthUtils.getSub();
-        log.info("userId: {}", userId);
         final AlternativesJobsDTO jobs = alternativesService.findAlternatives(categories, userCoordinates, userId);
         jobEanService.register(jobs.eanJobId(), id);
-        log.info("Returning jobIds to frontend: ean={}, store={}", jobs.eanJobId(), jobs.storeJobId());
         return ResponseEntity.ok(jobs);
     }
 }
