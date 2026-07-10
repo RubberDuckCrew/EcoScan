@@ -15,11 +15,11 @@ export type SavingsCardRef = {
 
 export const SavingsCard = forwardRef<SavingsCardRef, SavingsCardProps>(
   ({ style }, ref) => {
-    const { savings, loading, fetchHistorySavings } = useHistorySavings();
+    const { savings, loading, requestSavings } = useHistorySavings();
 
     useImperativeHandle(ref, () => ({
       refresh() {
-        void fetchHistorySavings();
+        void requestSavings();
       },
     }));
 

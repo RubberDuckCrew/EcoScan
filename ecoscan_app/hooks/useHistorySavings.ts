@@ -14,7 +14,7 @@ export function useHistorySavings() {
   const [savings, setSavings] = useState<HistorySavings>();
   const [jobId, setJobId] = useState<string>();
 
-  const fetchHistorySavings = useCallback(async () => {
+  const requestSavings = useCallback(async () => {
     if (loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
@@ -25,7 +25,7 @@ export function useHistorySavings() {
         setJobId(data);
       }
     } catch (err) {
-      console.warn("[useHistorySavings]", err);
+      console.warn("[useHistorySavings] Error while requesting savings: ", err);
       showError("Fehler beim Abrufen der Ersparnisse.");
       loadingRef.current = false;
       setLoading(false);
@@ -38,17 +38,20 @@ export function useHistorySavings() {
         `jobs/stream/${jobId}`,
         (result) => {
           setSavings(result);
+          loadingRef.current = false;
           setLoading(false);
           closeStream();
         },
-        () => {
+        (error) => {
+          loadingRef.current = false;
           setLoading(false);
-          console.warn("Error in history SSE stream");
+          console.warn("[useHistorySavings] Error in SSE stream: ", error);
+          showError("Fehler beim Abrufen der Ersparnisse.");
           closeStream();
         },
       );
     },
-    [startStream, closeStream],
+    [startStream, closeStream, showError],
   );
 
   useEffect(() => {
@@ -62,11 +65,11 @@ export function useHistorySavings() {
   }, [jobId, startSseListener, closeStream]);
 
   useEffect(() => {
-    void fetchHistorySavings();
-  }, [fetchHistorySavings]);
+    void requestSavings();
+  }, [requestSavings]);
 
   return {
-    fetchHistorySavings,
+    requestSavings,
     savings,
     loading,
     jobId,
