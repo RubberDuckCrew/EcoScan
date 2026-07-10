@@ -65,6 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     !!initialAccessToken && !!initialRefreshToken,
   );
   const [isLoadingState, setIsLoadingState] = useState(isStorageLoading);
+  const [tokenVersion, setTokenVersion] = useState(0);
 
   const handleClearTokens = useCallback(async () => {
     await clearTokensFromStorage();
@@ -137,6 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("[Auth] Refreshing tokens in background...");
       await refreshOAuth(currentRefreshToken);
       console.log("[Auth] Tokens refreshed successfully (silent)");
+      setTokenVersion((v) => v + 1);
     } catch (e) {
       console.error("[Auth] Failed to refresh tokens:", e);
       await handleClearTokens();
@@ -204,7 +206,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         clearTimeout(refreshTimeoutRef.current);
       }
     };
-  }, [refreshInternal]);
+  }, [refreshInternal, tokenVersion]);
 
   const value = useMemo<AuthContextType>(
     () => ({
