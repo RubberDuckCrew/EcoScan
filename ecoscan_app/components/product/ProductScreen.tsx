@@ -4,7 +4,6 @@ import { useProductData } from "@/hooks/useProductData";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useError } from "@/context/ErrorContext";
 import { useShareScreenshot } from "@/hooks/useShareScreenshot";
 import ScoreDetailsSkeleton from "@/components/product/loading/ScoreDetailsSkeleton";
 import ProductCardSkeleton from "@/components/product/loading/ProductCardSkeleton";
@@ -19,21 +18,20 @@ export default function ProductScreen({
   showActionButtons = true,
 }: ProductScreenProps) {
   const { viewRef, captureAndShare } = useShareScreenshot();
-
-  const { setError } = useError();
+  const { showError } = useShareScreenshot();
   const { id } = useLocalSearchParams();
   const { product, productLoading, scoreLoading, error } = useProductData(id);
 
   useEffect(() => {
     if (!error) return;
 
-    setError(error);
+    showError(error);
     if (router.canGoBack()) {
       router.back();
     } else {
       router.replace("/(tabs)/(scan)");
     }
-  }, [error, setError]);
+  }, [error, showError]);
 
   return (
     <View style={styles.root}>
