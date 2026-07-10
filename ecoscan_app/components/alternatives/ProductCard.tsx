@@ -1,6 +1,6 @@
-import {StyleSheet, View} from "react-native";
-import {Card, Icon, Text} from "react-native-paper";
-import {getScoreColor} from "@/utils/scoreColor";
+import { StyleSheet, View } from "react-native";
+import { Card, Icon, Text } from "react-native-paper";
+import { getScoreColor } from "@/utils/scoreColor";
 
 type ProductCardProps = {
   title: string;
