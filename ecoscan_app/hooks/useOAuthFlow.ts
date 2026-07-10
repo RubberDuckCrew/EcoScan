@@ -82,7 +82,7 @@ export const useOAuthFlow = ({
   const refresh = useCallback(
     async (refreshToken: string) => {
       const disc = discovery || (await loadDiscovery());
-      if (!disc) return;
+      if (!disc) throw new Error("OAuth discovery unavailable");
 
       const tokenInstance = new AuthSession.TokenResponse({
         accessToken: "",
