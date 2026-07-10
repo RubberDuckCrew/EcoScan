@@ -124,27 +124,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   const refreshTimeoutRef = useRef<NodeJS.Timeout | number | null>(null);
-  const isRefreshingRef = useRef(false);
+  const activeRefreshRef = useRef<Promise<void> | null>(null);
 
   const refreshInternal = useCallback(async () => {
-    const currentRefreshToken = refreshTokenRef.current;
+    if (activeRefreshRef.current) {
+      return activeRefreshRef.current;
+    }
 
-    if (isRefreshingRef.current || !currentRefreshToken) {
+    const currentRefreshToken = refreshTokenRef.current;
+    if (!currentRefreshToken) {
       return;
     }
 
-    isRefreshingRef.current = true;
-    try {
-      console.log("[Auth] Refreshing tokens in background...");
-      await refreshOAuth(currentRefreshToken);
-      console.log("[Auth] Tokens refreshed successfully (silent)");
-      setTokenVersion((v) => v + 1);
-    } catch (e) {
-      console.error("[Auth] Failed to refresh tokens:", e);
-      await handleClearTokens();
-    } finally {
-      isRefreshingRef.current = false;
-    }
+    const promise = (async () => {
+      try {
+        console.log("[Auth] Refreshing tokens in background...");
+        await refreshOAuth(currentRefreshToken);
+        console.log("[Auth] Tokens refreshed successfully (silent)");
+        setTokenVersion((v) => v + 1);
+      } catch (e) {
+        console.error("[Auth] Failed to refresh tokens:", e);
+        await handleClearTokens();
+      } finally {
+        activeRefreshRef.current = null;
+      }
+    })();
+
+    activeRefreshRef.current = promise;
+    return promise;
   }, [refreshOAuth, handleClearTokens]);
 
   const refresh = useCallback(async () => {
@@ -180,7 +187,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const tokenExpiresAt = tokenExpiresAtRef.current;
     const refreshToken = refreshTokenRef.current;
 
-    if (!tokenExpiresAt || !refreshToken || isRefreshingRef.current) {
+    if (!tokenExpiresAt || !refreshToken || activeRefreshRef.current) {
       return;
     }
 
