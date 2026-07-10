@@ -58,8 +58,7 @@ export function useAlternatives(): UseAlternativesResult {
       startEanStream(
         `jobs/stream/${jobId}`,
         (alternative: Alternative) => {
-          if (
-            alternative.ean === "DONE") {
+          if (alternative.ean === "DONE") {
             console.info("EAN stream finished");
             closeEanStream();
             loadingEanRef.current = false;

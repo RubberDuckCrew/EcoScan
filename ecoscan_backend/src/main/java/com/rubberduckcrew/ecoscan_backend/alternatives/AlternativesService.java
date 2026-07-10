@@ -13,7 +13,6 @@ import com.rubberduckcrew.ecoscan_backend.jobs.JobSseService;
 import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +64,7 @@ public class AlternativesService {
                 final AlternativeDTO alternative = new AlternativeDTO(
                     ean,
                     product.getName() != null ? product.getName() : "Name nicht gefunden",
-                    product.getImageUrl() != null ? product.getImageUrl() : ""
-                );
+                    product.getImageUrl() != null ? product.getImageUrl() : "");
                 jobSseService.send(jobIdAlternatives, "product-alternatives-eans", alternative);
 
             } catch (ResponseStatusException e) {

@@ -8,7 +8,6 @@ import com.rubberduckcrew.ecoscan_backend.products.entity.Product;
 import com.rubberduckcrew.ecoscan_backend.score.dto.GreenScoreResultDTO;
 import com.rubberduckcrew.ecoscan_backend.score.dto.ScoreRequestDTO;
 
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
