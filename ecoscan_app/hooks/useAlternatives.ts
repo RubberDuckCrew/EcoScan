@@ -1,7 +1,6 @@
 import { useApiClient } from "@/utils/apiClient";
 import { useSseClient } from "@/utils/sseClient";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Product } from "@/types/product";
+import { useCallback, useRef, useState } from "react";
 
 type UseAlternativesResult = {
   stores: NearbyStore[];

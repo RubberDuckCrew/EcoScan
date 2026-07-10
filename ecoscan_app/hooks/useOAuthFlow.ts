@@ -62,12 +62,17 @@ export const useOAuthFlow = ({
       const result = await authRequest.promptAsync(disc);
 
       if (result.type === "success") {
+        const { code } = result.params;
+        if (!code) {
+          Alert.alert("Fehler", "Kein Autorisierungscode erhalten");
+          return;
+        }
         const tokenResult = await AuthSession.exchangeCodeAsync(
           {
-            code: result.params.code,
+            code,
             clientId: AUTH_CONFIG.clientId,
             redirectUri,
-            extraParams: { code_verifier: authRequest.codeVerifier || "" },
+            extraParams: { code_verifier: authRequest.codeVerifier ?? "" },
           },
           disc,
         );

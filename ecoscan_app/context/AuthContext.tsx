@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     tokenConfig,
   });
 
-  const refreshTimeoutRef = useRef<NodeJS.Timeout | number | null>(null);
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeRefreshRef = useRef<Promise<void> | null>(null);
 
   const refreshInternal = useCallback(async () => {
