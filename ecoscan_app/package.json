@@ -7,8 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "prettier . --check && expo lint --max-warnings=0",
-    "fix": "prettier . --write && expo lint --fix"
+    "lint": "prettier . --check && tsc --noEmit && expo lint --max-warnings=0",
+    "fix": "prettier . --write && tsc --noEmit && expo lint --fix"
   },
   "dependencies": {
     "@expo/vector-icons": "15.1.1",
