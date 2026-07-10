@@ -4,24 +4,20 @@ import {
   useRouter,
   useSegments,
 } from "expo-router";
-import { PaperProvider, Snackbar } from "react-native-paper";
+import { PaperProvider } from "react-native-paper";
 import { theme } from "@/theme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
-import {
-  useSnackbar,
-  getSnackbarStyles,
-  SnackbarProvider,
-} from "@/context/SnackbarContext";
+import { SnackbarProvider } from "@/context/SnackbarContext";
 import { NotificationProvider } from "@/context/NotificationProvider";
 import { ProductProvider } from "@/context/ProductContext";
+import GlobalSnackbar from "@/components/GlobalSnackbar";
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
-  const { currentSnackbar, dismissSnackbar } = useSnackbar();
 
   useEffect(() => {
     if (!navigationState?.key || isLoading) return;
@@ -56,18 +52,7 @@ function RootLayoutNav() {
       ) : (
         stack
       )}
-      <Snackbar
-        key={currentSnackbar?.id || "snackbar-empty"}
-        visible={!!currentSnackbar}
-        onDismiss={dismissSnackbar}
-        duration={currentSnackbar?.duration || 4000}
-        style={{
-          ...(currentSnackbar ? getSnackbarStyles(currentSnackbar.type) : {}),
-          marginBottom: 70,
-        }}
-      >
-        {currentSnackbar?.message || ""}
-      </Snackbar>
+      <GlobalSnackbar />
     </>
   );
 }
