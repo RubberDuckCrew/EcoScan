@@ -67,7 +67,6 @@ export default function ProductScreen({
       <View ref={viewRef} collapsable={false} style={styles.shareContainer}>
         {product && product.score !== undefined && (
           <ShareComponent
-            ref={viewRef}
             ean={product.id}
             name={product.name}
             imageUrl={product.imageUrl}

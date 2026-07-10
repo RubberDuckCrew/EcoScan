@@ -48,9 +48,9 @@ export function useShareScreenshot({
     } finally {
       if (localUri) {
         try {
-          const tempFile = new File(localUri);
-          if (tempFile.exists) {
-            tempFile.delete();
+          const fileInfo = await FileSystem.getInfoAsync(localUri);
+          if (fileInfo.exists) {
+            await FileSystem.deleteAsync(localUri);
           }
         } catch (cleanupError) {
           console.warn(

@@ -115,14 +115,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout: oauthLogout,
     refresh: refreshOAuth,
     isDiscoveryLoading,
-    getValidAccessToken,
   } = useOAuthFlow({
     saveTokens,
     clearTokens: handleClearTokens,
     tokenConfig,
   });
 
-  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRefreshingRef = useRef(false);
 
   useEffect(() => {

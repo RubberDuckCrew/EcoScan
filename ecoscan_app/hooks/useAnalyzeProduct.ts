@@ -1,6 +1,5 @@
 import { useApiClient } from "@/utils/apiClient";
 import { useProduct } from "@/context/ProductContext";
-import { useError } from "@/context/ErrorContext";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSseClient } from "@/utils/sseClient";
 import { Product } from "@/types/product";
