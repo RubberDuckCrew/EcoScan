@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -30,7 +31,7 @@ function getTokenExpiresAt(token: string | null): number | null {
 
   try {
     const decoded = jwtDecode<{ exp?: number }>(token);
-    if (!decoded || !decoded.exp) return null;
+    if (!decoded?.exp) return null;
 
     return decoded.exp * 1000;
   } catch (e) {
@@ -115,15 +116,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout: oauthLogout,
     refresh: refreshOAuth,
     isDiscoveryLoading,
-    getValidAccessToken,
   } = useOAuthFlow({
     saveTokens,
     clearTokens: handleClearTokens,
     tokenConfig,
   });
 
-  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | number | null>(null);
   const isRefreshingRef = useRef(false);
+
+  const refreshInternal = useCallback(async () => {
+    const currentRefreshToken = refreshTokenRef.current;
+
+    if (isRefreshingRef.current || !currentRefreshToken) {
+      return;
+    }
+
+    isRefreshingRef.current = true;
+    try {
+      console.log("[Auth] Refreshing tokens in background...");
+      await refreshOAuth(currentRefreshToken);
+      console.log("[Auth] Tokens refreshed successfully (silent)");
+    } catch (e) {
+      console.error("[Auth] Failed to refresh tokens:", e);
+      await handleClearTokens();
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [refreshOAuth, handleClearTokens]);
+
+  const refresh = useCallback(async () => {
+    await refreshInternal();
+  }, [refreshInternal]);
+
+  const getAccessToken = useCallback(() => accessTokenRef.current, []);
+  const getIdToken = useCallback(() => idTokenRef.current, []);
+  const getRefreshToken = useCallback(() => refreshTokenRef.current, []);
+
+  const login = useCallback(async () => {
+    await oauthLogin();
+  }, [oauthLogin]);
+
+  const logout = useCallback(async () => {
+    await oauthLogout(idTokenRef.current);
+  }, [oauthLogout]);
 
   useEffect(() => {
     accessTokenRef.current = initialAccessToken;
@@ -168,54 +204,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         clearTimeout(refreshTimeoutRef.current);
       }
     };
-  }, [tokenExpiresAtRef.current?.toString()]);
-
-  const refreshInternal = useCallback(async () => {
-    const currentRefreshToken = refreshTokenRef.current;
-
-    if (isRefreshingRef.current || !currentRefreshToken) {
-      return;
-    }
-
-    isRefreshingRef.current = true;
-    try {
-      console.log("[Auth] Refreshing tokens in background...");
-      await refreshOAuth(currentRefreshToken);
-      console.log("[Auth] Tokens refreshed successfully (silent)");
-    } catch (e) {
-      console.error("[Auth] Failed to refresh tokens:", e);
-      await handleClearTokens();
-    } finally {
-      isRefreshingRef.current = false;
-    }
-  }, [refreshOAuth, handleClearTokens]);
-
-  const refresh = useCallback(async () => {
-    await refreshInternal();
   }, [refreshInternal]);
 
-  const getAccessToken = useCallback(() => accessTokenRef.current, []);
-  const getIdToken = useCallback(() => idTokenRef.current, []);
-  const getRefreshToken = useCallback(() => refreshTokenRef.current, []);
-
-  const login = useCallback(async () => {
-    await oauthLogin();
-  }, [oauthLogin]);
-
-  const logout = useCallback(async () => {
-    await oauthLogout(idTokenRef.current);
-  }, [oauthLogout]);
-
-  const value: AuthContextType = {
-    refresh,
-    getAccessToken,
-    getIdToken,
-    getRefreshToken,
-    isAuthenticated: isAuthenticatedState,
-    isLoading: isLoadingState,
-    login,
-    logout,
-  };
+  const value = useMemo<AuthContextType>(
+    () => ({
+      refresh,
+      getAccessToken,
+      getIdToken,
+      getRefreshToken,
+      isAuthenticated: isAuthenticatedState,
+      isLoading: isLoadingState,
+      login,
+      logout,
+    }),
+    [
+      refresh,
+      getAccessToken,
+      getIdToken,
+      getRefreshToken,
+      isAuthenticatedState,
+      isLoadingState,
+      login,
+      logout,
+    ],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
