@@ -1,5 +1,12 @@
-import {Product} from "@/types/product";
-import {createContext, Dispatch, ReactNode, SetStateAction, useContext, useState,} from "react";
+import { Product } from "@/types/product";
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useState,
+} from "react";
 
 type ProductContextType = {
   setProduct: Dispatch<SetStateAction<Product | undefined>>;
