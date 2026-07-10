@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useMemo,
 } from "react";
 
 import { theme } from "@/theme";
@@ -121,17 +122,27 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [currentSnackbar, dismissSnackbar]);
 
+  const contextValue = useMemo(
+    () => ({
+      showError,
+      showSuccess,
+      showInfo,
+      showWarning,
+      currentSnackbar,
+      dismissSnackbar,
+    }),
+    [
+      showError,
+      showSuccess,
+      showInfo,
+      showWarning,
+      currentSnackbar,
+      dismissSnackbar,
+    ],
+  );
+
   return (
-    <SnackbarContext.Provider
-      value={{
-        showError,
-        showSuccess,
-        showInfo,
-        showWarning,
-        currentSnackbar,
-        dismissSnackbar,
-      }}
-    >
+    <SnackbarContext.Provider value={contextValue}>
       {children}
     </SnackbarContext.Provider>
   );
