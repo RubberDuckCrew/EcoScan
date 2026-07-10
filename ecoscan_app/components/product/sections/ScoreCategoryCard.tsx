@@ -1,7 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import { Card, Text, ProgressBar } from "react-native-paper";
 import { getScoreVariant, normalizeScore } from "@/utils/scoreColor";
-import { variantStyles } from "@/components/product/ScoreCard";
+import { variantStyles } from "@/components/product/sections/ScoreCard";
 
 interface ScoreCategoryCardProps {
   label: string;
