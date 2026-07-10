@@ -24,17 +24,20 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
     reject: (err?: any) => void;
   } | null>(null);
 
-  const handleStreamError = useCallback((err?: any) => {
-    closeStream();
-    setLoading(false);
-    const errorMsg =
-      err instanceof Error && err.name === "AbortError"
-        ? "Analyse abgebrochen"
-        : "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
-    console.warn("[useAnalyzeProduct] SSE stream error:", err);
-    completionRef.current?.reject(new Error(errorMsg));
-    completionRef.current = null;
-  }, []);
+  const handleStreamError = useCallback(
+    (err?: any) => {
+      closeStream();
+      setLoading(false);
+      const errorMsg =
+        err instanceof Error && err.name === "AbortError"
+          ? "Analyse abgebrochen"
+          : "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
+      console.warn("[useAnalyzeProduct] SSE stream error:", err);
+      completionRef.current?.reject(new Error(errorMsg));
+      completionRef.current = null;
+    },
+    [closeStream],
+  );
 
   const handleStreamSuccess = useCallback(
     (result: Product) => {
@@ -44,7 +47,7 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
       completionRef.current?.resolve(true);
       completionRef.current = null;
     },
-    [setProduct],
+    [setProduct, closeStream],
   );
 
   const cancelAnalysis = useCallback(() => {
@@ -83,7 +86,7 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
         });
       } catch (err) {
         setLoading(false);
-        console.warn("[useAnalyzeProduct] " + err);
+        console.warn("[useAnalyzeProduct] analyzeProduct failed:", err);
         throw err;
       }
     },
