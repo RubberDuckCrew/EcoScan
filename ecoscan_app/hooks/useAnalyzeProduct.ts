@@ -89,11 +89,7 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
         });
       } catch (err) {
         setLoading(false);
-        const errorMsg =
-          err instanceof Error
-            ? err.message
-            : "Produkt konnte nicht analysiert werden.";
-        setError(errorMsg);
+        console.warn("[useAnalyzeProduct] " + err);
         throw err;
       }
     },
