@@ -14,11 +14,11 @@ import { PageContainer } from "@/components/PageContainer";
 import { theme } from "@/theme";
 import { useRouter } from "expo-router";
 import { useAnalyzeProduct } from "@/hooks/useAnalyzeProduct";
-import { useError } from "@/context/ErrorContext";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export default function Scan() {
   const [barcode, setBarcode] = useState("");
-  const { setError } = useError();
+  const { showError } = useSnackbar();
   const router = useRouter();
   const { loading, analyzeProduct, cancelAnalysis } = useAnalyzeProduct();
   const [scanned, setScanned] = useState(false);
@@ -29,7 +29,7 @@ export default function Scan() {
     setScanned(true);
     const trimmed = code.trim();
     if (!trimmed) {
-      setError("Barcode darf nicht leer sein.");
+      showError("Barcode darf nicht leer sein.");
       return;
     }
     try {
@@ -40,12 +40,12 @@ export default function Scan() {
           params: { id: trimmed },
         });
       } else {
-        setError("Produkt konnte nicht analysiert werden.");
+        showError("Produkt konnte nicht analysiert werden.");
       }
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Analyse fehlgeschlagen.";
-      setError(msg);
+      showError(msg);
     }
   };
 

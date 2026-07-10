@@ -1,15 +1,15 @@
 import { PageContainer } from "@/components/PageContainer";
+import ProductCardSkeleton from "@/components/product/loading/ProductCardSkeleton";
+import ScoreDetailsSkeleton from "@/components/product/loading/ScoreDetailsSkeleton";
+import ProductScoreDashboard from "@/components/product/ProductScoreDashboard";
 import ProductCard from "@/components/product/sections/ProductCard";
+import ShareComponent from "@/components/product/ShareComponent";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useProductData } from "@/hooks/useProductData";
+import { useShareScreenshot } from "@/hooks/useShareScreenshot";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useError } from "@/context/ErrorContext";
-import { useShareScreenshot } from "@/hooks/useShareScreenshot";
-import ScoreDetailsSkeleton from "@/components/product/loading/ScoreDetailsSkeleton";
-import ProductCardSkeleton from "@/components/product/loading/ProductCardSkeleton";
-import ProductScoreDashboard from "@/components/product/ProductScoreDashboard";
-import ShareComponent from "@/components/product/ShareComponent";
 
 type ProductScreenProps = {
   showActionButtons?: boolean;
@@ -19,21 +19,20 @@ export default function ProductScreen({
   showActionButtons = true,
 }: ProductScreenProps) {
   const { viewRef, captureAndShare } = useShareScreenshot();
-
-  const { setError } = useError();
+  const { showError } = useSnackbar();
   const { id } = useLocalSearchParams();
   const { product, productLoading, scoreLoading, error } = useProductData(id);
 
   useEffect(() => {
     if (!error) return;
 
-    setError(error);
+    showError(error);
     if (router.canGoBack()) {
       router.back();
     } else {
       router.replace("/(tabs)/(scan)");
     }
-  }, [error, setError]);
+  }, [error, showError]);
 
   return (
     <View style={styles.root}>
