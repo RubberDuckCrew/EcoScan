@@ -18,7 +18,9 @@ const INITIAL_RECONNECT_DELAY = 2000;
 export function useSseClient<T>(eventName: string): SseClient<T> {
   const { getAccessToken, refresh } = useAuth();
   const eventSourceRef = useRef<EventSource | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const reconnectAttemptsRef = useRef(0);
   const currentStreamRef = useRef<{
     endpoint: string;

@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
+import { Product } from "@/types/product";
 import ScoreCard from "@/components/product/sections/ScoreCard";
 import AlternativesButton from "@/components/product/sections/AlternativesButton";
 import BoughtButton from "@/components/product/sections/BoughtButton";
@@ -20,7 +21,7 @@ export default function ProductScoreDashboard({
   return (
     <>
       <View style={styles.scoreCard}>
-        <ScoreCard score={product.score} onShare={onShare} />
+        <ScoreCard score={product.score ?? 0} onShare={onShare} />
       </View>
 
       {showActionButtons && (

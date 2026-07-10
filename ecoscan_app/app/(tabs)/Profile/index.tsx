@@ -22,7 +22,7 @@ function getInitials(userInfo: OidcUserInfo | null): string {
   const family = userInfo?.family_name || "";
   if (given && family) return `${given[0]}${family[0]}`.toUpperCase();
   const name = userInfo?.name || userInfo?.preferred_username;
-  return name ? name[0].toUpperCase() : "?";
+  return name ? name.charAt(0).toUpperCase() : "?";
 }
 
 export default function Profile() {
