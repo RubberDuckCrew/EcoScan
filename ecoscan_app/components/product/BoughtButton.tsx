@@ -1,9 +1,9 @@
-import { Button, Snackbar, Portal } from "react-native-paper";
+import { Button } from "react-native-paper";
 import { StyleSheet } from "react-native";
 import { Product } from "@/types/product";
 import { useSaveProduct } from "@/hooks/useSaveProduct";
-import { useState, useEffect } from "react";
-import { theme } from "@/theme";
+import { useEffect } from "react";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export interface BoughtButtonProps {
   product?: Product;
@@ -12,13 +12,15 @@ export interface BoughtButtonProps {
 export default function BoughtButton({ product }: BoughtButtonProps) {
   const { saveProduct, loading, error, success, saved, resetSaved } =
     useSaveProduct();
-  const [visible, setVisible] = useState(false);
+  const { showSuccess, showError } = useSnackbar();
 
   useEffect(() => {
-    if (success || error) {
-      setVisible(true);
+    if (success) {
+      showSuccess("Produkt erfolgreich gekauft!");
+    } else if (error) {
+      showError("Fehler beim Speichern des Produkts.");
     }
-  }, [success, error]);
+  }, [success, error, showSuccess, showError]);
 
   useEffect(() => {
     resetSaved();
@@ -43,19 +45,6 @@ export default function BoughtButton({ product }: BoughtButtonProps) {
       >
         Gekauft
       </Button>
-
-      <Portal>
-        <Snackbar
-          visible={visible}
-          onDismiss={() => setVisible(false)}
-          duration={2000}
-          style={{
-            backgroundColor: error ? theme.colors.error : theme.colors.primary,
-          }}
-        >
-          {error ? `${error}` : "Erfolgreich gespeichert"}
-        </Snackbar>
-      </Portal>
     </>
   );
 }
