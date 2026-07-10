@@ -3,6 +3,7 @@ import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { Alert } from "react-native";
 import { AUTH_CONFIG } from "@/utils/authConfig";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -17,6 +18,7 @@ export const useOAuthFlow = ({
   saveTokens,
   clearTokens,
 }: UseOAuthFlowProps) => {
+  const { showError } = useSnackbar();
   const [discovery, setDiscovery] =
     useState<AuthSession.DiscoveryDocument | null>(null);
   const [isDiscoveryLoading, setIsDiscoveryLoading] = useState(true);
@@ -32,12 +34,12 @@ export const useOAuthFlow = ({
         return discoveryDoc;
       } catch (e) {
         console.warn("[useOAuthFlow] Discovery failed", e);
-        Alert.alert("Fehler", "Auth-Service nicht erreichbar"); // TODO: Replace with snackbar
+        showError("Authentifizierungsservice nicht erreichbar.");
         return null;
       } finally {
         setIsDiscoveryLoading(false);
       }
-    }, []);
+    }, [showError]);
 
   useEffect(() => {
     loadDiscovery();
