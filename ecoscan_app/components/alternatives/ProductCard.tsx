@@ -1,5 +1,6 @@
-import { View, StyleSheet } from "react-native";
-import { Card, Text, Icon, useTheme } from "react-native-paper";
+import {StyleSheet, View} from "react-native";
+import {Card, Icon, Text} from "react-native-paper";
+import {getScoreColor} from "@/utils/scoreColor";
 
 type ProductCardProps = {
   title: string;
@@ -14,7 +15,8 @@ export default function ProductCard({
   image,
   score,
 }: ProductCardProps) {
-  const theme = useTheme();
+  const scoreColor = getScoreColor(score);
+
   return (
     <Card style={styles.card}>
       <View style={styles.cardHeader}>
@@ -22,8 +24,8 @@ export default function ProductCard({
           Dein gescanntes Produkt
         </Text>
         <View style={styles.scoreBadge}>
-          <Icon source="leaf" size={22} color="#009A0A" />
-          <Text style={{ ...styles.scoreText, color: theme.colors.primary }}>
+          <Icon source="leaf" size={22} color={scoreColor} />
+          <Text style={{ ...styles.scoreText, color: scoreColor }}>
             {score}
           </Text>
         </View>
@@ -49,7 +51,7 @@ export default function ProductCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#e3e3e3",
+    backgroundColor: "#ececec",
     borderRadius: 16,
     padding: 12,
     marginVertical: 16,
