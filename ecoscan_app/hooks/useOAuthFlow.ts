@@ -3,6 +3,7 @@ import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { Alert } from "react-native";
 import { AUTH_CONFIG } from "@/utils/authConfig";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -17,22 +18,36 @@ export const useOAuthFlow = ({
   saveTokens,
   clearTokens,
 }: UseOAuthFlowProps) => {
+  const { showError } = useSnackbar();
   const [discovery, setDiscovery] =
     useState<AuthSession.DiscoveryDocument | null>(null);
   const [isDiscoveryLoading, setIsDiscoveryLoading] = useState(true);
 
+  const loadDiscovery =
+    useCallback(async (): Promise<AuthSession.DiscoveryDocument | null> => {
+      setIsDiscoveryLoading(true);
+      try {
+        const discoveryDoc = await AuthSession.fetchDiscoveryAsync(
+          AUTH_CONFIG.issuer,
+        );
+        setDiscovery(discoveryDoc);
+        return discoveryDoc;
+      } catch (e) {
+        console.warn("[useOAuthFlow] Discovery failed", e);
+        showError("Authentifizierungsservice nicht erreichbar.");
+        return null;
+      } finally {
+        setIsDiscoveryLoading(false);
+      }
+    }, [showError]);
+
   useEffect(() => {
-    AuthSession.fetchDiscoveryAsync(AUTH_CONFIG.issuer)
-      .then(setDiscovery)
-      .catch((e) => console.error("Discovery failed", e))
-      .finally(() => setIsDiscoveryLoading(false));
-  }, []);
+    loadDiscovery();
+  }, [loadDiscovery]);
 
   const login = useCallback(async () => {
-    if (!discovery) {
-      Alert.alert("Fehler", "Auth-Service nicht erreichbar");
-      return;
-    }
+    const disc = discovery || (await loadDiscovery());
+    if (!disc) return;
 
     try {
       const authRequest = new AuthSession.AuthRequest({
@@ -44,7 +59,7 @@ export const useOAuthFlow = ({
         usePKCE: true,
       });
 
-      const result = await authRequest.promptAsync(discovery);
+      const result = await authRequest.promptAsync(disc);
 
       if (result.type === "success") {
         const { code } = result.params;
@@ -59,7 +74,7 @@ export const useOAuthFlow = ({
             redirectUri,
             extraParams: { code_verifier: authRequest.codeVerifier ?? "" },
           },
-          discovery,
+          disc,
         );
         await saveTokens(tokenResult);
       }
@@ -67,24 +82,12 @@ export const useOAuthFlow = ({
       console.error("Login failed", e);
       Alert.alert("Login Fehler", "Anmeldung fehlgeschlagen");
     }
-  }, [discovery, saveTokens]);
+  }, [discovery, loadDiscovery, saveTokens]);
 
   const refresh = useCallback(
     async (refreshToken: string) => {
-      let currentDiscovery = discovery;
-
-      if (!currentDiscovery) {
-        try {
-          console.log("[OAuthFlow] Discovery missing. Loading on-the-fly ...");
-          currentDiscovery = await AuthSession.fetchDiscoveryAsync(
-            AUTH_CONFIG.issuer,
-          );
-        } catch (e) {
-          throw new Error(
-            "Cannot refresh: Auth-Service (Discovery) is not available",
-          );
-        }
-      }
+      const disc = discovery || (await loadDiscovery());
+      if (!disc) throw new Error("OAuth discovery unavailable");
 
       const tokenInstance = new AuthSession.TokenResponse({
         accessToken: "",
@@ -94,7 +97,7 @@ export const useOAuthFlow = ({
       try {
         const refreshedToken = await tokenInstance.refreshAsync(
           { clientId: AUTH_CONFIG.clientId },
-          currentDiscovery,
+          disc,
         );
 
         refreshedToken.refreshToken =
@@ -108,7 +111,7 @@ export const useOAuthFlow = ({
         throw e;
       }
     },
-    [discovery, saveTokens],
+    [discovery, loadDiscovery, saveTokens],
   );
 
   const getValidAccessToken = useCallback(async (): Promise<string | null> => {
@@ -117,11 +120,13 @@ export const useOAuthFlow = ({
     const tokenInstance = new AuthSession.TokenResponse(tokenConfig);
 
     if (tokenInstance.shouldRefresh()) {
-      if (!discovery) return null;
+      const disc = discovery || (await loadDiscovery());
+      if (!disc) return null;
+
       try {
         const refreshedToken = await tokenInstance.refreshAsync(
           { clientId: AUTH_CONFIG.clientId },
-          discovery,
+          disc,
         );
         refreshedToken.refreshToken =
           refreshedToken.refreshToken ?? tokenInstance.refreshToken;
@@ -136,17 +141,18 @@ export const useOAuthFlow = ({
     }
 
     return tokenInstance.accessToken;
-  }, [tokenConfig, discovery, saveTokens, clearTokens]);
+  }, [tokenConfig, discovery, loadDiscovery, saveTokens, clearTokens]);
 
   const logout = useCallback(
     async (idToken?: string | null) => {
-      if (!discovery) {
+      const disc = discovery || (await loadDiscovery());
+      if (!disc) {
         await clearTokens();
         return;
       }
 
       try {
-        const logoutUrl = `${discovery.endSessionEndpoint}?client_id=${
+        const logoutUrl = `${disc.endSessionEndpoint}?client_id=${
           AUTH_CONFIG.clientId
         }${idToken ? `&id_token_hint=${idToken}` : ""}&post_logout_redirect_uri=${encodeURIComponent(
           redirectUri,
@@ -158,7 +164,7 @@ export const useOAuthFlow = ({
         await clearTokens();
       }
     },
-    [discovery, clearTokens],
+    [discovery, loadDiscovery, clearTokens],
   );
 
   return {

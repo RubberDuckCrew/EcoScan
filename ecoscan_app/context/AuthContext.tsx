@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -30,7 +31,7 @@ function getTokenExpiresAt(token: string | null): number | null {
 
   try {
     const decoded = jwtDecode<{ exp?: number }>(token);
-    if (!decoded || !decoded.exp) return null;
+    if (!decoded?.exp) return null;
 
     return decoded.exp * 1000;
   } catch (e) {
@@ -64,6 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     !!initialAccessToken && !!initialRefreshToken,
   );
   const [isLoadingState, setIsLoadingState] = useState(isStorageLoading);
+  const [tokenVersion, setTokenVersion] = useState(0);
 
   const handleClearTokens = useCallback(async () => {
     await clearTokensFromStorage();
@@ -122,7 +124,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isRefreshingRef = useRef(false);
+  const activeRefreshRef = useRef<Promise<void> | null>(null);
+
+  const refreshInternal = useCallback(async () => {
+    if (activeRefreshRef.current) {
+      return activeRefreshRef.current;
+    }
+
+    const currentRefreshToken = refreshTokenRef.current;
+    if (!currentRefreshToken) {
+      return;
+    }
+
+    const promise = (async () => {
+      try {
+        console.log("[Auth] Refreshing tokens in background...");
+        await refreshOAuth(currentRefreshToken);
+        console.log("[Auth] Tokens refreshed successfully (silent)");
+        setTokenVersion((v) => v + 1);
+      } catch (e) {
+        console.error("[Auth] Failed to refresh tokens:", e);
+        await handleClearTokens();
+      } finally {
+        activeRefreshRef.current = null;
+      }
+    })();
+
+    activeRefreshRef.current = promise;
+    return promise;
+  }, [refreshOAuth, handleClearTokens]);
+
+  const refresh = useCallback(async () => {
+    await refreshInternal();
+  }, [refreshInternal]);
+
+  const getAccessToken = useCallback(() => accessTokenRef.current, []);
+  const getIdToken = useCallback(() => idTokenRef.current, []);
+  const getRefreshToken = useCallback(() => refreshTokenRef.current, []);
+
+  const login = useCallback(async () => {
+    await oauthLogin();
+  }, [oauthLogin]);
+
+  const logout = useCallback(async () => {
+    await oauthLogout(idTokenRef.current);
+  }, [oauthLogout]);
 
   useEffect(() => {
     accessTokenRef.current = initialAccessToken;
@@ -141,7 +187,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const tokenExpiresAt = tokenExpiresAtRef.current;
     const refreshToken = refreshTokenRef.current;
 
-    if (!tokenExpiresAt || !refreshToken || isRefreshingRef.current) {
+    if (!tokenExpiresAt || !refreshToken || activeRefreshRef.current) {
       return;
     }
 
@@ -167,54 +213,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         clearTimeout(refreshTimeoutRef.current);
       }
     };
-  }, [tokenExpiresAtRef.current?.toString()]);
+  }, [refreshInternal, tokenVersion]);
 
-  const refreshInternal = useCallback(async () => {
-    const currentRefreshToken = refreshTokenRef.current;
-
-    if (isRefreshingRef.current || !currentRefreshToken) {
-      return;
-    }
-
-    isRefreshingRef.current = true;
-    try {
-      console.log("[Auth] Refreshing tokens in background...");
-      await refreshOAuth(currentRefreshToken);
-      console.log("[Auth] Tokens refreshed successfully (silent)");
-    } catch (e) {
-      console.error("[Auth] Failed to refresh tokens:", e);
-      await handleClearTokens();
-    } finally {
-      isRefreshingRef.current = false;
-    }
-  }, [refreshOAuth, handleClearTokens]);
-
-  const refresh = useCallback(async () => {
-    await refreshInternal();
-  }, [refreshInternal]);
-
-  const getAccessToken = useCallback(() => accessTokenRef.current, []);
-  const getIdToken = useCallback(() => idTokenRef.current, []);
-  const getRefreshToken = useCallback(() => refreshTokenRef.current, []);
-
-  const login = useCallback(async () => {
-    await oauthLogin();
-  }, [oauthLogin]);
-
-  const logout = useCallback(async () => {
-    await oauthLogout(idTokenRef.current);
-  }, [oauthLogout]);
-
-  const value: AuthContextType = {
-    refresh,
-    getAccessToken,
-    getIdToken,
-    getRefreshToken,
-    isAuthenticated: isAuthenticatedState,
-    isLoading: isLoadingState,
-    login,
-    logout,
-  };
+  const value = useMemo<AuthContextType>(
+    () => ({
+      refresh,
+      getAccessToken,
+      getIdToken,
+      getRefreshToken,
+      isAuthenticated: isAuthenticatedState,
+      isLoading: isLoadingState,
+      login,
+      logout,
+    }),
+    [
+      refresh,
+      getAccessToken,
+      getIdToken,
+      getRefreshToken,
+      isAuthenticatedState,
+      isLoadingState,
+      login,
+      logout,
+    ],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
