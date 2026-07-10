@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApiClient } from "@/utils/apiClient";
 import { HistoryStats } from "@/types/history/stats";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export function useHistoryStats() {
   const api = useApiClient();
+  const { showError } = useSnackbar();
   const [stats, setStats] = useState<HistoryStats>();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -15,15 +17,16 @@ export function useHistoryStats() {
       const content = data as HistoryStats;
       setStats(content);
     } catch (err) {
-      console.error("useHistoryStats fetch error", err);
+      console.warn("[useHistoryStats]", err);
+      showError("Fehler beim Abrufen der Statistiken.");
     } finally {
       setLoading(false);
     }
-  }, [api, loading]);
+  }, [api, loading, showError]);
 
   useEffect(() => {
     void fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   return {
     stats,

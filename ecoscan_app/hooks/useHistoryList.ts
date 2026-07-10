@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApiClient } from "@/utils/apiClient";
 import type { HistoryItem } from "@/types/history/item";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export function useHistoryList() {
   const api = useApiClient();
+  const { showError } = useSnackbar();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [page, setPage] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -28,12 +30,13 @@ export function useHistoryList() {
         );
         setHasMore(Boolean(data?.hasNext));
       } catch (err) {
-        console.error("useHistoryList fetch error", err);
+        console.warn("[useHistoryList]", err);
+        showError("Fehler beim Laden der Historie.");
       } finally {
         setLoading(false);
       }
     },
-    [api, loading],
+    [api, loading, showError],
   );
 
   const loadNext = useCallback(async () => {
@@ -53,7 +56,7 @@ export function useHistoryList() {
 
   useEffect(() => {
     void fetchPage(0);
-  }, []);
+  }, [fetchPage]);
 
   return {
     history,

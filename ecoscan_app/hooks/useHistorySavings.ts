@@ -2,28 +2,16 @@ import { useApiClient } from "@/utils/apiClient";
 import { useCallback, useEffect, useState } from "react";
 import { useSseClient } from "@/utils/sseClient";
 import { HistorySavings } from "@/types/history/savings";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export function useHistorySavings() {
   const api = useApiClient();
+  const { showError } = useSnackbar();
   const { startStream, closeStream } =
     useSseClient<HistorySavings>("savings-evaluation");
   const [loading, setLoading] = useState<boolean>(false);
   const [savings, setSavings] = useState<HistorySavings>();
   const [jobId, setJobId] = useState<string>();
-
-  useEffect(() => {
-    if (!jobId) return;
-
-    startSseListener(jobId);
-
-    return () => {
-      closeStream();
-    };
-  }, [jobId]);
-
-  useEffect(() => {
-    void fetchHistorySavings();
-  }, []);
 
   const fetchHistorySavings = useCallback(async () => {
     if (loading) return;
@@ -36,10 +24,11 @@ export function useHistorySavings() {
         setJobId(data);
       }
     } catch (err) {
-      console.error("useHistorySavings fetch error", err);
+      console.warn("[useHistorySavings]", err);
+      showError("Fehler beim Abrufen der Ersparnisse.");
       setLoading(false);
     }
-  }, [api, loading]);
+  }, [api, loading, showError]);
 
   const startSseListener = useCallback(
     (jobId: string) => {
@@ -57,8 +46,22 @@ export function useHistorySavings() {
         },
       );
     },
-    [startStream],
+    [startStream, closeStream],
   );
+
+  useEffect(() => {
+    if (!jobId) return;
+
+    startSseListener(jobId);
+
+    return () => {
+      closeStream();
+    };
+  }, [jobId, startSseListener, closeStream]);
+
+  useEffect(() => {
+    void fetchHistorySavings();
+  }, [fetchHistorySavings]);
 
   return {
     fetchHistorySavings,
