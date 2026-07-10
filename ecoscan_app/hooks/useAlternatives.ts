@@ -67,10 +67,7 @@ export function useAlternatives(): UseAlternativesResult {
             }
           }
           if (
-            data === "DONE" ||
-            data?.value === "DONE" ||
-            data?.done === true
-          ) {
+            data === "DONE") {
             console.info("EAN stream finished");
             closeEanStream();
             loadingEanRef.current = false;
@@ -109,15 +106,14 @@ export function useAlternatives(): UseAlternativesResult {
     (jobId: string) => {
       startStoreStream(
         `jobs/stream/${jobId}`,
-        (data: any) => {
-          if (data.done === true) {
+        (store: NearbyStore) => {
+          if (store.name === "DONE") {
             closeStoreStream();
             loadingStoreRef.current = false;
             setLoadingStore(false);
             checkBothDone();
             return;
           }
-          const store = data as NearbyStore;
           console.info("Store received: ", store);
           setStores((prev) => {
             return [...prev, store];
