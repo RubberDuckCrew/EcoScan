@@ -14,7 +14,6 @@ type UseAnalyzeProductResult = {
 export function useAnalyzeProduct(): UseAnalyzeProductResult {
   const api = useApiClient();
   const { setProduct } = useProduct();
-  const { setError } = useError();
   const [loading, setLoading] = useState<boolean>(false);
   const { startStream, closeStream } = useSseClient<Product>(
     "product-analysis-evaluation",
@@ -25,21 +24,17 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
     reject: (err?: any) => void;
   } | null>(null);
 
-  const handleStreamError = useCallback(
-    (err?: any) => {
-      closeStream();
-      setLoading(false);
-      const errorMsg =
-        err instanceof Error && err.name === "AbortError"
-          ? "Analyse abgebrochen"
-          : "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
-      setError(errorMsg);
-      console.error("SSE stream error:", err);
-      completionRef.current?.reject(new Error(errorMsg));
-      completionRef.current = null;
-    },
-    [setError],
-  );
+  const handleStreamError = useCallback((err?: any) => {
+    closeStream();
+    setLoading(false);
+    const errorMsg =
+      err instanceof Error && err.name === "AbortError"
+        ? "Analyse abgebrochen"
+        : "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
+    console.warn("[useAnalyzeProduct] SSE stream error:", err);
+    completionRef.current?.reject(new Error(errorMsg));
+    completionRef.current = null;
+  }, []);
 
   const handleStreamSuccess = useCallback(
     (result: Product) => {
@@ -76,7 +71,6 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
             setProduct(productData);
             return true;
           }
-          setError("Produkt konnte nicht geladen werden.");
           return false;
         }
         return new Promise<boolean>((resolve, reject) => {
@@ -93,14 +87,7 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
         throw err;
       }
     },
-    [
-      api,
-      setProduct,
-      setError,
-      startStream,
-      handleStreamSuccess,
-      handleStreamError,
-    ],
+    [api, setProduct, startStream, handleStreamSuccess, handleStreamError],
   );
 
   useEffect(() => {
