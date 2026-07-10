@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native";
-import ProductCard from "@/components/product/ProductCard";
-import ScoreCard from "@/components/product/ScoreCard";
+import ProductCard from "@/components/product/sections/ProductCard";
+import ScoreCard from "@/components/product/sections/ScoreCard";
 
 type Props = {
   ean: string;
