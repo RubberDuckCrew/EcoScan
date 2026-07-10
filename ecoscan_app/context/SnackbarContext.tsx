@@ -39,7 +39,7 @@ export const getSnackbarStyles = (type: SnackbarType) => {
       };
     case "success":
       return {
-        backgroundColor: theme.colors.success,
+        backgroundColor: theme.colors.primary,
       };
     case "warning":
       return {
@@ -47,7 +47,7 @@ export const getSnackbarStyles = (type: SnackbarType) => {
       };
     case "info":
       return {
-        backgroundColor: theme.colors.info,
+        backgroundColor: theme.colors.surface,
       };
     default:
       return {
