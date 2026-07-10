@@ -57,6 +57,7 @@ function RootLayoutNav() {
         stack
       )}
       <Snackbar
+        key={currentSnackbar?.id || "snackbar-empty"}
         visible={!!currentSnackbar}
         onDismiss={dismissSnackbar}
         duration={currentSnackbar?.duration || 4000}
