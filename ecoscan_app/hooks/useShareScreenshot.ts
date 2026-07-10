@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Alert, View } from "react-native";
 import { captureRef } from "react-native-view-shot";
+import { useError } from "@/context/ErrorContext";
 import * as Sharing from "expo-sharing";
 
 interface ShareOptions {
@@ -12,6 +13,7 @@ export function useShareScreenshot(
   options: ShareOptions = { format: "png", quality: 1 },
 ) {
   const viewRef = useRef<View>(null);
+  const { setError } = useError();
 
   const captureAndShare = async (
     dialogTitle: string = "Bild teilen",
@@ -23,7 +25,7 @@ export function useShareScreenshot(
 
       const isAvailable = await Sharing.isAvailableAsync();
       if (!isAvailable) {
-        console.error("Sharing is not available on this platform");
+        setError("Die Bildfreigabe ist auf dieser Plattform nicht verfügbar.");
         return;
       }
 
@@ -38,7 +40,8 @@ export function useShareScreenshot(
         dialogTitle: dialogTitle,
       });
     } catch (error: any) {
-      console.error("Error capturing and sharing screenshot:", error);
+      setError("Fehler beim Erfassen und Teilen des Screenshots.");
+      console.warn("[useShareScreenshot] ", error);
     }
   };
 
