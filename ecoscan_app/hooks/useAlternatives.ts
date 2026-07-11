@@ -7,11 +7,11 @@ type UseAlternativesResult = {
   alternatives: Alternative[];
   loadingEan: boolean;
   loadingStore: boolean;
-  fetchAlternatives: (
+  fetchAlternativeEans: (
     productId: string,
     categories: string,
-    userCoordinates: string,
   ) => Promise<void>;
+  fetchStores: (productId: string, userCoordinates: string) => Promise<void>;
   onError: (handler: (err?: any) => void) => void;
 };
 
@@ -112,37 +112,79 @@ export function useAlternatives(): UseAlternativesResult {
     [startStoreStream, closeStoreStream],
   );
 
-  const fetchAlternatives = useCallback(
-    async (productId: string, categories: string, userCoordinates: string) => {
-      if (loadingRef.current) return;
+  // const fetchAlternatives = useCallback(
+  //   async (productId: string, categories: string, userCoordinates: string) => {
+  //     if (loadingRef.current) return;
+  //
+  //     loadingRef.current = true;
+  //     loadingEanRef.current = true;
+  //     loadingStoreRef.current = true;
+  //     setLoadingEan(true);
+  //     setLoadingStore(true);
+  //
+  //     setAlternatives([]);
+  //     setStores([]);
+  //
+  //     try {
+  //       const jobs = await api.post(
+  //         `alternatives/${productId}?categories=${encodeURIComponent(categories)}&userCoordinates=${encodeURIComponent(userCoordinates)}`,
+  //       );
+  //
+  //       if (jobs?.eanJobId) startSseListenerEans(jobs.eanJobId);
+  //       if (jobs?.storeJobId) startSseListenerStores(jobs.storeJobId);
+  //     } catch (e) {
+  //       console.error("Error in fetchAlternatives", e);
+  //       try {
+  //         onErrorRef.current(e);
+  //       } catch {}
+  //       setLoadingEan(false);
+  //       setLoadingStore(false);
+  //       loadingRef.current = false;
+  //     }
+  //   },
+  //   [api, startSseListenerEans, startSseListenerStores],
+  // );
 
-      loadingRef.current = true;
+  const fetchAlternativeEans = useCallback(
+    async (productId: string, categories: string) => {
+      if (loadingEanRef.current) return;
       loadingEanRef.current = true;
-      loadingStoreRef.current = true;
       setLoadingEan(true);
-      setLoadingStore(true);
-
       setAlternatives([]);
+
+      try {
+        const jobs = await api.post(
+          `alternatives/${productId}/alternatives?categories=${encodeURIComponent(categories)}`,
+        );
+        if (jobs) startSseListenerEans(jobs);
+      } catch (e) {
+        console.error("Error in fetchAlternativeEans", e);
+        setLoadingEan(false);
+        loadingEanRef.current = false;
+      }
+    },
+    [api, startSseListenerEans],
+  );
+
+  const fetchStores = useCallback(
+    async (productId: string, userCoordinates: string) => {
+      if (loadingStoreRef.current) return;
+      loadingStoreRef.current = true;
+      setLoadingStore(true);
       setStores([]);
 
       try {
         const jobs = await api.post(
-          `alternatives/${productId}?categories=${encodeURIComponent(categories)}&userCoordinates=${encodeURIComponent(userCoordinates)}`,
+          `alternatives/${productId}/stores?userCoordinates=${encodeURIComponent(userCoordinates)}`,
         );
-
-        if (jobs?.eanJobId) startSseListenerEans(jobs.eanJobId);
-        if (jobs?.storeJobId) startSseListenerStores(jobs.storeJobId);
+        if (jobs) startSseListenerStores(jobs);
       } catch (e) {
-        console.error("Error in fetchAlternatives", e);
-        try {
-          onErrorRef.current(e);
-        } catch {}
-        setLoadingEan(false);
+        console.error("Error in fetchStores", e);
         setLoadingStore(false);
-        loadingRef.current = false;
+        loadingStoreRef.current = false;
       }
     },
-    [api, startSseListenerEans, startSseListenerStores],
+    [api, startSseListenerStores],
   );
 
   return {
@@ -150,7 +192,8 @@ export function useAlternatives(): UseAlternativesResult {
     stores,
     loadingEan,
     loadingStore,
-    fetchAlternatives,
+    fetchAlternativeEans,
+    fetchStores,
     onError: useCallback((handler: (err?: any) => void) => {
       onErrorRef.current = handler || (() => {});
     }, []),

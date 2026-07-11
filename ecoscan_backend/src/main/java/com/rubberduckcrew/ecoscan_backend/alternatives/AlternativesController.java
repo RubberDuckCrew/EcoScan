@@ -1,6 +1,5 @@
 package com.rubberduckcrew.ecoscan_backend.alternatives;
 
-import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesJobsDTO;
 import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.utils.AuthUtils;
 import jakarta.validation.constraints.NotNull;
@@ -22,14 +21,33 @@ public class AlternativesController {
     private final AlternativesService alternativesService;
     private final JobEanService jobEanService;
 
-    @PostMapping("/{id}")
-    public ResponseEntity<AlternativesJobsDTO> findAlternatives(
+    //    @PostMapping("/{id}")
+    //    public ResponseEntity<AlternativesJobsDTO> findAlternatives(
+    //        @PathVariable final String id,
+    //        @NotNull @RequestParam final String categories,
+    //        @NotNull @RequestParam final String userCoordinates) {
+    //        final UUID userId = AuthUtils.getSub();
+    //        final AlternativesJobsDTO jobs = alternativesService.findAlternatives(categories, userCoordinates, userId);
+    //        jobEanService.register(jobs.eanJobId(), id);
+    //        return ResponseEntity.ok(jobs);
+    //    }
+
+    @PostMapping("/{id}/alternatives")
+    public ResponseEntity<UUID> findAlternativeEans(
         @PathVariable final String id,
-        @NotNull @RequestParam final String categories,
+        @NotNull @RequestParam final String categories) {
+        final UUID userId = AuthUtils.getSub();
+        final UUID eanJobId = alternativesService.findAlternativeEans(categories, userId);
+        jobEanService.register(eanJobId, id);
+        return ResponseEntity.ok(eanJobId);
+    }
+
+    @PostMapping("/{id}/stores")
+    public ResponseEntity<UUID> findAlternativeStores(
+        @PathVariable final String id,
         @NotNull @RequestParam final String userCoordinates) {
         final UUID userId = AuthUtils.getSub();
-        final AlternativesJobsDTO jobs = alternativesService.findAlternatives(categories, userCoordinates, userId);
-        jobEanService.register(jobs.eanJobId(), id);
-        return ResponseEntity.ok(jobs);
+        final UUID storeJobId = alternativesService.findAlternativeStores(userCoordinates, userId);
+        return ResponseEntity.ok(storeJobId);
     }
 }

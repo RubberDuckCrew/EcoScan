@@ -1,12 +1,13 @@
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { AppState, StyleSheet, useWindowDimensions } from "react-native";
 import { Surface, Text } from "react-native-paper";
-import { TabView, TabBar } from "react-native-tab-view";
+import { TabBar, TabView } from "react-native-tab-view";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativesTab from "@/components/alternatives/AlternativesTab";
 import StoresTab from "@/components/alternatives/StoresTab";
+import LocationNeededPortal from "@/components/alternatives/LocationNeededPortal";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Location from "expo-location";
 
 import { theme } from "@/theme";
@@ -15,8 +16,17 @@ export default function Alternatives() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
-  const { alternatives, stores, loadingEan, loadingStore, fetchAlternatives } =
-    useAlternatives();
+  const [showLocationAlert, setShowLocationAlert] = useState(false);
+  const [locationDismissed, setLocationDismissed] = useState(false);
+
+    const {
+    alternatives,
+    stores,
+    loadingEan,
+    loadingStore,
+    fetchAlternativeEans,
+    fetchStores,
+  } = useAlternatives();
 
   const layout = useWindowDimensions();
   const [tabIndex, setTabIndex] = useState(0);
@@ -26,18 +36,26 @@ export default function Alternatives() {
     { key: "stores", title: "Supermärkte" },
   ];
 
-  const hasFetched = useRef(false);
+  // const hasFetched = useRef(false);
+  const hasFetchedEans = useRef(false);
+  const hasFetchedStores = useRef(false);
+  const hasAskedLocation = useRef(false);
 
   useEffect(() => {
     async function getCurrentLocation() {
+        if (locationDismissed) return;
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.log(status);
+        if (!hasAskedLocation.current) {
+          hasAskedLocation.current = true;
+          setShowLocationAlert(true);
+        }
         return;
       }
       const { coords } = await Location.getCurrentPositionAsync({});
       setUserLatitude(coords.latitude);
       setUserLongitude(coords.longitude);
+      setShowLocationAlert(false);
     }
 
     getCurrentLocation().catch((err) => {
@@ -45,30 +63,34 @@ export default function Alternatives() {
       setUserLatitude(-1);
       setUserLongitude(-1);
     });
-  }, []);
+
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active" && userLatitude === -1) {
+        getCurrentLocation();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [userLatitude]);
+
+  useEffect(() => {
+    if (product?.id && product?.categories && !hasFetchedEans.current) {
+      hasFetchedEans.current = true;
+      fetchAlternativeEans(product.id, product.categories);
+    }
+  }, [product?.id, product?.categories, fetchAlternativeEans]);
 
   useEffect(() => {
     if (
-      product?.id &&
-      product?.categories &&
       userLatitude !== -1 &&
       userLongitude !== -1 &&
-      !hasFetched.current
+      !hasFetchedStores.current &&
+      product?.id
     ) {
-      hasFetched.current = true;
-      fetchAlternatives(
-        product.id,
-        product.categories,
-        `${userLatitude},${userLongitude}`,
-      );
+      hasFetchedStores.current = true;
+      fetchStores(product.id, `${userLatitude},${userLongitude}`);
     }
-  }, [
-    product?.id,
-    product?.categories,
-    userLatitude,
-    userLongitude,
-    fetchAlternatives,
-  ]);
+  }, [product?.id, userLatitude, userLongitude, fetchStores]);
 
   return (
     <Surface style={styles.pageStyle}>
@@ -130,6 +152,13 @@ export default function Alternatives() {
             inactiveColor={theme.colors.text}
           />
         )}
+      />
+      <LocationNeededPortal
+        visible={showLocationAlert}
+        onDismiss={() => {
+            setShowLocationAlert(false);
+            setLocationDismissed(true);
+        }}
       />
     </Surface>
   );
