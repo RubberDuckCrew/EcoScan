@@ -1,6 +1,5 @@
 package com.rubberduckcrew.ecoscan_backend.alternatives;
 
-import com.rubberduckcrew.ecoscan_backend.jobs.JobEanService;
 import com.rubberduckcrew.ecoscan_backend.utils.AuthUtils;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
@@ -18,15 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/alternatives")
 public class AlternativesController {
     private final AlternativesService alternativesService;
-    private final JobEanService jobEanService;
 
     @PostMapping("/eans")
     public ResponseEntity<UUID> findAlternativeEans(
-        //        @PathVariable final String id,
         @NotNull @RequestParam final String categories) {
         final UUID userId = AuthUtils.getSub();
         final UUID eanJobId = alternativesService.findAlternativeEans(categories, userId);
-        //        jobEanService.register(eanJobId, id);
         return ResponseEntity.ok(eanJobId);
     }
 

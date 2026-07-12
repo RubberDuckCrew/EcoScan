@@ -16,9 +16,11 @@ export default function AlternativeCard({
   imageUrl,
   onCopy,
 }: AlternativeCardProps) {
-  const handleCopyToClipboard = useCallback(() => {
-    Clipboard.setStringAsync(ean);
-    onCopy();
+  const handleCopyToClipboard = useCallback(async () => {
+    const success = await Clipboard.setStringAsync(ean);
+    if (success) {
+      onCopy();
+    }
   }, [ean, onCopy]);
 
   return (

@@ -7,11 +7,8 @@ type UseAlternativesResult = {
   alternatives: Alternative[];
   loadingEan: boolean;
   loadingStore: boolean;
-  fetchAlternativeEans: (
-    productId: string,
-    categories: string,
-  ) => Promise<void>;
-  fetchStores: (productId: string, userCoordinates: string) => Promise<void>;
+  fetchAlternativeEans: (categories: string) => Promise<void>;
+  fetchStores: (userCoordinates: string) => Promise<void>;
   onError: (handler: (err?: any) => void) => void;
 };
 
@@ -43,13 +40,6 @@ export function useAlternatives(): UseAlternativesResult {
   const loadingEanRef = useRef(false);
   const loadingStoreRef = useRef(false);
 
-  const checkBothDone = useCallback(() => {
-    if (!loadingEanRef.current && !loadingStoreRef.current) {
-      loadingRef.current = false;
-    }
-  }, []);
-
-  const loadingRef = useRef(false);
   const onErrorRef = useRef<(err?: any) => void>(() => {});
 
   const startSseListenerEans = useCallback(
@@ -57,13 +47,11 @@ export function useAlternatives(): UseAlternativesResult {
       startEanStream(
         `jobs/stream/${jobId}`,
         (alternative: Alternative) => {
-          console.log("Raw alternative received:", JSON.stringify(alternative));
           if (alternative.ean === "DONE") {
             console.info("EAN stream finished");
             closeEanStream();
             loadingEanRef.current = false;
             setLoadingEan(false);
-            checkBothDone();
             return;
           }
           if (alternative.name === "Produkt nicht gefunden") {
@@ -78,11 +66,10 @@ export function useAlternatives(): UseAlternativesResult {
           closeEanStream();
           setLoadingEan(false);
           loadingEanRef.current = false;
-          checkBothDone();
         },
       );
     },
-    [startEanStream, closeEanStream, checkBothDone],
+    [startEanStream, closeEanStream],
   );
 
   const startSseListenerStores = useCallback(
@@ -94,7 +81,6 @@ export function useAlternatives(): UseAlternativesResult {
             closeStoreStream();
             loadingStoreRef.current = false;
             setLoadingStore(false);
-            checkBothDone();
             return;
           }
           console.info("Store received: ", store);
@@ -106,7 +92,6 @@ export function useAlternatives(): UseAlternativesResult {
           closeStoreStream();
           loadingStoreRef.current = false;
           setLoadingStore(false);
-          checkBothDone();
         },
       );
     },
@@ -114,7 +99,7 @@ export function useAlternatives(): UseAlternativesResult {
   );
 
   const fetchAlternativeEans = useCallback(
-    async (productId: string, categories: string) => {
+    async (categories: string) => {
       if (loadingEanRef.current) return;
       loadingEanRef.current = true;
       setLoadingEan(true);
@@ -135,7 +120,7 @@ export function useAlternatives(): UseAlternativesResult {
   );
 
   const fetchStores = useCallback(
-    async (productId: string, userCoordinates: string) => {
+    async (userCoordinates: string) => {
       if (loadingStoreRef.current) return;
       loadingStoreRef.current = true;
       setLoadingStore(true);

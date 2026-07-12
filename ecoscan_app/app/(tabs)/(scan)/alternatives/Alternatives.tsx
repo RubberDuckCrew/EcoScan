@@ -50,7 +50,7 @@ export default function Alternatives() {
   useEffect(() => {
     if (product?.id && product?.categories && !hasFetchedEans.current) {
       hasFetchedEans.current = true;
-      fetchAlternativeEans(product.id, product.categories);
+      fetchAlternativeEans(product.categories);
     }
   }, [product?.id, product?.categories, fetchAlternativeEans]);
 
@@ -62,7 +62,7 @@ export default function Alternatives() {
       product?.id
     ) {
       hasFetchedStores.current = true;
-      fetchStores(product.id, `${userLatitude},${userLongitude}`);
+      fetchStores(`${userLatitude},${userLongitude}`);
     }
   }, [product?.id, userLatitude, userLongitude, fetchStores]);
 
