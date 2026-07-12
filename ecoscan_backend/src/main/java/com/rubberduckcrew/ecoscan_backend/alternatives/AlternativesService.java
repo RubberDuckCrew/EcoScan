@@ -1,7 +1,6 @@
 package com.rubberduckcrew.ecoscan_backend.alternatives;
 
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativeDTO;
-import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesJobsDTO;
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesRequestDTO;
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesResultDTO;
 import com.rubberduckcrew.ecoscan_backend.alternatives.dto.AlternativesStoreRequestDTO;
@@ -31,23 +30,20 @@ public class AlternativesService {
     private final JobSseService jobSseService;
     private final FoodDataRepository foodDataRepository;
 
-    public AlternativesJobsDTO findAlternatives(final String categories, final String userCoordinates, final UUID userId) {
+    public UUID findAlternativeEans(final String categories, final UUID userId) {
         final UUID eanJobId = UUID.randomUUID();
-        final UUID storeJobId = UUID.randomUUID();
         jobSseService.register(eanJobId, userId);
+        final AiDTO<AlternativesRequestDTO> request = new AiDTO<>(eanJobId, new AlternativesRequestDTO(categories));
+        rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives", request);
+        return eanJobId;
+    }
+
+    public UUID findAlternativeStores(final String userCoordinates, final UUID userId) {
+        final UUID storeJobId = UUID.randomUUID();
         jobSseService.register(storeJobId, userId);
-
-        final AiDTO<AlternativesRequestDTO> alternativesRequest = new AiDTO<>(
-            eanJobId,
-            new AlternativesRequestDTO(categories));
-        rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives", alternativesRequest);
-
-        final AiDTO<AlternativesStoreRequestDTO> storesRequest = new AiDTO<>(
-            storeJobId,
-            new AlternativesStoreRequestDTO(userCoordinates));
-        rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives.stores", storesRequest);
-
-        return new AlternativesJobsDTO(eanJobId, storeJobId);
+        final AiDTO<AlternativesStoreRequestDTO> request = new AiDTO<>(storeJobId, new AlternativesStoreRequestDTO(userCoordinates));
+        rabbitTemplate.convertAndSend("ecoscan.ai.tasks.alternatives.stores", request);
+        return storeJobId;
     }
 
     @RabbitListener(queuesToDeclare = @Queue("ecoscan.ai.results.alternatives"))
@@ -61,6 +57,8 @@ public class AlternativesService {
         uniqueEans.forEach(ean -> {
             try {
                 final Product product = foodDataRepository.getProduct(ean);
+                log.info("Sending alternative: ean={}, name={}, imageUrl={}",
+                    ean, product.getName(), product.getImageUrl());
                 final AlternativeDTO alternative = new AlternativeDTO(
                     ean,
                     product.getName() != null ? product.getName() : "Name nicht gefunden",

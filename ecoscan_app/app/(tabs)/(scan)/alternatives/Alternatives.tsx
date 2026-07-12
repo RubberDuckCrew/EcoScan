@@ -1,12 +1,12 @@
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { Surface, Text } from "react-native-paper";
-import { TabView, TabBar } from "react-native-tab-view";
+import { TabBar, TabView } from "react-native-tab-view";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativesTab from "@/components/alternatives/AlternativesTab";
 import StoresTab from "@/components/alternatives/StoresTab";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Location from "expo-location";
 
 import { theme } from "@/theme";
@@ -15,8 +15,15 @@ export default function Alternatives() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
-  const { alternatives, stores, loadingEan, loadingStore, fetchAlternatives } =
-    useAlternatives();
+
+  const {
+    alternatives,
+    stores,
+    loadingEan,
+    loadingStore,
+    fetchAlternativeEans,
+    fetchStores,
+  } = useAlternatives();
 
   const layout = useWindowDimensions();
   const [tabIndex, setTabIndex] = useState(0);
@@ -26,49 +33,38 @@ export default function Alternatives() {
     { key: "stores", title: "Supermärkte" },
   ];
 
-  const hasFetched = useRef(false);
+  const hasFetchedEans = useRef(false);
+  const hasFetchedStores = useRef(false);
 
   useEffect(() => {
     async function getCurrentLocation() {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log(status);
-        return;
-      }
+      if (status !== "granted") return;
       const { coords } = await Location.getCurrentPositionAsync({});
       setUserLatitude(coords.latitude);
       setUserLongitude(coords.longitude);
     }
-
-    getCurrentLocation().catch((err) => {
-      console.error("Location error:", err);
-      setUserLatitude(-1);
-      setUserLongitude(-1);
-    });
+    getCurrentLocation().catch(console.error);
   }, []);
 
   useEffect(() => {
+    if (product?.id && product?.categories && !hasFetchedEans.current) {
+      hasFetchedEans.current = true;
+      fetchAlternativeEans(product.categories);
+    }
+  }, [product?.id, product?.categories, fetchAlternativeEans]);
+
+  useEffect(() => {
     if (
-      product?.id &&
-      product?.categories &&
       userLatitude !== -1 &&
       userLongitude !== -1 &&
-      !hasFetched.current
+      !hasFetchedStores.current &&
+      product?.id
     ) {
-      hasFetched.current = true;
-      fetchAlternatives(
-        product.id,
-        product.categories,
-        `${userLatitude},${userLongitude}`,
-      );
+      hasFetchedStores.current = true;
+      fetchStores(`${userLatitude},${userLongitude}`);
     }
-  }, [
-    product?.id,
-    product?.categories,
-    userLatitude,
-    userLongitude,
-    fetchAlternatives,
-  ]);
+  }, [product?.id, userLatitude, userLongitude, fetchStores]);
 
   return (
     <Surface style={styles.pageStyle}>
@@ -103,6 +99,7 @@ export default function Alternatives() {
                   loadingStore={loadingStore}
                   userLatitude={userLatitude}
                   userLongitude={userLongitude}
+                  isActive={tabIndex === 1}
                 />
               );
             default:
