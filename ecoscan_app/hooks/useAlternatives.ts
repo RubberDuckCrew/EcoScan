@@ -121,10 +121,10 @@ export function useAlternatives(): UseAlternativesResult {
       setAlternatives([]);
 
       try {
-        const jobs = await api.post(
-          `alternatives/${productId}/alternatives?categories=${encodeURIComponent(categories)}`,
+        const jobId = await api.post(
+          `alternatives/eans?categories=${encodeURIComponent(categories)}`,
         );
-        if (jobs) startSseListenerEans(jobs);
+        if (jobId) startSseListenerEans(jobId);
       } catch (e) {
         console.error("Error in fetchAlternativeEans", e);
         setLoadingEan(false);
@@ -142,10 +142,10 @@ export function useAlternatives(): UseAlternativesResult {
       setStores([]);
 
       try {
-        const jobs = await api.post(
-          `alternatives/${productId}/stores?userCoordinates=${encodeURIComponent(userCoordinates)}`,
+        const jobId = await api.post(
+          `alternatives/stores?userCoordinates=${encodeURIComponent(userCoordinates)}`,
         );
-        if (jobs) startSseListenerStores(jobs);
+        if (jobId) startSseListenerStores(jobId);
       } catch (e) {
         console.error("Error in fetchStores", e);
         setLoadingStore(false);
