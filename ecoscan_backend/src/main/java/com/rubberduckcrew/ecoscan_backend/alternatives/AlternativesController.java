@@ -21,17 +21,6 @@ public class AlternativesController {
     private final AlternativesService alternativesService;
     private final JobEanService jobEanService;
 
-    //    @PostMapping("/{id}")
-    //    public ResponseEntity<AlternativesJobsDTO> findAlternatives(
-    //        @PathVariable final String id,
-    //        @NotNull @RequestParam final String categories,
-    //        @NotNull @RequestParam final String userCoordinates) {
-    //        final UUID userId = AuthUtils.getSub();
-    //        final AlternativesJobsDTO jobs = alternativesService.findAlternatives(categories, userCoordinates, userId);
-    //        jobEanService.register(jobs.eanJobId(), id);
-    //        return ResponseEntity.ok(jobs);
-    //    }
-
     @PostMapping("/{id}/alternatives")
     public ResponseEntity<UUID> findAlternativeEans(
         @PathVariable final String id,

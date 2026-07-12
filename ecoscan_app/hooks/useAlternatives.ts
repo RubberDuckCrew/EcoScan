@@ -113,39 +113,6 @@ export function useAlternatives(): UseAlternativesResult {
     [startStoreStream, closeStoreStream],
   );
 
-  // const fetchAlternatives = useCallback(
-  //   async (productId: string, categories: string, userCoordinates: string) => {
-  //     if (loadingRef.current) return;
-  //
-  //     loadingRef.current = true;
-  //     loadingEanRef.current = true;
-  //     loadingStoreRef.current = true;
-  //     setLoadingEan(true);
-  //     setLoadingStore(true);
-  //
-  //     setAlternatives([]);
-  //     setStores([]);
-  //
-  //     try {
-  //       const jobs = await api.post(
-  //         `alternatives/${productId}?categories=${encodeURIComponent(categories)}&userCoordinates=${encodeURIComponent(userCoordinates)}`,
-  //       );
-  //
-  //       if (jobs?.eanJobId) startSseListenerEans(jobs.eanJobId);
-  //       if (jobs?.storeJobId) startSseListenerStores(jobs.storeJobId);
-  //     } catch (e) {
-  //       console.error("Error in fetchAlternatives", e);
-  //       try {
-  //         onErrorRef.current(e);
-  //       } catch {}
-  //       setLoadingEan(false);
-  //       setLoadingStore(false);
-  //       loadingRef.current = false;
-  //     }
-  //   },
-  //   [api, startSseListenerEans, startSseListenerStores],
-  // );
-
   const fetchAlternativeEans = useCallback(
     async (productId: string, categories: string) => {
       if (loadingEanRef.current) return;
