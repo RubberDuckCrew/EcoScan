@@ -1,10 +1,9 @@
-import { AppState, StyleSheet, useWindowDimensions } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { Surface, Text } from "react-native-paper";
 import { TabBar, TabView } from "react-native-tab-view";
 import ProductCard from "@/components/alternatives/ProductCard";
 import AlternativesTab from "@/components/alternatives/AlternativesTab";
 import StoresTab from "@/components/alternatives/StoresTab";
-import LocationNeededPortal from "@/components/alternatives/LocationNeededPortal";
 import { useProduct } from "@/context/ProductContext";
 import { useAlternatives } from "@/hooks/useAlternatives";
 import { useEffect, useRef, useState } from "react";
@@ -16,10 +15,8 @@ export default function Alternatives() {
   const { product } = useProduct();
   const [userLatitude, setUserLatitude] = useState<number>(-1);
   const [userLongitude, setUserLongitude] = useState<number>(-1);
-  const [showLocationAlert, setShowLocationAlert] = useState(false);
-  const [locationDismissed, setLocationDismissed] = useState(false);
 
-    const {
+  const {
     alternatives,
     stores,
     loadingEan,
@@ -36,42 +33,19 @@ export default function Alternatives() {
     { key: "stores", title: "Supermärkte" },
   ];
 
-  // const hasFetched = useRef(false);
   const hasFetchedEans = useRef(false);
   const hasFetchedStores = useRef(false);
-  const hasAskedLocation = useRef(false);
 
   useEffect(() => {
     async function getCurrentLocation() {
-        if (locationDismissed) return;
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        if (!hasAskedLocation.current) {
-          hasAskedLocation.current = true;
-          setShowLocationAlert(true);
-        }
-        return;
-      }
+      if (status !== "granted") return;
       const { coords } = await Location.getCurrentPositionAsync({});
       setUserLatitude(coords.latitude);
       setUserLongitude(coords.longitude);
-      setShowLocationAlert(false);
     }
-
-    getCurrentLocation().catch((err) => {
-      console.error("Location error:", err);
-      setUserLatitude(-1);
-      setUserLongitude(-1);
-    });
-
-    const subscription = AppState.addEventListener("change", (nextState) => {
-      if (nextState === "active" && userLatitude === -1) {
-        getCurrentLocation();
-      }
-    });
-
-    return () => subscription.remove();
-  }, [userLatitude]);
+    getCurrentLocation().catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (product?.id && product?.categories && !hasFetchedEans.current) {
@@ -125,6 +99,7 @@ export default function Alternatives() {
                   loadingStore={loadingStore}
                   userLatitude={userLatitude}
                   userLongitude={userLongitude}
+                  isActive={tabIndex === 1}
                 />
               );
             default:
@@ -152,13 +127,6 @@ export default function Alternatives() {
             inactiveColor={theme.colors.text}
           />
         )}
-      />
-      <LocationNeededPortal
-        visible={showLocationAlert}
-        onDismiss={() => {
-            setShowLocationAlert(false);
-            setLocationDismissed(true);
-        }}
       />
     </Surface>
   );

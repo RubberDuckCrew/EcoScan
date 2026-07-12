@@ -1,7 +1,8 @@
 import { useCallback } from "react";
-import { StyleSheet, View, Clipboard } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Card, Text, IconButton } from "react-native-paper";
 import ImageFallback from "@/components/ImageFallback";
+import * as Clipboard from "expo-clipboard";
 
 type AlternativeCardProps = {
   name: string;
@@ -16,7 +17,7 @@ export default function AlternativeCard({
   onCopy,
 }: AlternativeCardProps) {
   const handleCopyToClipboard = useCallback(() => {
-    Clipboard.setString(ean);
+    Clipboard.setStringAsync(ean);
     onCopy();
   }, [ean, onCopy]);
 

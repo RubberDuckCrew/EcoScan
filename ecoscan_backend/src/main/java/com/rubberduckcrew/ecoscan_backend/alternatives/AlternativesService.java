@@ -76,6 +76,8 @@ public class AlternativesService {
         uniqueEans.forEach(ean -> {
             try {
                 final Product product = foodDataRepository.getProduct(ean);
+                log.info("Sending alternative: ean={}, name={}, imageUrl={}",
+                    ean, product.getName(), product.getImageUrl());
                 final AlternativeDTO alternative = new AlternativeDTO(
                     ean,
                     product.getName() != null ? product.getName() : "Name nicht gefunden",
