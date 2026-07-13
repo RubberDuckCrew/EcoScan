@@ -1,3 +1,8 @@
+/**
+ * This file was moved.
+ * @author IamPekka058
+ */
+
 import { PageContainer } from "@/components/PageContainer";
 import ProductCardSkeleton from "@/components/product/loading/ProductCardSkeleton";
 import ScoreDetailsSkeleton from "@/components/product/loading/ScoreDetailsSkeleton";
