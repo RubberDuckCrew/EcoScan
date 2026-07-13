@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     flex: 1,
-    maxHeight: 80,
+    maxHeight: 100,
   },
   descriptionText: {
     color: theme.colors.muted,

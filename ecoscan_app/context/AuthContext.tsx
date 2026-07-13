@@ -35,7 +35,7 @@ function getTokenExpiresAt(token: string | null): number | null {
 
     return decoded.exp * 1000;
   } catch (e) {
-    console.error("Failed to decode token expiry:", e);
+    console.warn("Failed to decode token expiry:", e);
     return null;
   }
 }
@@ -143,7 +143,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log("[Auth] Tokens refreshed successfully (silent)");
         setTokenVersion((v) => v + 1);
       } catch (e) {
-        console.error("[Auth] Failed to refresh tokens:", e);
+        console.warn("[Auth] Failed to refresh tokens:", e);
         await handleClearTokens();
       } finally {
         activeRefreshRef.current = null;

@@ -79,7 +79,7 @@ export const useOAuthFlow = ({
         await saveTokens(tokenResult);
       }
     } catch (e) {
-      console.error("Login failed", e);
+      console.warn("Login failed", e);
       Alert.alert("Login Fehler", "Anmeldung fehlgeschlagen");
     }
   }, [discovery, loadDiscovery, saveTokens]);
@@ -107,7 +107,8 @@ export const useOAuthFlow = ({
         console.info("[OAuthFlow] Token refresh successful");
         return refreshedToken;
       } catch (e) {
-        console.error("[OAuthFlow] Token refresh failed", e);
+        console.warn("[OAuthFlow] Token refresh failed", e);
+        showError("Token konnte nicht aktualisiert werden.");
         throw e;
       }
     },
@@ -134,7 +135,10 @@ export const useOAuthFlow = ({
         console.info("Refreshed access token successfully");
         return refreshedToken.accessToken;
       } catch (e) {
-        console.error("Auto-refresh failed, forcing logout", e);
+        showError(
+          "Token konnte nicht aktualisiert werden. Bitte melden Sie sich erneut an.",
+        );
+        console.warn("Auto-refresh failed, forcing logout", e);
         await clearTokens();
         return null;
       }
@@ -159,7 +163,8 @@ export const useOAuthFlow = ({
         )}`;
         await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
       } catch (e) {
-        console.error("Logout failed", e);
+        console.warn("Logout failed", e);
+        showError("Abmeldung fehlgeschlagen.");
       } finally {
         await clearTokens();
       }

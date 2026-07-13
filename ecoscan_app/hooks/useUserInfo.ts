@@ -63,7 +63,7 @@ export const useUserInfo = () => {
       setUserInfo(data);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "Unknown error";
-      console.error("Failed to fetch user info:", errorMessage);
+      console.warn("Failed to fetch user info:", errorMessage);
       setError(errorMessage);
       setUserInfo(null);
     } finally {

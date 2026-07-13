@@ -23,7 +23,7 @@ export const useAuthStorage = () => {
         SecureStore.deleteItemAsync(SECURE_STORE_KEYS.ID_TOKEN),
       ]);
     } catch (e) {
-      console.error("Failed to clear tokens from SecureStore:", e);
+      console.warn("Failed to clear tokens from SecureStore:", e);
     } finally {
       setAccessToken(null);
       setRefreshToken(null);
@@ -44,7 +44,7 @@ export const useAuthStorage = () => {
       setRefreshToken(storedRefreshToken || null);
       setIdToken(storedIdToken || null);
     } catch (e) {
-      console.error("Failed to load tokens from SecureStore:", e);
+      console.warn("Failed to load tokens from SecureStore:", e);
       await clearTokens();
     } finally {
       setIsStorageLoading(false);
@@ -88,7 +88,7 @@ export const useAuthStorage = () => {
 
         await Promise.all(promises);
       } catch (e) {
-        console.error("Failed to save tokens to SecureStore:", e);
+        console.warn("Failed to save tokens to SecureStore:", e);
       }
     },
     [],
