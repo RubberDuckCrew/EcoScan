@@ -111,7 +111,7 @@ export function useAlternatives(): UseAlternativesResult {
         );
         if (jobId) startSseListenerEans(jobId);
       } catch (e) {
-        console.error("Error in fetchAlternativeEans", e);
+        console.warn("Error in fetchAlternativeEans", e);
         setLoadingEan(false);
         loadingEanRef.current = false;
       }
@@ -132,7 +132,7 @@ export function useAlternatives(): UseAlternativesResult {
         );
         if (jobId) startSseListenerStores(jobId);
       } catch (e) {
-        console.error("Error in fetchStores", e);
+        console.warn("Error in fetchStores", e);
         setLoadingStore(false);
         loadingStoreRef.current = false;
       }
