@@ -36,10 +36,12 @@ export const useApiClient = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(
+        const error = new Error(
           errorData.message ||
             `API Request failed with status ${response.status}`,
-        );
+        ) as any;
+        error.status = response.status;
+        throw error;
       }
 
       const contentType = response.headers.get("content-type");

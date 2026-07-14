@@ -85,7 +85,8 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
         });
       } catch (err) {
         setLoading(false);
-        if (String(err).includes("404")) {
+        const status = (err as any)?.status;
+        if (status === 404) {
           console.log("[useAnalyzeProduct] product not found:", err);
           throw new Error("Produkt nicht gefunden");
         } else {
