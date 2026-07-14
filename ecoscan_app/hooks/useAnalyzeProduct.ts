@@ -85,8 +85,16 @@ export function useAnalyzeProduct(): UseAnalyzeProductResult {
         });
       } catch (err) {
         setLoading(false);
-        console.warn("[useAnalyzeProduct] analyzeProduct failed:", err);
-        throw err;
+        const status = (err as any)?.status;
+        if (status === 404) {
+          console.log("[useAnalyzeProduct] product not found:", err);
+          throw new Error("Produkt nicht gefunden");
+        } else {
+          console.warn("[useAnalyzeProduct] analyzeProduct failed:", err);
+          throw new Error(
+            "Analyse fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+          );
+        }
       }
     },
     [api, setProduct, startStream, handleStreamSuccess, handleStreamError],
